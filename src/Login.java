@@ -9,15 +9,17 @@ import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JPasswordField;
 
 public class Login {
 
 	private JFrame frmLogin;
 	private JTextField username;
-	private JTextField password;
+	private JPasswordField passwordField;
 
 	/**
 	 * Launch the application.
@@ -56,9 +58,6 @@ public class Login {
 		username = new JTextField();
 		username.setColumns(10);
 		
-		password = new JTextField();
-		password.setColumns(10);
-		
 		JLabel usernameLabel = new JLabel("Username:");
 		
 		JLabel passwordLabel = new JLabel("Password:");
@@ -69,10 +68,23 @@ public class Login {
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				frmLogin.setVisible(false);
+				String user = username.getText();
+				String pw = passwordField.getText();
 				
-				Author author = new Author();
-				author.Author();
+				if (user.equals("Hello") && pw.equals("World")) {
+					
+					Author author = new Author();
+					author.Author();
+					
+					frmLogin.setVisible(false);
+					
+				} else {
+					
+					username.setText("");
+					passwordField.setText("");
+					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
+					
+				}
 				
 			}
 		});
@@ -80,30 +92,32 @@ public class Login {
 		JLabel ualogoLabel = new JLabel("");
 		Image img = new ImageIcon(this.getClass().getResource("/ualogo.jpg")).getImage();
 		ualogoLabel.setIcon(new ImageIcon(img));
+		
+		passwordField = new JPasswordField();
 		GroupLayout groupLayout = new GroupLayout(frmLogin.getContentPane());
 		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
+			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(ualogoLabel)
-					.addContainerGap(315, Short.MAX_VALUE))
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(186)
-					.addComponent(loginButton)
-					.addContainerGap(201, Short.MAX_VALUE))
-				.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-					.addGap(108)
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(promptLabel)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(ualogoLabel))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(186)
+							.addComponent(loginButton))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(108)
 							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-								.addComponent(usernameLabel)
-								.addComponent(passwordLabel))
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(password)
-								.addComponent(username, 147, 147, Short.MAX_VALUE))))
-					.addContainerGap(137, Short.MAX_VALUE))
+								.addComponent(promptLabel, Alignment.LEADING)
+								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(passwordLabel)
+										.addComponent(usernameLabel))
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(passwordField, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+										.addComponent(username, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE))))))
+					.addGap(69))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -118,11 +132,11 @@ public class Login {
 						.addComponent(username, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(18)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(password, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(passwordLabel))
+						.addComponent(passwordLabel)
+						.addComponent(passwordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(18)
 					.addComponent(loginButton)
-					.addContainerGap(31, Short.MAX_VALUE))
+					.addContainerGap(33, Short.MAX_VALUE))
 		);
 		frmLogin.getContentPane().setLayout(groupLayout);
 	}
