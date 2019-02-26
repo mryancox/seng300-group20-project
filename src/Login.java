@@ -65,16 +65,31 @@ public class Login {
 		JLabel promptLabel = new JLabel("Enter your username and password to login");
 		
 		JButton loginButton = new JButton("Login");
+		frmLogin.getRootPane().setDefaultButton(loginButton);
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				String user = username.getText();
 				String pw = passwordField.getText();
 				
-				if (user.equals("Hello") && pw.equals("World")) {
+				if (user.equals("author") && pw.equals("test")) {
 					
 					Author author = new Author();
 					author.Author();
+					
+					frmLogin.setVisible(false);
+					
+				} else if (user.equals("reviewer") && pw.equals("test")) {
+				
+					Reviewer reviewer = new Reviewer();
+					reviewer.Reviewer();
+					
+					frmLogin.setVisible(false);
+					
+				} else if (user.equals("admin") && pw.equals("test")) {
+					
+					Admin admin = new Admin();
+					admin.Admin();
 					
 					frmLogin.setVisible(false);
 					

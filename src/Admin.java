@@ -6,19 +6,19 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
 
-public class Author {
+public class Admin {
 
-	private JFrame frmAuthor;
+	private JFrame frmAdmin;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void Author() {
+	public static void Admin() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Author window = new Author();
-					window.frmAuthor.setVisible(true);
+					Admin window = new Admin();
+					window.frmAdmin.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -29,7 +29,7 @@ public class Author {
 	/**
 	 * Create the application.
 	 */
-	public Author() {
+	public Admin() {
 		initialize();
 	}
 
@@ -37,29 +37,30 @@ public class Author {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmAuthor = new JFrame();
-		frmAuthor.setResizable(false);
-		frmAuthor.setTitle("Author");
-		frmAuthor.setBounds(100, 100, 450, 300);
-		frmAuthor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmAuthor.getContentPane().setBackground(Color.white);
+		frmAdmin = new JFrame();
+		frmAdmin.setTitle("Admin");
+		frmAdmin.setResizable(false);
+		frmAdmin.setBounds(100, 100, 450, 300);
+		frmAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmAdmin.getContentPane().setBackground(Color.white);
 		
-		JLabel authorLabel = new JLabel("Author's View");
-		GroupLayout groupLayout = new GroupLayout(frmAuthor.getContentPane());
+		JLabel adminLabel = new JLabel("Admin's View");
+		GroupLayout groupLayout = new GroupLayout(frmAdmin.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(176)
-					.addComponent(authorLabel)
-					.addContainerGap(193, Short.MAX_VALUE))
+					.addGap(188)
+					.addComponent(adminLabel)
+					.addContainerGap(200, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(93)
-					.addComponent(authorLabel)
-					.addContainerGap(154, Short.MAX_VALUE))
+					.addGap(108)
+					.addComponent(adminLabel)
+					.addContainerGap(139, Short.MAX_VALUE))
 		);
-		frmAuthor.getContentPane().setLayout(groupLayout);
+		frmAdmin.getContentPane().setLayout(groupLayout);
 	}
+
 }
