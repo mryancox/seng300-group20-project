@@ -1,14 +1,21 @@
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 public class Author {
 
 	private JFrame frmAuthor;
+	protected Object frmLogin;
 
 	/**
 	 * Launch the application.
@@ -40,26 +47,50 @@ public class Author {
 		frmAuthor = new JFrame();
 		frmAuthor.setResizable(false);
 		frmAuthor.setTitle("Author");
-		frmAuthor.setBounds(100, 100, 450, 300);
+		frmAuthor.setBounds(100, 100, 499, 449);
 		frmAuthor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAuthor.getContentPane().setBackground(Color.white);
 		
-		JLabel authorLabel = new JLabel("Author's View");
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GroupLayout groupLayout = new GroupLayout(frmAuthor.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(176)
-					.addComponent(authorLabel)
-					.addContainerGap(193, Short.MAX_VALUE))
+				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
+					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(93)
-					.addComponent(authorLabel)
-					.addContainerGap(154, Short.MAX_VALUE))
+				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addContainerGap(32, Short.MAX_VALUE)
+					.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 377, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
 		);
+		
+		JTextPane txtpnSubmittedPaperView = new JTextPane();
+		txtpnSubmittedPaperView.setText("Submitted paper view");
+		tabbedPane.addTab("New tab", null, txtpnSubmittedPaperView, null);
+		
+		JTextPane textPane = new JTextPane();
+		textPane.setText("Papers with feedback available");
+		tabbedPane.addTab("New tab", null, textPane, null);
 		frmAuthor.getContentPane().setLayout(groupLayout);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frmAuthor.setJMenuBar(menuBar);
+		
+		JMenuItem mntmLogOut = new JMenuItem("Log out");
+		menuBar.add(mntmLogOut);
+		
+		mntmLogOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			
+				frmAuthor.setVisible(false);
+				Login login = new Login();
+				login.Login();
+			}
+				
+			});
 	}
 }

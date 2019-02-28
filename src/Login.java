@@ -74,22 +74,19 @@ public class Login {
 				
 				if (user.equals("author") && pw.equals("test")) {
 					
-					Author author = new Author();
-					author.Author();
+					Author.Author();
 					
 					frmLogin.setVisible(false);
 					
 				} else if (user.equals("reviewer") && pw.equals("test")) {
 				
-					Reviewer reviewer = new Reviewer();
-					reviewer.Reviewer();
+					Reviewer.Reviewer();
 					
 					frmLogin.setVisible(false);
 					
 				} else if (user.equals("admin") && pw.equals("test")) {
 					
-					Admin admin = new Admin();
-					admin.Admin();
+					Admin.Admin();
 					
 					frmLogin.setVisible(false);
 					
@@ -154,5 +151,18 @@ public class Login {
 					.addContainerGap(33, Short.MAX_VALUE))
 		);
 		frmLogin.getContentPane().setLayout(groupLayout);
+	}
+
+	public static void Login() {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Login window = new Login();
+					window.frmLogin.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }
