@@ -69,28 +69,39 @@ public class Author {
 		);
 		
 		JTextPane txtpnSubmittedPaperView = new JTextPane();
-		txtpnSubmittedPaperView.setText("Submitted paper view");
-		tabbedPane.addTab("New tab", null, txtpnSubmittedPaperView, null);
+		txtpnSubmittedPaperView.setText("No papers here");
+		tabbedPane.addTab("Waiting for feedback", null, txtpnSubmittedPaperView, null);
 		
 		JTextPane textPane = new JTextPane();
-		textPane.setText("Papers with feedback available");
-		tabbedPane.addTab("New tab", null, textPane, null);
+		textPane.setText("No papers here");
+		tabbedPane.addTab("Feedback available", null, textPane, null);
 		frmAuthor.getContentPane().setLayout(groupLayout);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frmAuthor.setJMenuBar(menuBar);
 		
 		JMenuItem mntmLogOut = new JMenuItem("Log out");
-		menuBar.add(mntmLogOut);
-		
 		mntmLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
 				frmAuthor.setVisible(false);
-				Login login = new Login();
-				login.Login();
+				Login.Login();
 			}
 				
-			});
+		});
+		menuBar.add(mntmLogOut);
+		
+		JMenuItem mntmNewPaper = new JMenuItem("New Submission");
+		mntmNewPaper.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				frmAuthor.setVisible(false);
+				NewSubmission.NewSubmission();
+			}
+			
+		});
+		menuBar.add(mntmNewPaper);
+		
+		
 	}
 }
