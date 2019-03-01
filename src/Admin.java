@@ -65,8 +65,7 @@ public class Admin {
 			public void actionPerformed(ActionEvent arg0) {
 			
 				frmAdmin.setVisible(false);
-				Login login = new Login();
-				login.Login();
+				Login.Login();
 			}
 				
 			});
