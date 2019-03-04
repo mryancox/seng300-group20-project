@@ -40,6 +40,7 @@ public class ContinueSubmission {
 	 */
 	private void initialize() {
 		frmNewSubmission = new JFrame();
+		frmNewSubmission.setResizable(false);
 		frmNewSubmission.setTitle("New Submission");
 		frmNewSubmission.setBounds(100, 100, 550, 500);
 		frmNewSubmission.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
