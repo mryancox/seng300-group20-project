@@ -47,7 +47,7 @@ public class Author {
 		frmAuthor = new JFrame();
 		frmAuthor.setResizable(false);
 		frmAuthor.setTitle("Author");
-		frmAuthor.setBounds(100, 100, 499, 449);
+		frmAuthor.setBounds(100, 100, 650, 550);
 		frmAuthor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAuthor.getContentPane().setBackground(Color.white);
 		
@@ -89,8 +89,7 @@ public class Author {
 		mntmNewPaper.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				frmAuthor.setVisible(false);
-				NewSubmission.NewSubmission(); //commented out for now while code is being developed
+				NewSubmission.NewSubmission();
 			}
 			
 		});

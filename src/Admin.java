@@ -50,9 +50,9 @@ public class Admin {
 	 */
 	private void initialize() {
 		frmAdmin = new JFrame();
-		frmAdmin.setTitle("Admin");
 		frmAdmin.setResizable(false);
-		frmAdmin.setBounds(200, 200, 650, 600);
+		frmAdmin.setTitle("Admin");
+		frmAdmin.setBounds(200, 200, 650, 550);
 		frmAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JMenuBar menuBar = new JMenuBar();

@@ -50,7 +50,7 @@ public class Reviewer {
 		frmReviewer = new JFrame();
 		frmReviewer.setResizable(false);
 		frmReviewer.setTitle("Reviewer");
-		frmReviewer.setBounds(100, 100, 450, 300);
+		frmReviewer.setBounds(100, 100, 650, 550);
 		frmReviewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JMenuBar menuBar = new JMenuBar();
