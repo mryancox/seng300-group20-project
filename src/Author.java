@@ -90,7 +90,7 @@ public class Author {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				frmAuthor.setVisible(false);
-				//NewSubmission.NewSubmission(); //commented out for now while code is being developed
+				NewSubmission.NewSubmission(); //commented out for now while code is being developed
 			}
 			
 		});

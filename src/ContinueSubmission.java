@@ -4,17 +4,12 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JLabel;
-import java.awt.Canvas;
-import java.awt.Panel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ContinueSubmission {
 
 	private JFrame frmNewSubmission;
-	private static String author;
-	private static String title;
-	private static String filepath;
 	
 
 	/**
