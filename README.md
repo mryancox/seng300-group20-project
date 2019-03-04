@@ -1,7 +1,7 @@
-# seng300-group20-project
-Group 20's Paper Submission System for a Journal
+# Group 20's Paper Submission System for a Journal
 
-Start the program by running the "Login" class.
+Start the program by running the "Login" class or by using the Group20Journal jar file.
+
 To access each account and view its functionality, enter the following:
   - Author:
     - username: author
