@@ -6,6 +6,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+
 import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -52,11 +54,13 @@ public class NewSubmission {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmNewSubmission = new JFrame();
 		frmNewSubmission.setResizable(false);
 		frmNewSubmission.setTitle("New Submission");
 		frmNewSubmission.setBounds(100, 100, 550, 500);
 		frmNewSubmission.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmNewSubmission.setLocationRelativeTo(null);
 		
 		JButton btnCancel = new JButton("Cancel Submission");
 		btnCancel.addMouseListener(new MouseAdapter() {

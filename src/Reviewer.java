@@ -47,11 +47,13 @@ public class Reviewer {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmReviewer = new JFrame();
 		frmReviewer.setResizable(false);
 		frmReviewer.setTitle("Reviewer");
 		frmReviewer.setBounds(100, 100, 650, 550);
 		frmReviewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmReviewer.setLocationRelativeTo(null);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frmReviewer.setJMenuBar(menuBar);

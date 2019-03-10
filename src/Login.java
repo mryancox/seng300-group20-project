@@ -12,6 +12,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 import java.awt.event.ActionEvent;
 import javax.swing.JPasswordField;
 
@@ -48,11 +51,13 @@ public class Login {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmLogin = new JFrame();
 		frmLogin.setResizable(false);
 		frmLogin.setTitle("Login");
 		frmLogin.setBounds(100, 100, 450, 300);
 		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmLogin.setLocationRelativeTo(null);
 		frmLogin.getContentPane().setBackground(Color.white);
 		
 		username = new JTextField();
@@ -71,26 +76,79 @@ public class Login {
 				
 				String user = username.getText();
 				String pw = passwordField.getText();
-				
-				if (user.equals("author") && pw.equals("test")) {
-					
-					Author.Author();
-					
-					frmLogin.setVisible(false);
-					
-				} else if (user.equals("reviewer") && pw.equals("test")) {
-				
-					Reviewer.Reviewer();
-					
-					frmLogin.setVisible(false);
-					
-				} else if (user.equals("admin") && pw.equals("test")) {
-					
-					Admin.Admin();
-					
-					frmLogin.setVisible(false);
-					
-				} else {
+				String fileUser, filePassword;
+				String authorFile = "authors.txt";
+				String reviewerFile = "reviewers.txt";
+				String adminFile = "admins.txt";
+				boolean userFound = false;
+				Scanner authors, reviewers, admins;
+
+			    try {
+			    	
+			    	authors = new Scanner(new File(authorFile));
+			    	
+			    	while (authors.hasNext() && !userFound) {
+			    		
+			    		fileUser = authors.next();
+			    		filePassword = authors.next();
+			    		
+			    		if (user.equals(fileUser) && pw.equals(filePassword)) {
+			    			
+			    			Author.Author();
+			    			frmLogin.setVisible(false);
+			    			userFound = true;
+			    			break;
+			    		}
+			    		
+			    	}
+			    	
+			    	authors.close();
+			    	
+			    	reviewers = new Scanner(new File(reviewerFile));
+			    	
+			    	while (reviewers.hasNext() && !userFound) {
+			    		
+			    		fileUser = reviewers.next();
+			    		filePassword = reviewers.next();
+			    		
+			    		if (user.equals(fileUser) && pw.equals(filePassword)) {
+			    			
+			    			Reviewer.Reviewer();
+			    			frmLogin.setVisible(false);
+			    			userFound = true;
+			    			break;
+			    		}
+			    		
+			    	}
+			    	
+			    	reviewers.close();
+			    	
+			    	admins = new Scanner(new File(adminFile));
+			    	
+			    	while (admins.hasNext() && !userFound) {
+			    		
+			    		fileUser = admins.next();
+			    		filePassword = admins.next();
+			    		
+			    		if (user.equals(fileUser) && pw.equals(filePassword)) {
+			    			
+			    			Admin.Admin();
+			    			frmLogin.setVisible(false);
+			    			userFound = true;
+			    			break;
+			    		}
+			    		
+			    	}
+			    	
+			    	admins.close();
+			    
+			    } catch (FileNotFoundException e) {
+			    	
+			    	userFound = false;
+			    	
+			    }
+			    
+			    if (!userFound) {
 					
 					username.setText("");
 					passwordField.setText("");

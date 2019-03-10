@@ -49,11 +49,13 @@ public class Admin {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmAdmin = new JFrame();
 		frmAdmin.setResizable(false);
 		frmAdmin.setTitle("Admin");
 		frmAdmin.setBounds(200, 200, 650, 550);
 		frmAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmAdmin.setLocationRelativeTo(null);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frmAdmin.setJMenuBar(menuBar);

@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -39,11 +40,13 @@ public class ContinueSubmission {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmNewSubmission = new JFrame();
 		frmNewSubmission.setResizable(false);
 		frmNewSubmission.setTitle("New Submission");
 		frmNewSubmission.setBounds(100, 100, 550, 500);
 		frmNewSubmission.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmNewSubmission.setLocationRelativeTo(null);
 		frmNewSubmission.getContentPane().setLayout(null);
 		
 		JButton btnBack = new JButton("Back");

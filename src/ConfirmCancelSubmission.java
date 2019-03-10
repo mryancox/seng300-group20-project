@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -35,10 +36,12 @@ public class ConfirmCancelSubmission {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmConfirmCancel = new JFrame();
 		frmConfirmCancel.setTitle("Confirm Cancel");
 		frmConfirmCancel.setBounds(100, 100, 524, 109);
 		frmConfirmCancel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmConfirmCancel.setLocationRelativeTo(null);
 		frmConfirmCancel.getContentPane().setLayout(null);
 		
 		JLabel lblAreYouSure = new JLabel("Are you sure you would like to cancel the submission?");

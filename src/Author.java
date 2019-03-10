@@ -44,12 +44,13 @@ public class Author {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frmAuthor = new JFrame();
 		frmAuthor.setResizable(false);
 		frmAuthor.setTitle("Author");
 		frmAuthor.setBounds(100, 100, 650, 550);
 		frmAuthor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmAuthor.getContentPane().setBackground(Color.white);
+		frmAuthor.setLocationRelativeTo(null);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GroupLayout groupLayout = new GroupLayout(frmAuthor.getContentPane());
