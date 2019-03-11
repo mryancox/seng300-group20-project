@@ -8,11 +8,8 @@ import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +19,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import org.omg.CORBA_2_3.portable.OutputStream;
 
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -32,19 +28,20 @@ import java.awt.event.WindowEvent;
 
 public class NewSubmission {
 
-	private JFrame frmNewSubmission;
-	private static JTextField fileLocationBox;
-	private static JTextArea authorField;
-	private static JTextArea titleField;
-	private static String filename;
+	protected JFrame frmNewSubmission;
+	protected JTextField fileLocationBox;
+	protected JTextArea authorField;
+	protected JTextArea titleField;
+	protected String filename;
+	protected String authorname;
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	public static void NewSubmission(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					NewSubmission window = new NewSubmission();
+					NewSubmission window = new NewSubmission(user);
 					window.frmNewSubmission.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -56,14 +53,18 @@ public class NewSubmission {
 	/**
 	 * Create the application.
 	 */
-	public NewSubmission() {
-		initialize();
+	public NewSubmission(String user) {
+		initialize(user);
 	}
+	
+	
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize(String user) {
+		authorname = user;
+		
 		
 		frmNewSubmission = new JFrame();
 		frmNewSubmission.setResizable(false);
@@ -72,6 +73,7 @@ public class NewSubmission {
 		frmNewSubmission.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmNewSubmission.setLocationRelativeTo(null);
 		
+		//logic for cancel button
 		JButton btnCancel = new JButton("Cancel Submission");
 		btnCancel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -83,13 +85,10 @@ public class NewSubmission {
 			}
 		});
 		btnCancel.setBounds(10, 427, 148, 23);
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		frmNewSubmission.getContentPane().setLayout(null);
 		frmNewSubmission.getContentPane().add(btnCancel);
 		
+		//Logic for continue button
 		JButton btnNewButton = new JButton("Continue");
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -97,9 +96,10 @@ public class NewSubmission {
 				if(fileLocationBox.getText().isEmpty())
 					JOptionPane.showMessageDialog(frmNewSubmission, "No file selected");
 				else {
-					mkNewSubmission();
+					//mkNewSubmission();
 					frmNewSubmission.setVisible(false);
-					ContinueSubmission.ContinueSubmission();
+					ContinueSubmission.ContinueSubmission(NewSubmission.this);
+					
 				}
 			}
 		});
@@ -148,90 +148,23 @@ public class NewSubmission {
 		frmNewSubmission.getContentPane().add(titleField);
 		
 		
-		
+		//Add logic for browse button
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				JFileChooser fc = new JFileChooser();
 				int returnVal = fc.showOpenDialog(frmNewSubmission);
-				File file = fc.getSelectedFile();
-				filename = file.getName();
-				fileLocationBox.setText(file.getAbsolutePath());
+				if(returnVal == JFileChooser.CANCEL_OPTION) {}
+				else {
+					File file = fc.getSelectedFile();
+					filename = file.getName();
+					fileLocationBox.setText(file.getAbsolutePath());
+				}
 			}
 		});
 		
 		
 	}
-
-	public static void NewSubmission() {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					NewSubmission window = new NewSubmission();
-					window.frmNewSubmission.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});	}
 	
-	public static void NewSubmission(String title, String author, String filepath) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					NewSubmission window = new NewSubmission();
-					window.frmNewSubmission.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});	
-		titleField.setText(title);
-		authorField.setText(author);
-		fileLocationBox.setText(filepath);
-		
-	}
-	
-	private static void mkNewSubmission() {
-		String sublist = "AuthorSubmissions/submissionsList.txt";
-		String auth = authorField.getText();
-		String title = titleField.getText();
-		String fileloc = filename;
-		
-		//get list of authors and split by newline
-		String authorList = "";
-		for(String line : authorField.getText().split("\\n")) 
-			authorList = authorList + line.replace("\n", "") + ",";
-	
-		//check if subfolder of submissions exists and create if not
-		File authSubFolder = new File("AuthorSubmissions");
-		if(!authSubFolder.exists()) 
-			authSubFolder.mkdirs();
-		
-		//check if list of submissions exists and create if not
-		File submissionsList = new File(sublist);
-		if(!submissionsList.exists())
-			try {
-				submissionsList.createNewFile();
-			} catch (IOException e) {}
-		
-		//Write data to submissions list
-		try {
-			FileWriter fw = new FileWriter(sublist,true);
-			BufferedWriter bw = new BufferedWriter(fw);
-			PrintWriter pw = new PrintWriter(bw);
-			pw.println(authorList + "|" + title + "|" + fileloc);
-			pw.close();
-		} catch (IOException e) {}
-		
-		//copy document file to application directory
-		Path source = Paths.get(fileLocationBox.getText());
-		Path dest = Paths.get("AuthorSubmissions/"+filename);
-		try {
-			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {}
-		
-	}
-
 }
 
