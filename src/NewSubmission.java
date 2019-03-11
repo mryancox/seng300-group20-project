@@ -6,14 +6,29 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import org.omg.CORBA_2_3.portable.OutputStream;
+
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 public class NewSubmission {
 
@@ -21,7 +36,7 @@ public class NewSubmission {
 	private static JTextField fileLocationBox;
 	private static JTextArea authorField;
 	private static JTextArea titleField;
-	
+	private static String filename;
 	/**
 	 * Launch the application.
 	 */
@@ -54,7 +69,7 @@ public class NewSubmission {
 		frmNewSubmission.setResizable(false);
 		frmNewSubmission.setTitle("New Submission");
 		frmNewSubmission.setBounds(100, 100, 550, 500);
-		frmNewSubmission.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmNewSubmission.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmNewSubmission.setLocationRelativeTo(null);
 		
 		JButton btnCancel = new JButton("Cancel Submission");
@@ -79,8 +94,13 @@ public class NewSubmission {
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				frmNewSubmission.setVisible(false);
-				ContinueSubmission.ContinueSubmission();
+				if(fileLocationBox.getText().isEmpty())
+					JOptionPane.showMessageDialog(frmNewSubmission, "No file selected");
+				else {
+					mkNewSubmission();
+					frmNewSubmission.setVisible(false);
+					ContinueSubmission.ContinueSubmission();
+				}
 			}
 		});
 		btnNewButton.setBounds(427, 427, 97, 23);
@@ -121,7 +141,7 @@ public class NewSubmission {
 		lblTitle_1.setBounds(10, 66, 48, 14);
 		frmNewSubmission.getContentPane().add(lblTitle_1);
 		
-		JTextArea titleField = new JTextArea();
+		titleField = new JTextArea();
 		titleField.setFont(new Font("Comic Sans MS", Font.PLAIN, 13));
 		titleField.setText("Enter the title of your submission here");
 		titleField.setBounds(124, 60, 400, 84);
@@ -135,7 +155,7 @@ public class NewSubmission {
 				JFileChooser fc = new JFileChooser();
 				int returnVal = fc.showOpenDialog(frmNewSubmission);
 				File file = fc.getSelectedFile();
-				
+				filename = file.getName();
 				fileLocationBox.setText(file.getAbsolutePath());
 			}
 		});
@@ -171,6 +191,47 @@ public class NewSubmission {
 		fileLocationBox.setText(filepath);
 		
 	}
-
+	
+	private static void mkNewSubmission() {
+		String sublist = "AuthorSubmissions/submissionsList.txt";
+		String auth = authorField.getText();
+		String title = titleField.getText();
+		String fileloc = filename;
+		
+		//get list of authors and split by newline
+		String authorList = "";
+		for(String line : authorField.getText().split("\\n")) 
+			authorList = authorList + line.replace("\n", "") + ",";
+	
+		//check if subfolder of submissions exists and create if not
+		File authSubFolder = new File("AuthorSubmissions");
+		if(!authSubFolder.exists()) 
+			authSubFolder.mkdirs();
+		
+		//check if list of submissions exists and create if not
+		File submissionsList = new File(sublist);
+		if(!submissionsList.exists())
+			try {
+				submissionsList.createNewFile();
+			} catch (IOException e) {}
+		
+		//Write data to submissions list
+		try {
+			FileWriter fw = new FileWriter(sublist,true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			PrintWriter pw = new PrintWriter(bw);
+			pw.println(authorList + "|" + title + "|" + fileloc);
+			pw.close();
+		} catch (IOException e) {}
+		
+		//copy document file to application directory
+		Path source = Paths.get(fileLocationBox.getText());
+		Path dest = Paths.get("AuthorSubmissions/"+filename);
+		try {
+			Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {}
+		
 	}
+
+}
 
