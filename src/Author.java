@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,7 +5,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JMenuBar;
@@ -20,11 +18,11 @@ public class Author {
 	/**
 	 * Launch the application.
 	 */
-	public static void Author() {
+	public static void Author(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Author window = new Author();
+					Author window = new Author(user);
 					window.frmAuthor.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -36,14 +34,14 @@ public class Author {
 	/**
 	 * Create the application.
 	 */
-	public Author() {
-		initialize();
+	public Author(String user) {
+		initialize(user);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize(String user) {
 		
 		frmAuthor = new JFrame();
 		frmAuthor.setResizable(false);
@@ -75,7 +73,7 @@ public class Author {
 		JMenuBar menuBar = new JMenuBar();
 		frmAuthor.setJMenuBar(menuBar);
 		
-		JMenuItem mntmLogOut = new JMenuItem("Log out");
+		JMenuItem mntmLogOut = new JMenuItem("Log out - " + user.split("\\@")[0]);
 		mntmLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			

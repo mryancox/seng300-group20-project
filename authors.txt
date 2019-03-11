@@ -1,6 +1,4 @@
-author
-test
-lucas@ualberta.ca
-test
-ahmed@ualberta.ca
-test
+Username|Password|... etc
+author|test
+lucas@ualberta.ca|test
+ahmed@ualberta.ca|test

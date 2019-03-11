@@ -1,22 +1,13 @@
-import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
 import javax.swing.JTabbedPane;
-import javax.swing.JLayeredPane;
-import java.awt.CardLayout;
 import java.awt.BorderLayout;
 import javax.swing.JTextPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JTable;
 
 public class Admin {
 
@@ -25,11 +16,11 @@ public class Admin {
 	/**
 	 * Launch the application.
 	 */
-	public static void Admin() {
+	public static void Admin(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Admin window = new Admin();
+					Admin window = new Admin(user);
 					window.frmAdmin.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -41,14 +32,14 @@ public class Admin {
 	/**
 	 * Create the application.
 	 */
-	public Admin() {
-		initialize();
+	public Admin(String user) {
+		initialize(user);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize(String user) {
 		
 		frmAdmin = new JFrame();
 		frmAdmin.setResizable(false);
@@ -60,7 +51,7 @@ public class Admin {
 		JMenuBar menuBar = new JMenuBar();
 		frmAdmin.setJMenuBar(menuBar);
 		
-		JMenuItem mntmLogOut = new JMenuItem("Log out");
+		JMenuItem mntmLogOut = new JMenuItem("Log out - " + user.split("\\@")[0]);
 		menuBar.add(mntmLogOut);
 		
 		mntmLogOut.addActionListener(new ActionListener() {

@@ -86,15 +86,16 @@ public class Login {
 			    try {
 			    	
 			    	authors = new Scanner(new File(authorFile));
+			    	authors.nextLine(); // skips the header at the beginning of the file
 			    	
 			    	while (authors.hasNext() && !userFound) {
 			    		
-			    		fileUser = authors.next();
-			    		filePassword = authors.next();
+			    		String row = authors.nextLine();
+			    		String[] elements = row.split("\\|");
 			    		
-			    		if (user.equals(fileUser) && pw.equals(filePassword)) {
+			    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
 			    			
-			    			Author.Author();
+			    			Author.Author(user);
 			    			frmLogin.setVisible(false);
 			    			userFound = true;
 			    			break;
@@ -105,15 +106,16 @@ public class Login {
 			    	authors.close();
 			    	
 			    	reviewers = new Scanner(new File(reviewerFile));
+			    	reviewers.nextLine(); // skips the header at the beginning of the file
 			    	
 			    	while (reviewers.hasNext() && !userFound) {
 			    		
-			    		fileUser = reviewers.next();
-			    		filePassword = reviewers.next();
+			    		String row = reviewers.nextLine();
+			    		String[] elements = row.split("\\|");
 			    		
-			    		if (user.equals(fileUser) && pw.equals(filePassword)) {
+			    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
 			    			
-			    			Reviewer.Reviewer();
+			    			Reviewer.Reviewer(user);
 			    			frmLogin.setVisible(false);
 			    			userFound = true;
 			    			break;
@@ -124,15 +126,16 @@ public class Login {
 			    	reviewers.close();
 			    	
 			    	admins = new Scanner(new File(adminFile));
+			    	admins.nextLine(); // skips the header at the beginning of the file
 			    	
 			    	while (admins.hasNext() && !userFound) {
 			    		
-			    		fileUser = admins.next();
-			    		filePassword = admins.next();
+			    		String row = admins.nextLine();
+			    		String[] elements = row.split("\\|");
 			    		
-			    		if (user.equals(fileUser) && pw.equals(filePassword)) {
+			    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
 			    			
-			    			Admin.Admin();
+			    			Admin.Admin(user);
 			    			frmLogin.setVisible(false);
 			    			userFound = true;
 			    			break;

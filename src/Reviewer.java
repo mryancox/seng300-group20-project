@@ -1,20 +1,14 @@
-import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
-import java.awt.BorderLayout;
 import javax.swing.JTextPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.JTable;
 
 public class Reviewer {
 
@@ -23,11 +17,11 @@ public class Reviewer {
 	/**
 	 * Launch the application.
 	 */
-	public static void Reviewer() {
+	public static void Reviewer(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Reviewer window = new Reviewer();
+					Reviewer window = new Reviewer(user);
 					window.frmReviewer.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -39,14 +33,14 @@ public class Reviewer {
 	/**
 	 * Create the application.
 	 */
-	public Reviewer() {
-		initialize();
+	public Reviewer(String user) {
+		initialize(user);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize(String user) {
 		
 		frmReviewer = new JFrame();
 		frmReviewer.setResizable(false);
@@ -58,7 +52,7 @@ public class Reviewer {
 		JMenuBar menuBar = new JMenuBar();
 		frmReviewer.setJMenuBar(menuBar);
 		
-		JMenuItem menuItem = new JMenuItem("Log out");
+		JMenuItem menuItem = new JMenuItem("Log out - " + user.split("\\@")[0]);
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				

@@ -1,6 +1,4 @@
-reviewer
-test
-anas@ualberta.ca
-test
-shahmir@ualberta.ca
-test
+Username|Password|... etc
+reviewer|test
+anas@ualberta.ca|test
+shahmir@ualberta.ca|test
