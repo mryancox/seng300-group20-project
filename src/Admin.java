@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JMenu;
 
 public class Admin {
 
@@ -41,9 +42,10 @@ public class Admin {
 	 */
 	private void initialize(String user) {
 		
+		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 		frmAdmin = new JFrame();
 		frmAdmin.setResizable(false);
-		frmAdmin.setTitle("Admin");
+		frmAdmin.setTitle("Admin - " + niceUsername);
 		frmAdmin.setBounds(200, 200, 650, 550);
 		frmAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAdmin.setLocationRelativeTo(null);
@@ -51,8 +53,11 @@ public class Admin {
 		JMenuBar menuBar = new JMenuBar();
 		frmAdmin.setJMenuBar(menuBar);
 		
-		JMenuItem mntmLogOut = new JMenuItem("Log out - " + user.split("\\@")[0]);
-		menuBar.add(mntmLogOut);
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmLogOut = new JMenuItem("Log Out - " + niceUsername);
+		mnFile.add(mntmLogOut);
 		
 		mntmLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {

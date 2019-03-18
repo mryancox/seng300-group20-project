@@ -6,15 +6,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -24,7 +16,6 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
 
 public class NewSubmission {
 
@@ -117,7 +108,7 @@ public class NewSubmission {
 		fileLocationBox.setColumns(10);
 		
 		JLabel lblFileLocation = new JLabel("File location");
-		lblFileLocation.setBounds(10, 350, 97, 14);
+		lblFileLocation.setBounds(10, 350, 104, 14);
 		frmNewSubmission.getContentPane().add(lblFileLocation);
 		
 		JButton btnBrowse = new JButton("Browse");
@@ -125,7 +116,7 @@ public class NewSubmission {
 		frmNewSubmission.getContentPane().add(btnBrowse);
 		
 		JLabel lblNewLabel = new JLabel("Authors");
-		lblNewLabel.setBounds(10, 170, 48, 14);
+		lblNewLabel.setBounds(10, 170, 104, 14);
 		frmNewSubmission.getContentPane().add(lblNewLabel);
 		
 		authorField = new JTextArea();
@@ -138,7 +129,7 @@ public class NewSubmission {
 		frmNewSubmission.getContentPane().add(authorField);
 		
 		JLabel lblTitle_1 = new JLabel("Title");
-		lblTitle_1.setBounds(10, 66, 48, 14);
+		lblTitle_1.setBounds(10, 66, 104, 14);
 		frmNewSubmission.getContentPane().add(lblTitle_1);
 		
 		titleField = new JTextArea();

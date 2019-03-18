@@ -75,11 +75,10 @@ public class Login {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				String user = username.getText();
-				String pw = passwordField.getText();
-				String fileUser, filePassword;
-				String authorFile = "authors.txt";
-				String reviewerFile = "reviewers.txt";
-				String adminFile = "admins.txt";
+				String pw = String.valueOf(passwordField.getPassword());
+				String authorFile = "login_credentials//authors.txt";
+				String reviewerFile = "login_credentials//reviewers.txt";
+				String adminFile = "login_credentials//admins.txt";
 				boolean userFound = false;
 				Scanner authors, reviewers, admins;
 

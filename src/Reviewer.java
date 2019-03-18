@@ -9,6 +9,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JMenu;
 
 public class Reviewer {
 
@@ -42,9 +43,10 @@ public class Reviewer {
 	 */
 	private void initialize(String user) {
 		
+		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 		frmReviewer = new JFrame();
 		frmReviewer.setResizable(false);
-		frmReviewer.setTitle("Reviewer");
+		frmReviewer.setTitle("Reviewer - " + niceUsername);
 		frmReviewer.setBounds(100, 100, 650, 550);
 		frmReviewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmReviewer.setLocationRelativeTo(null);
@@ -52,7 +54,11 @@ public class Reviewer {
 		JMenuBar menuBar = new JMenuBar();
 		frmReviewer.setJMenuBar(menuBar);
 		
-		JMenuItem menuItem = new JMenuItem("Log out - " + user.split("\\@")[0]);
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem menuItem = new JMenuItem("Log Out - " + niceUsername);
+		mnFile.add(menuItem);
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -61,7 +67,6 @@ public class Reviewer {
 				
 			}
 		});
-		menuBar.add(menuItem);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GroupLayout groupLayout = new GroupLayout(frmReviewer.getContentPane());

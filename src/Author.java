@@ -11,29 +11,15 @@ import javax.swing.JFrame;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextPane;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JButton;
-import java.awt.FlowLayout;
-import java.awt.CardLayout;
-import java.awt.BorderLayout;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import java.awt.GridLayout;
-import javax.swing.JLabel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import net.miginfocom.swing.MigLayout;
-import javax.swing.BoxLayout;
+import javax.swing.Box;
 import javax.swing.DefaultListModel;
-import javax.swing.SpringLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JMenu;
 
 public class Author {
 
@@ -74,9 +60,10 @@ public class Author {
 		
 		populateLists();
 		
+		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 		frmAuthor = new JFrame();
 		frmAuthor.setResizable(false);
-		frmAuthor.setTitle("Author");
+		frmAuthor.setTitle("Author  - " + niceUsername);
 		frmAuthor.setBounds(100, 100, 650, 550);
 		frmAuthor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAuthor.setLocationRelativeTo(null);
@@ -108,7 +95,14 @@ public class Author {
 		JMenuBar menuBar = new JMenuBar();
 		frmAuthor.setJMenuBar(menuBar);
 		
-		JMenuItem mntmLogOut = new JMenuItem("Log out - " + user.split("\\@")[0]);
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmNewPaper = new JMenuItem("New Submission");
+		mnFile.add(mntmNewPaper);
+		
+		JMenuItem mntmLogOut = new JMenuItem("Log Out - " + niceUsername);
+		mnFile.add(mntmLogOut);
 		mntmLogOut.addActionListener(new ActionListener() {					//logout button logic
 			public void actionPerformed(ActionEvent arg0) {
 				frmAuthor.setVisible(false);
@@ -116,16 +110,12 @@ public class Author {
 			}
 				
 		});
-		menuBar.add(mntmLogOut);
-		
-		JMenuItem mntmNewPaper = new JMenuItem("New Submission");
 		mntmNewPaper.addActionListener(new ActionListener() {			//new paper button logic
 			public void actionPerformed(ActionEvent arg0) {
 				NewSubmission.NewSubmission(user);
 			}
 			
 		});
-		menuBar.add(mntmNewPaper);
 		
 		JButton btnRefresh = new JButton("Refresh");
 		btnRefresh.addMouseListener(new MouseAdapter() {		//refresh button logic
@@ -135,6 +125,7 @@ public class Author {
 				displayLists(waitingdlm,readydlm);
 			}
 		});
+		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(btnRefresh);
 	}
 	

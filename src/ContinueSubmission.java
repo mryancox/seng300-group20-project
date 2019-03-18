@@ -84,23 +84,23 @@ public class ContinueSubmission {
 		frmContinueSubmission.getContentPane().add(btnSubmit);
 		
 		JList<String> reviewerList = new JList<String>();
-		reviewerList.setBounds(124, 86, 400, 330);
+		reviewerList.setBounds(10, 115, 514, 301);
 		frmContinueSubmission.getContentPane().add(reviewerList);
 		
 		JLabel lblSelectPreferredReviewers = new JLabel("Select preferred reviewers.");
-		lblSelectPreferredReviewers.setBounds(10, 11, 196, 14);
+		lblSelectPreferredReviewers.setBounds(10, 11, 534, 14);
 		frmContinueSubmission.getContentPane().add(lblSelectPreferredReviewers);
 		
 		JLabel lblAvailableReviewers = new JLabel("Available reviewers");
-		lblAvailableReviewers.setBounds(10, 86, 104, 14);
+		lblAvailableReviewers.setBounds(10, 86, 534, 14);
 		frmContinueSubmission.getContentPane().add(lblAvailableReviewers);
 		
 		JLabel lblNotePreferredReviewers = new JLabel("Note: Preferred reviewers may not be assigned in final stage.");
-		lblNotePreferredReviewers.setBounds(10, 36, 482, 14);
+		lblNotePreferredReviewers.setBounds(10, 36, 534, 14);
 		frmContinueSubmission.getContentPane().add(lblNotePreferredReviewers);
 		
 		JLabel lblNewLabel = new JLabel("Final reviewers will be assigned by administration.");
-		lblNewLabel.setBounds(10, 48, 295, 23);
+		lblNewLabel.setBounds(10, 48, 534, 23);
 		frmContinueSubmission.getContentPane().add(lblNewLabel);
 	}
 
