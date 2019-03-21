@@ -1,4 +1,3 @@
-Username|Password|... etc
-reviewer|test
+Username|Password
 anas@ualberta.ca|test|
 shahmir@ualberta.ca|test
