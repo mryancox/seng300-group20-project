@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
@@ -144,13 +146,44 @@ public class Login {
 				
 				String user = username.getText();
 				String pw = String.valueOf(password.getPassword());
-				String authorFile = "login_credentials/authors.txt";
+				
+				/*String authorFile = "login_credentials/authors.txt";
 				String reviewerFile = "login_credentials/reviewers.txt";
 				String adminFile = "login_credentials/admins.txt";
 				boolean userFound = false;
 				Scanner authors, reviewers, admins;
+				*/
+				
+				//loginDetails[0]=usertype [1]=userID
+				int[] loginDetails = checkLogin(user,pw);
+				
+				/*if(trylogin[0]==0) {
+					Admin.Admin(user);
+					frmLogin.setVisible(false);
+	    			userFound = true;
+				}*/
+				if(loginDetails[0]==1) {
+					login.setVisible(false);
+	    			Author author = new Author(user, loginDetails[1]);
+	    			author.setVisible(true);
+	    			author.setLocationRelativeTo(null);
+				}/*
+				else if(trylogin[0]==2) {
+					Reviewer.Reviewer(user);
+					frmLogin.setVisible(false);
+					userFound = true;
+				}*/
+				else {
+					password.setText("");
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					
+					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
 
-			    try {
+				}
+				
+			    /*try {
 			    	
 			    	authors = new Scanner(new File(authorFile));
 			    	authors.nextLine(); // skips the header at the beginning of the file
@@ -230,7 +263,7 @@ public class Login {
 					
 					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
 					
-				}
+				}*/
 				
 			}
 		});
@@ -276,6 +309,53 @@ public class Login {
 		githubLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		githubLabel.setBounds(10, 538, 425, 14);
 		rightPanel.add(githubLabel);
+	}
+	
+	/**
+	 * Queries mySQL database for matching username and 
+	 * password and returns account type as an int
+	 * 
+	 * @param username 
+	 * @param password
+	 * @return account type as an int (0=admin, 1=author, 2=reviewer)
+	 */
+	private int[] checkLogin(String username, String password) {
+		//ps is the statement of the sql query
+		PreparedStatement ps;
+		
+		//rs is the result of the query
+		ResultSet rs;
+		
+		int [] loginInfo = {-1,-1};
+		
+		//the string to be used to query. ? indicates a parameter 
+		//this query finds entries that match the input username and password
+		//the BINARY operator forces byte by byte comparison (case sensitivity)
+		String query = "SELECT * FROM users WHERE username =? AND password = BINARY ?";
+		
+		try {
+			ps=SQLConnection.getConnection().prepareStatement(query);
+			
+			//set first parameter to be username
+			ps.setString(1, username);
+			//set second parameter to password
+			ps.setString(2, password);
+			
+			//executes the query and receives whatever result is returned
+			rs=ps.executeQuery();
+			
+			//checks if any entries resulted from query
+			//since there exists a matching username and password entry
+			//it sets checkUser to 1, indicating a match
+			if(rs.next()) {
+				//loginExists gets the usertype field from the query
+				//0=admin, 1=author, 2=reviewer
+				loginInfo[0]=rs.getInt("usertype");
+				loginInfo[1]=rs.getInt("userID");
+			}
+		}catch(Exception e) {System.out.println(e);}
+		
+		return loginInfo;
 	}
 
 }
