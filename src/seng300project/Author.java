@@ -65,7 +65,8 @@ public class Author extends JFrame {
 	protected int userID;
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
-	
+	protected SubmissionObject[] submissions;
+	protected FeedbackObject[] feedback;
 
 	/**
 	 * Launch the application.
@@ -74,7 +75,7 @@ public class Author extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Author frame = new Author(args[0],0);
+					Author frame = new Author("Test Author",8);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -92,6 +93,9 @@ public class Author extends JFrame {
 		
 		getSubmissions();
 		getReviewers();
+		populateSubmissions();	
+		getFeedback();
+		
 		
 		setTitle("Journal Submission System");
 		setResizable(false);
@@ -382,34 +386,11 @@ public class Author extends JFrame {
 		DefaultListModel<String> submissionModel = new DefaultListModel<>();
 		JList<String> submissionList = new JList<String>(submissionModel);
 		String papersFile = "submissions/" + user + "/submission_list.txt";
-		Scanner papers;
 		
 		try {
+			submissionSet.beforeFirst();
 			while(submissionSet.next()) {
 				submissionModel.addElement(submissionSet.getString("submissionName"));
-				/*
-				datatitleListLabel.setText(submissionSet.getString("submissionName"));
-				dataauthorsListLabel.setText(submissionSet.getString("submissionAuthors"));
-				datasubjectListLabel.setText(submissionSet.getString("subject"));
-				
-				if(submissionSet.getString("reviewerIDs")==null)
-					datareviewersListLabel.setText("No Reviewers Assigned");
-				
-				else {
-					String reviewerIDs = submissionSet.getString("reviewerIDs");
-					StringBuilder reviewerlist = getSubReviewers(reviewerIDs);
-					datareviewersListLabel.setText(reviewerlist.toString());
-				}
-				if(submissionSet.getString("feedbackIDs")==null)
-					datafeedbackListLabel.setText("No Feedback Available");
-				else
-					datafeedbackListLabel.setText("Feedback Available");
-				
-				if(submissionSet.getString("submissionDeadline")==null)
-					datadeadlineListLabel.setText("Not yet set");
-				else
-					datadeadlineListLabel.setText(submissionSet.getString("submissionDeadline"));
-					*/
 			}
 		} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
 		
@@ -419,34 +400,27 @@ public class Author extends JFrame {
 			public void valueChanged(ListSelectionEvent arg0) {
 				int[] selectedPaper = submissionList.getSelectedIndices();
 				if (selectedPaper.length == 1) {
-					try {
+						int paperIndex = selectedPaper[0];
 						
-						paperInDetail = submissionModel.getElementAt(selectedPaper[0]);
-						updateSubmissionSet(paperInDetail);
-						submissionSet.next();
-						datatitleListLabel.setText(submissionSet.getString("submissionName"));
-						dataauthorsListLabel.setText(submissionSet.getString("submissionAuthors"));
-						datasubjectListLabel.setText(submissionSet.getString("subject"));
+						datatitleListLabel.setText(submissions[paperIndex].submissionName);
+						dataauthorsListLabel.setText(submissions[paperIndex].submissionAuthors);
+						datasubjectListLabel.setText(submissions[paperIndex].subject);
 						
-						if(submissionSet.getString("reviewerIDs")==null)
+						if(submissions[paperIndex].reviewerIDs==null)
 							datareviewersListLabel.setText("No Reviewers Assigned");
+						else 
+							datareviewersListLabel.setText(submissions[paperIndex].reviewerNames);
 						
-						else {
-							String reviewerIDs = submissionSet.getString("reviewerIDs");
-							StringBuilder reviewerlist = getSubReviewers(reviewerIDs);
-							datareviewersListLabel.setText(reviewerlist.toString());
-						}
-						if(submissionSet.getString("feedbackIDs")==null)
+						if(submissions[paperIndex].feedbackIDs==null)
 							datafeedbackListLabel.setText("No Feedback Available");
 						else
 							datafeedbackListLabel.setText("Feedback Available");
 						
-						if(submissionSet.getString("submissionDeadline")==null)
+						if(submissions[paperIndex].submissionDeadline==null)
 							datadeadlineListLabel.setText("Not yet set");
 						else
-							datadeadlineListLabel.setText(submissionSet.getString("submissionDeadline"));
+							datadeadlineListLabel.setText(submissions[paperIndex].submissionDeadline);
 					
-					} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
 					
 				}else if (selectedPaper.length >=2) {
 					
@@ -466,88 +440,6 @@ public class Author extends JFrame {
 				}
 			}
 		});
-		
-		/*try {
-	    	
-			papers = new Scanner(new File(papersFile));
-	    	
-	    	while (papers.hasNext()) {
-	    		
-	    		submissionModel.addElement(papers.nextLine());
-	    	}
-	    	
-	    	papers.close();
-		} catch (FileNotFoundException e) {
-	    	
-	    }
-		submissionList.addListSelectionListener(new ListSelectionListener() {
-			@SuppressWarnings("static-access")
-			public void valueChanged(ListSelectionEvent arg0) {
-				
-				int[] selectedPaper = submissionList.getSelectedIndices();
-				if (selectedPaper.length == 1) {
-					
-					paperInDetail = submissionModel.getElementAt(selectedPaper[0]).split("\\.")[0];
-					String detailFile = "submissions/" + user + "/details/" + paperInDetail + ".txt";
-					Scanner details;
-					
-					try {
-				    	
-						details = new Scanner(new File(detailFile));
-				    	
-				    	while (details.hasNext()) {
-				    		
-				    		String row = details.nextLine();
-				    		String[] elements = row.split("\\|");
-				    		
-				    		datatitleListLabel.setText(elements[0]);	
-				    		dataauthorsListLabel.setText(elements[1]);
-				    		datasubjectListLabel.setText(elements[2]);
-				    		
-				    		if (elements.length >= 4) {
-				    			datareviewersListLabel.setText(elements[3]);
-				    		} else {
-				    			datareviewersListLabel.setText("No Reviewers Assigned");
-				    		}
-				    		
-				    		if (elements.length >= 5) {
-				    			datafeedbackListLabel.setText(elements[4]);
-				    		} else {
-				    			datafeedbackListLabel.setText("None");
-				    		}
-							
-				    		if (elements.length >= 6) {
-				    			datadeadlineListLabel.setText(elements[5]);
-				    		} else {
-				    			datadeadlineListLabel.setText("Not Yet Set");
-				    		}
-							
-				    	}
-				    	
-				    	details.close();
-					} catch (FileNotFoundException e) {
-				    	
-				    }
-					
-				} else if (selectedPaper.length >=2) {
-					
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-					
-					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
-				} else if (selectedPaper.length == 0) {
-					
-					datatitleListLabel.setText("");
-		    		dataauthorsListLabel.setText("");
-		    		datasubjectListLabel.setText("");
-		    		datareviewersListLabel.setText("");
-		    		datafeedbackListLabel.setText("");
-		    		datadeadlineListLabel.setText("");
-				}
-			}
-		});
-		*/
 		
 		
 		submissionList.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -1045,6 +937,66 @@ public class Author extends JFrame {
 	
 	
 	/**
+	 * Populates a global array of SubmissionObjects to store results of initial SQL query
+	 * for user submissions, eliminating the need to constantly query SQL database
+	 */
+	private void populateSubmissions() {
+		
+		try {
+			int numOfSubmissions = 0;
+			while(submissionSet.next())
+				numOfSubmissions++;
+			
+			int i=0;
+			
+			submissions = new SubmissionObject[numOfSubmissions];
+			submissionSet.beforeFirst();
+
+			while(submissionSet.next()) {
+				int submissionID = submissionSet.getInt("submissionID");
+				String submissionName = submissionSet.getString("submissionName");
+				String submissionAuthors = submissionSet.getString("submissionAuthors");
+				String subject = submissionSet.getString("subject");
+				String submissionDate = submissionSet.getString("submissionDate");
+				int submissionStage = submissionSet.getInt("submissionStage");
+				String filename= submissionSet.getString("filename");
+				int submissionUserID = submissionSet.getInt("submissionUserID");
+				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
+				
+				String submissionDeadline = submissionSet.getString("submissionDeadline");
+				String reviewerIDs = submissionSet.getString("reviewerIDs");
+				String feedbackIDs = submissionSet.getString("feedbackIDs");
+				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
+				
+				if(submissionDeadline==null)
+					submissions[i].submissionDeadline = null;
+				else
+					submissions[i].submissionDeadline = submissionDeadline;
+				
+				if(reviewerIDs==null)
+					submissions[i].reviewerIDs = null;
+				else
+					submissions[i].reviewerIDs = reviewerIDs;
+				
+				if(feedbackIDs==null)
+					submissions[i].feedbackIDs = null;
+				else
+					submissions[i].feedbackIDs = feedbackIDs;
+				
+				if(preferredReviewerIDs==null)
+					submissions[i].preferredReviewerIDs = null;
+				else
+					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+				submissions[i].setReviewerNames();
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
 	 * Updates the submissionSet to retrieve info
 	 * for a particular submission when selected
 	 * @param paperName 
@@ -1063,4 +1015,11 @@ public class Author extends JFrame {
 		}catch(Exception e) {System.out.println(e); System.out.println("Failure finding single submission");}
 		
 	}
+
+
+	private void getFeedback() {
+	
+	}
+	
 }
+
