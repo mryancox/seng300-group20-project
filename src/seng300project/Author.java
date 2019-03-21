@@ -26,8 +26,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -382,8 +380,6 @@ public class Author extends JFrame {
 		DefaultListModel<String> submissionModel = new DefaultListModel<>();
 		JList<String> submissionList = new JList<String>(submissionModel);
 		String papersFile = "submissions/" + user + "/submission_list.txt";
-		Scanner papers;
-		
 		try {
 			while(submissionSet.next()) {
 				submissionModel.addElement(submissionSet.getString("submissionName"));
