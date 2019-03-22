@@ -64,6 +64,8 @@ public class Author extends JFrame {
 	protected ResultSet submissionSet;
 	protected SubmissionObject[] submissions;
 	protected FeedbackObject[] feedback;
+	protected int numOfFeedback = 0;
+		
 
 	/**
 	 * Launch the application.
@@ -88,6 +90,7 @@ public class Author extends JFrame {
 	public Author(String user, int ID) {
 		this.userID=ID;
 
+		//Initial pull of user's data
 		getSubmissions();
 		getReviewers();
 		populateSubmissions();
@@ -239,7 +242,7 @@ public class Author extends JFrame {
 		prefreviewersextraLabel.setBounds(24, 370, 146, 14);
 		submissionPanel.add(prefreviewersextraLabel);
 
-		JTextArea prefreviewersTextArea = new JTextArea();
+		JTextArea prefreviewersTextArea = new JTextArea("None");
 		prefreviewersTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		prefreviewersTextArea.setBounds(24, 405, 650, 30);
 		prefreviewersTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
@@ -260,6 +263,8 @@ public class Author extends JFrame {
 		filelocationLabel.setBounds(24, 450, 119, 14);
 		submissionPanel.add(filelocationLabel);
 
+		
+		//FILE LOCATION FOR NEW SUBMISSION BUTTON
 		JTextArea filelocationTextArea = new JTextArea();
 		filelocationTextArea.addMouseListener(new MouseAdapter() {
 			@Override
@@ -386,13 +391,16 @@ public class Author extends JFrame {
 		} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
 
 
+		//THIS SECTION POPULATES THE SUBMISSION LIST
 		submissionList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
 				int[] selectedPaper = submissionList.getSelectedIndices();
 				if (selectedPaper.length == 1) {
+					
 						int paperIndex = selectedPaper[0];
 
+						
 						datatitleListLabel.setText(submissions[paperIndex].submissionName);
 						dataauthorsListLabel.setText(submissions[paperIndex].submissionAuthors);
 						datasubjectListLabel.setText(submissions[paperIndex].subject);
@@ -463,6 +471,69 @@ public class Author extends JFrame {
 		feedbackTextArea.setEditable(false);
 		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		Scanner feedbackList;
+		
+		//populates feedback list with papers that have feedback
+		
+		
+		try {
+			submissionSet.beforeFirst();
+			while(submissionSet.next()) {
+				if(submissionSet.getString("feedbackIDs")!=null)
+					paperModel.addElement(submissionSet.getString("submissionName"));
+			}
+		} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
+		
+		
+		paperList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				feedbackTextArea.setText("");
+				int[] selectedPaper = paperList.getSelectedIndices();
+				if (selectedPaper.length == 1) {
+
+					
+					paperInDetail = submissions[selectedPaper[0]].filename.split("\\.")[0];
+					resubmitFilename = submissions[selectedPaper[0]].filename;
+					String feedbackFile = "submissions/" + user + "/feedback/" + paperInDetail + ".txt";
+
+					Scanner feedback;
+
+					try {
+
+						feedback = new Scanner(new File(feedbackFile));
+
+				    	while (feedback.hasNext()) {
+
+							feedbackTextArea.append(feedback.nextLine());
+							feedbackTextArea.append("\n");
+				    	}
+
+						feedbackTextArea.setCaretPosition(0);
+				    	feedback.close();
+					} catch (FileNotFoundException e) {}
+
+
+				} else if (selectedPaper.length >=2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
+				}
+					
+			}
+				
+		});
+		
+		
+		
+		
+		//THIS SECTION POPULATES THE FEEDBACK LIST
+/*
+		
+		
 		try {
 
 			feedbackList = new Scanner(new File(userFeedbackList));
@@ -476,6 +547,7 @@ public class Author extends JFrame {
 		} catch (FileNotFoundException e) {
 
 	    }
+		
 		paperList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
@@ -515,6 +587,8 @@ public class Author extends JFrame {
 				}
 			}
 		});
+*/
+		
 		paperList.setFont(new Font("Arial", Font.PLAIN, 12));
 
 		JScrollPane feedbackListScrollPane = new JScrollPane(paperList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -546,6 +620,8 @@ public class Author extends JFrame {
 		resubmitLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		resubmitLabel.setBounds(0, 0, 119, 30);
 		resubmitButton.add(resubmitLabel);
+		
+		//RESUBMIT BUTTON LOGIC
 		resubmitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -769,6 +845,8 @@ public class Author extends JFrame {
 		submitButton.setLayout(null);
 
 		JLabel submitLabel = new JLabel("Submit");
+		
+		//THIS SECTION HANDLES NEW SUBMISSION LOGIC
 		submitLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -829,10 +907,9 @@ public class Author extends JFrame {
 					Path dest = Paths.get(userFolder+"/"+filename);
 					try {
 						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-					} catch (IOException e) {
+					} catch (IOException e) {}
 
-					}
-
+					/*
 					Scanner papers;
 					submissionModel.removeAllElements();
 					try {
@@ -846,13 +923,29 @@ public class Author extends JFrame {
 				    	papers.close();
 					} catch (FileNotFoundException e) {
 
-				    }
+				    }*/
 
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
+					makeSubmission(newTitle, newAuthors, newSubject, filename);
+					
 					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.", "Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
+					
+					getSubmissions();
+					getReviewers();
+					populateSubmissions();
+					
+					submissionModel.removeAllElements();
+
+					try {
+						submissionSet.beforeFirst();
+						while(submissionSet.next()) {
+							submissionModel.addElement(submissionSet.getString("submissionName"));
+						}
+					} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
+					
 				}
 
 			}
@@ -993,28 +1086,77 @@ public class Author extends JFrame {
 	}
 
 	/**
-	 * Updates the submissionSet to retrieve info
-	 * for a particular submission when selected
-	 * @param paperName
+	 * Populates a global array of FeedbackObjects to store on startup 
+	 * so loading between feedback is fast.
 	 */
-	private void updateSubmissionSet(String paperName) {
-		PreparedStatement ps;
-
-		String query = "SELECT * FROM submission WHERE submissionName = ?";
-
-		try {
-			ps=SQLConnection.getConnection().prepareStatement(query);
-
-			ps.setString(1, paperName);
-
-			submissionSet=ps.executeQuery();
-		}catch(Exception e) {System.out.println(e); System.out.println("Failure finding single submission");}
-
-	}
-
-
 	private void getFeedback() {
+		feedback = new FeedbackObject[50];
+		
+		PreparedStatement ps;
+		ResultSet feedbackSet;
+		String query = "SELECT * FROM feedback WHERE submissionID = ?";
+		
+		try {
+			
+			for(int i=0;i<submissions.length;i++) {
+				ps = SQLConnection.getConnection().prepareStatement(query);
+				ps.setInt(1, submissions[i].submissionID);
+				feedbackSet = ps.executeQuery();
+				
+				int counter = 0;
+				
+				while(feedbackSet.next()) {					
+					feedback[counter].feedbackID = feedbackSet.getInt("feedbackID");
+					feedback[counter].feedbackDate = feedbackSet.getString("feedbackDate");
+					feedback[counter].filename = feedbackSet.getString("filename");
+					feedback[counter].userID = feedbackSet.getInt("userID");
+					feedback[counter].submissionID = feedbackSet.getInt("feedbackID");
+					feedback[counter].approval = feedbackSet.getInt("approval");
+					feedback[counter].feedbackStage = feedbackSet.getInt("feedbackStage");
+					
+					numOfFeedback++;
+					counter++;
+				}
+			}
+		}catch(Exception e) {System.out.println("Failed fetching feedback");}
 
 	}
+	
+	
+	/**
+	 * Method for adding a new submission to the database
+	 * 
+	 * @param submissionName
+	 * @param submissionAuthors
+	 * @param subject
+	 * @param filename
+	 * @return
+	 */
+	private int makeSubmission(String submissionName, String submissionAuthors, String subject, String filename) {
+		PreparedStatement ps;
+		String query = "INSERT INTO submission (submissionName, submissionAuthors, subject, submissionStage, "
+				+ "filename, submissionUserID) values (? , ? , ? , ? , ? , ?)";
+		
+
+		
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setString(1, submissionName);
+			ps.setString(2, submissionAuthors);
+			ps.setString(3, subject);
+			ps.setInt(4, 1);
+			ps.setString(5, filename);
+			ps.setInt(6, this.userID);
+			
+			ps.execute();
+			
+		}catch(Exception e) {e.printStackTrace();}
+		
+		
+		return 0;
+	}
+	
+	
 }
 
+	
