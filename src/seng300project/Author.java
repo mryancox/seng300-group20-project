@@ -144,13 +144,13 @@ public class Author extends JFrame {
 
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
-		menuPanel.setBounds(0, 0, 180, 571);
+		menuPanel.setBounds(0, 0, 180, 580);
 		contentPane.add(menuPanel);
 		menuPanel.setLayout(null);
 
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBackground(Color.WHITE);
-		contentPanel.setBounds(180, 0, 714, 571);
+		contentPanel.setBounds(180, 0, 725, 580);
 		contentPane.add(contentPanel);
 		contentPanel.setLayout(new CardLayout(0, 0));
 

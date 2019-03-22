@@ -70,19 +70,19 @@ public class Login {
 
 		JPanel leftPanel = new JPanel();
 		leftPanel.setBackground(new Color(0, 124, 65));
-		leftPanel.setBounds(0, 0, 450, 571);
+		leftPanel.setBounds(0, 0, 450, 580);
 		login.getContentPane().add(leftPanel);
 		leftPanel.setLayout(null);
 
 		JLabel openbookPicture = new JLabel("");
 		Image openbookImg = new ImageIcon(this.getClass().getResource("/openbook.png")).getImage();
 		openbookPicture.setIcon(new ImageIcon(openbookImg));
-		openbookPicture.setBounds(-97, -106, 547, 677);
+		openbookPicture.setBounds(-97, -106, 547, 686);
 		leftPanel.add(openbookPicture);
 
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBackground(Color.WHITE);
-		rightPanel.setBounds(449, 0, 445, 571);
+		rightPanel.setBounds(449, 0, 455, 580);
 		login.getContentPane().add(rightPanel);
 		rightPanel.setLayout(null);
 
