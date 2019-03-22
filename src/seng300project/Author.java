@@ -36,7 +36,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
