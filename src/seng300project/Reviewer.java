@@ -5,6 +5,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
+import java.awt.Desktop;
+
 import javax.swing.JLabel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -20,9 +22,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.swing.JTextArea;
 import javax.swing.JList;
@@ -54,7 +61,12 @@ public class Reviewer extends JFrame {
 	protected SubmissionObject[] submissions;
 	protected FeedbackObject[] feedback;
 	protected String[] subjects = new String[100];
-
+	private int[] selectedPaper= new int[100];
+	private Map<String, String> nameToFilename = new HashMap<String, String>();
+	private Map<String, Integer> nameToUserID = new HashMap<String, Integer>();
+	
+	
+	
 	/**
 	 * Launch the application.
 	 */
@@ -91,11 +103,11 @@ public class Reviewer extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		String userFolder = "submissions/" + user;
-		String userDetails = "submissions/" + user + "/details";
-		String userFeedback = "submissions/" + user + "/feedback";
-		String userFeedbackList = "submissions/" + user + "/feedback_list.txt";
-		String userSubmissionList = "submissions/" + user + "/submission_list.txt";
+		String userFolder = "submissions/" + userID;
+		String userDetails = "submissions/" + userID + "/details";
+		String userFeedback = "submissions/" + userID + "/feedback";
+		String userFeedbackList = "submissions/" + userID + "/feedback_list.txt";
+		String userSubmissionList = "submissions/" + userID + "/submission_list.txt";
 		File authorFolder = new File(userFolder);
 		File detailsFolder = new File(userDetails);
 		File feedbackFolder = new File(userFeedback);
@@ -292,12 +304,14 @@ public class Reviewer extends JFrame {
 		feedbackPanel.add(papersLabel);
 
 		
+		
 		//LOGIC FOR ASSIGNED PAPERS LIST
 		DefaultListModel<String> paperModel = new DefaultListModel<>();
 		JList<String> assignedList = new JList<String>(paperModel);
 		assignedList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
-				int[] selectedPaper = assignedList.getSelectedIndices();
+				selectedPaper = assignedList.getSelectedIndices();
 				if(selectedPaper.length==1) {
 					
 					
@@ -315,11 +329,16 @@ public class Reviewer extends JFrame {
 		});
 		assignedList.setFont(new Font("Arial", Font.PLAIN, 12));
 
+		
 		//populates list of assigned papers
 		for(int i=0;i<submissions.length;i++) {
-			if(submissions[i].reviewers.get(this.userID)!=null)
+			if(submissions[i].reviewers.get(this.userID)!=null) {
 				paperModel.addElement(submissions[i].submissionName);
+				nameToFilename.put(submissions[i].submissionName, submissions[i].filename);
+				nameToUserID.put(submissions[i].submissionName, submissions[i].submissionUserID);
+			}
 		}
+		
 		
 		JScrollPane assignedListScrollPane = new JScrollPane(assignedList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		assignedListScrollPane.setSize(650, 110);
@@ -334,6 +353,7 @@ public class Reviewer extends JFrame {
 		openLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		openLabel.setBounds(0, 0, 119, 30);
 		openButton.add(openLabel);
+		//OPEN PAPER BUTTON LOGIC
 		openButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -349,10 +369,41 @@ public class Reviewer extends JFrame {
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				String paperName = paperModel.getElementAt(selectedPaper[0]);
 				
-				// Add open selected paper logic here
+				//gets filename of paper
+				String filename = nameToFilename.get(paperName);
+				
+				//get filepath of project folder
+				File f = new File(filename);
+				StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
+				filepath.setLength(filepath.length()-filename.length());
+
+				//replaces instances of "\" with "\\" (java requires this)
+				String separator = "\\";
+				String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\").split("\\\\");
+				
+				//builds new filepath string, inserting / instead of \
+				filepath = new StringBuilder(intermediate[0] + "/");
+				for(int i=1;i<intermediate.length;i++) {
+					filepath.append(intermediate[i] + "/");
+				}
+				
+				//final string containing file location
+				String fileLocation = "file:///" + filepath.toString() + "submissions/" + nameToUserID.get(paperName) + "/" + filename;
+				
+				try {
+					Desktop.getDesktop().browse(new URI(fileLocation));
+				} catch (IOException | URISyntaxException e) {
+					e.printStackTrace();
+				}
+				
+				//example final string format
+				//file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
+
 			}
 		});
+		
 		openButton.setLayout(null);
 		openButton.setBackground(new Color(0, 124, 65));
 		openButton.setBounds(555, 235, 119, 30);

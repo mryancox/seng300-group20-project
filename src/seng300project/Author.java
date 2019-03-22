@@ -106,11 +106,11 @@ public class Author extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		String userFolder = "submissions/" + user;
-		String userDetails = "submissions/" + user + "/details";
-		String userFeedback = "submissions/" + user + "/feedback";
-		String userFeedbackList = "submissions/" + user + "/feedback_list.txt";
-		String userSubmissionList = "submissions/" + user + "/submission_list.txt";
+		String userFolder = "submissions/" + userID;
+		String userDetails = "submissions/" + userID + "/details";
+		String userFeedback = "submissions/" + userID + "/feedback";
+		String userFeedbackList = "submissions/" + userID + "/feedback_list.txt";
+		String userSubmissionList = "submissions/" + userID + "/submission_list.txt";
 		File authorFolder = new File(userFolder);
 		File detailsFolder = new File(userDetails);
 		File feedbackFolder = new File(userFeedback);
@@ -381,7 +381,7 @@ public class Author extends JFrame {
 
 		DefaultListModel<String> submissionModel = new DefaultListModel<>();
 		JList<String> submissionList = new JList<String>(submissionModel);
-		String papersFile = "submissions/" + user + "/submission_list.txt";
+		String papersFile = "submissions/" + userID + "/submission_list.txt";
 
 		try {
 			submissionSet.beforeFirst();
@@ -494,7 +494,7 @@ public class Author extends JFrame {
 					
 					paperInDetail = submissions[selectedPaper[0]].filename.split("\\.")[0];
 					resubmitFilename = submissions[selectedPaper[0]].filename;
-					String feedbackFile = "submissions/" + user + "/feedback/" + paperInDetail + ".txt";
+					String feedbackFile = "submissions/" + userID + "/feedback/" + paperInDetail + ".txt";
 
 					Scanner feedback;
 
