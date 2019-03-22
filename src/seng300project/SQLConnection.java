@@ -14,10 +14,10 @@ public class SQLConnection {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 
 			//for connecting remotely (use this unless you are on stone's computer)
-			con=DriverManager.getConnection("jdbc:mysql://162.208.182.233:3306/mydb", "journal", "journal!sys1234");
+			//con=DriverManager.getConnection("jdbc:mysql://162.208.182.233:3306/mydb", "journal", "journal!sys1234");
 
 			//for connecting locally (only on stone's computer)
-			//con=DriverManager.getConnection("jdbc:mysql://localhost:3306/mydb", "journal", "journal");
+			con=DriverManager.getConnection("jdbc:mysql://localhost:3306/mydb", "journal", "journal");
 
 		}catch(Exception e) {
 			System.out.println(e);

@@ -20,8 +20,12 @@ import javax.swing.UIManager;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
@@ -61,7 +65,8 @@ public class Reviewer extends JFrame {
 	protected SubmissionObject[] submissions;
 	protected FeedbackObject[] feedback;
 	protected String[] subjects = new String[100];
-	private int[] selectedPaper= new int[100];
+	private int[] selectedPaper = new int[0];
+	private int[] selected = 	new int[0];
 	private Map<String, String> nameToFilename = new HashMap<String, String>();
 	private Map<String, Integer> nameToUserID = new HashMap<String, Integer>();
 	
@@ -137,7 +142,9 @@ public class Reviewer extends JFrame {
 
 			}
 		}
-		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
+		
+		//String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
+		String niceUsername = user;
 
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
@@ -213,12 +220,7 @@ public class Reviewer extends JFrame {
 		
 		DefaultListModel<String> nominateModel = new DefaultListModel<>();
 		JList<String> nominateList = new JList<String>(nominateModel);
-		nominateList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent arg0) {
-
-				// Add nominateList Code Here
-			}
-		});
+		
 		nominateList.setFont(new Font("Arial", Font.PLAIN, 12));
 		JScrollPane nominateListScrollPane = new JScrollPane(nominateList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		nominateListScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -233,25 +235,7 @@ public class Reviewer extends JFrame {
 		nominateLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		nominateLabel.setBounds(0, 0, 119, 30);
 		nominateButton.add(nominateLabel);
-		nominateButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				nominateButton.setBackground(new Color(255, 219, 5));
-				nominateLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				nominateButton.setBackground(new Color(0, 124, 65));
-				nominateLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				// Add Nomination Code Here
-			}
-		});
+
 		nominateButton.setLayout(null);
 		nominateButton.setBackground(new Color(0, 124, 65));
 		nominateButton.setBounds(555, 520, 119, 30);
@@ -315,7 +299,7 @@ public class Reviewer extends JFrame {
 				if(selectedPaper.length==1) {
 					
 					
-					
+					//nothing to put here really
 					
 					
 				}else if (selectedPaper.length >=2) {
@@ -330,7 +314,7 @@ public class Reviewer extends JFrame {
 		assignedList.setFont(new Font("Arial", Font.PLAIN, 12));
 
 		
-		//populates list of assigned papers
+		//populates list of assigned papers while storing info for later use
 		for(int i=0;i<submissions.length;i++) {
 			if(submissions[i].reviewers.get(this.userID)!=null) {
 				paperModel.addElement(submissions[i].submissionName);
@@ -353,6 +337,8 @@ public class Reviewer extends JFrame {
 		openLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		openLabel.setBounds(0, 0, 119, 30);
 		openButton.add(openLabel);
+		
+		
 		//OPEN PAPER BUTTON LOGIC
 		openButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -367,40 +353,99 @@ public class Reviewer extends JFrame {
 				openButton.setBackground(new Color(0, 124, 65));
 				openLabel.setForeground(Color.WHITE);
 			}
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				String paperName = paperModel.getElementAt(selectedPaper[0]);
-				
-				//gets filename of paper
-				String filename = nameToFilename.get(paperName);
-				
-				//get filepath of project folder
-				File f = new File(filename);
-				StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
-				filepath.setLength(filepath.length()-filename.length());
-
-				//replaces instances of "\" with "\\" (java requires this)
-				String separator = "\\";
-				String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\").split("\\\\");
-				
-				//builds new filepath string, inserting / instead of \
-				filepath = new StringBuilder(intermediate[0] + "/");
-				for(int i=1;i<intermediate.length;i++) {
-					filepath.append(intermediate[i] + "/");
+				if(selectedPaper.length==0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected", JOptionPane.PLAIN_MESSAGE, null);
 				}
-				
-				//final string containing file location
-				String fileLocation = "file:///" + filepath.toString() + "submissions/" + nameToUserID.get(paperName) + "/" + filename;
-				
-				try {
-					Desktop.getDesktop().browse(new URI(fileLocation));
-				} catch (IOException | URISyntaxException e) {
-					e.printStackTrace();
+				else {
+					
+					String paperName = paperModel.getElementAt(selectedPaper[0]);
+					
+					//gets filename of paper
+					String filename = nameToFilename.get(paperName);
+					
+					//get filepath of project folder
+					File f = new File(filename);
+					StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
+					filepath.setLength(filepath.length()-filename.length());
+	
+					//replaces instances of "\" with "\\" (java requires this)
+					String separator = "\\";
+					String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\").split("\\\\");
+					
+					//builds new filepath string, inserting / instead of \
+					filepath = new StringBuilder(intermediate[0] + "/");
+					for(int i=1;i<intermediate.length;i++) {
+						filepath.append(intermediate[i] + "/");
+					}
+					
+					//final string containing file location
+					String fileLocation = "file:///" + filepath.toString() + "submissions/" + nameToUserID.get(paperName) + "/" + filename;
+					
+					try {
+						Desktop.getDesktop().browse(new URI(fileLocation));
+					} catch (IOException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+					
+					//example final string format
+					//file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
 				}
+			}
+		});
+		
+		
+		//NOMINATE PAPER LIST LOGIC
+		//just checks if more than 1 paper is selected and shows a warning
+		nominateList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+				selected = nominateList.getSelectedIndices();
+				if (selected.length >=2) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
+				}
+			}
+		});
+		
+		//NOMINATE BUTTON LOGIC
+		nominateButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
 				
-				//example final string format
-				//file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
-
+				nominateButton.setBackground(new Color(255, 219, 5));
+				nominateLabel.setForeground(Color.BLACK);
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				
+				nominateButton.setBackground(new Color(0, 124, 65));
+				nominateLabel.setForeground(Color.WHITE);
+			}
+			@SuppressWarnings("static-access")
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if(selected.length==0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected to nominate to.", "No paper selected", JOptionPane.PLAIN_MESSAGE, null);
+				}
+				else {
+					String submissionName = nominateModel.getElementAt(selected[0]);
+					
+					int[] selectedSubject = subjectList.getSelectedIndices();
+					String subject = subjectModel.getElementAt(selectedSubject[0]);
+					
+					nominateReview(subject, submissionName);
+				}
 			}
 		});
 		
@@ -425,6 +470,9 @@ public class Reviewer extends JFrame {
 		provideextraLabel.setBounds(24, 305, 267, 14);
 		feedbackPanel.add(provideextraLabel);
 
+		JTextArea feedbackTextArea = new JTextArea();
+		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
+		
 		JPanel submitButton = new JPanel();
 		JLabel submitLabel = new JLabel("Submit Feedback");
 		submitLabel.setForeground(Color.WHITE);
@@ -432,6 +480,9 @@ public class Reviewer extends JFrame {
 		submitLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		submitLabel.setBounds(0, 0, 119, 30);
 		submitButton.add(submitLabel);
+		
+		
+		//SUBMIT FEEDBACK BUTTON LOGIC
 		submitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -445,15 +496,72 @@ public class Reviewer extends JFrame {
 				submitButton.setBackground(new Color(0, 124, 65));
 				submitLabel.setForeground(Color.WHITE);
 			}
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				if(selectedPaper.length==0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected", JOptionPane.PLAIN_MESSAGE, null);
+				}
+				else {
+					if(!feedbackTextArea.getText().equals("")) {
+						String papername = paperModel.getElementAt(selectedPaper[0]);
+						
+						//gets filename of paper
+						String filename = nameToFilename.get(papername);
+						
+						//get filepath of project folder
+						File f = new File(filename);
+						StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
+						filepath.setLength(filepath.length()-filename.length());
+		
+						//replaces instances of "\" with "\\" (java requires this)
+						String separator = "\\";
+						String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\").split("\\\\");
+						
+						//builds new filepath string, inserting / instead of \
+						filepath = new StringBuilder(intermediate[0] + "/");
+						for(int i=1;i<intermediate.length;i++) {
+							filepath.append(intermediate[i] + "/");
+						}
+						
+						//final string containing file location
+						String fileLocation =  filepath.toString() + "submissions/" + nameToUserID.get(papername) + "/feedback/" + papername + ".txt";
+						
+						//appending to the file 
+						try {
+							FileWriter fw = new FileWriter(fileLocation, true);
+							BufferedWriter bw = new BufferedWriter(fw);
+							PrintWriter pw = new PrintWriter(bw);
+							pw.println("\n");
+							pw.println("Feedback from " + user + "\n");
+							pw.println(feedbackTextArea.getText());
+							pw.println("----------end of feedback from " + user + "----------");
+							pw.close();
+							
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						//example final string format
+						//file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
+						
+						JOptionPane.showMessageDialog(null, "Thank you for your feedback!\n It will be reviewed shortly.", "Feedback Accepted", JOptionPane.PLAIN_MESSAGE, null);
+						
+					}
+					else {
+						
+						JOptionPane.showMessageDialog(null, "Please ensure the feedback field is not blank", "Missing Feedback Details", JOptionPane.PLAIN_MESSAGE, null);
 
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
+					}
+					
+				}
+				
 			}
 		});
 
-		JTextArea feedbackTextArea = new JTextArea();
-		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
+		
 		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackScrollPane.setSize(650, 180);
 		feedbackScrollPane.setLocation(24, 330);
@@ -537,7 +645,7 @@ public class Reviewer extends JFrame {
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-
+				
 				subjectList.clearSelection();
 				nominateList.clearSelection();
 				contentPanel.removeAll();
@@ -694,6 +802,69 @@ public class Reviewer extends JFrame {
 			e.printStackTrace();
 		}
 
+	}
+	
+	
+	/**
+	 * Gets the submission matching subject and submissionName and appends the userID to the 
+	 * nominatedReviewers field
+	 * @param subject - the selected subject
+	 * @param submissionName - the selected submission name
+	 */
+	private void nominateReview(String subject, String submissionName) {
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		String query1 = "SELECT * FROM submission WHERE subject = ? AND submissionName = ?";
+		String query2 = "UPDATE submission SET nominatedReviewers = ? WHERE subject = ? AND submissionName = ?";
+		
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query1);
+			ps.setString(1, subject);
+			ps.setString(2, submissionName);
+			
+			rs = ps.executeQuery();
+			
+			rs.next();
+			
+
+			//check if this user is already nominated
+			boolean isAlreadyNominated = false;
+			//check if initial value of nominatedReviewers is null
+			boolean isNull = false;
+			
+			if(rs.getString("nominatedReviewers")!=null) {
+				String[] nominated = rs.getString("nominatedReviewers").split("[,]");
+				for(int i=0;i<nominated.length;i++) 
+					if(nominated[i].equals(Integer.toString(this.userID)))
+						isAlreadyNominated=true;
+			}
+			else {
+				isNull=true;
+			}
+			
+			//appends userID if not already nominated
+			if(!isAlreadyNominated) {
+				String allNominated = new String();
+				
+				if(!isNull)
+					allNominated = rs.getString("nominatedReviewers") + "," + this.userID;
+				else
+					allNominated = Integer.toString(this.userID);
+
+				ps = SQLConnection.getConnection().prepareStatement(query2);
+				ps.setString(1, allNominated);
+				ps.setString(2, subject);
+				ps.setString(3, submissionName);
+				
+				//To issue INSERT, UPDATE, or DELETE, java requires using executeUpdate()
+				ps.executeUpdate();
+			}
+			
+			
+		}catch(Exception e) { e.printStackTrace();}
+		
+		
 	}
 
 }

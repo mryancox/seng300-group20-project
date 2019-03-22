@@ -195,34 +195,26 @@ public class Login {
 				String user = username.getText();
 				String pw = String.valueOf(password.getPassword());
 
-				/*String authorFile = "login_credentials/authors.txt";
-				String reviewerFile = "login_credentials/reviewers.txt";
-				String adminFile = "login_credentials/admins.txt";
-				boolean userFound = false;
-				Scanner authors, reviewers, admins;
-				*/
+				
+				//loginDetails[0]=usertype [1]=userID [2]=name
+				String[] loginDetails = checkLogin(user,pw);
 
-				//loginDetails[0]=usertype [1]=userID
-				int[] loginDetails = checkLogin(user,pw);
-
-				/*if(loginDetails[0]==0) {
+				
+				/*if(loginDetails[0].equals("0")) {
 					login.setVisible(false);
 	    			Admin admin = new Admin(user, loginDetails[1]);
 	    			admin.setVisible(true);
 	    			Admin.setLocationRelativeTo(null);
 				}*/
-				
-				
-				
-				if(loginDetails[0]==1) {
+				if(loginDetails[0].equals("1")) {
 					login.setVisible(false);
-	    			Author author = new Author(user, loginDetails[1]);
+	    			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
 	    			author.setVisible(true);
 	    			author.setLocationRelativeTo(null);
 				}
-				else if(loginDetails[0]==2) {
+				else if(loginDetails[0].equals("2")) {
 					login.setVisible(false);
-					Reviewer reviewer = new Reviewer(user, loginDetails[1]);
+					Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]));
 					reviewer.setVisible(true);
 					reviewer.setLocationRelativeTo(null);
 				}
@@ -235,87 +227,7 @@ public class Login {
 					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
 				}
 
-			    /*try {
 
-			    	authors = new Scanner(new File(authorFile));
-			    	authors.nextLine(); // skips the header at the beginning of the file
-
-			    	while (authors.hasNext() && !userFound) {
-
-			    		String row = authors.nextLine();
-			    		String[] elements = row.split("\\|");
-
-			    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
-
-			    			login.setVisible(false);
-			    			Author author = new Author(user);
-			    			author.setVisible(true);
-			    			author.setLocationRelativeTo(null);
-			    			userFound = true;
-			    			break;
-			    		}
-
-			    	}
-
-			    	authors.close();
-
-			    	reviewers = new Scanner(new File(reviewerFile));
-			    	reviewers.nextLine(); // skips the header at the beginning of the file
-
-			    	while (reviewers.hasNext() && !userFound) {
-
-			    		String row = reviewers.nextLine();
-			    		String[] elements = row.split("\\|");
-
-			    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
-
-			    			//Reviewer.Reviewer(user);
-			    			//frmLogin.setVisible(false);
-			    			userFound = true;
-			    			break;
-			    		}
-
-			    	}
-
-			    	reviewers.close();
-
-			    	admins = new Scanner(new File(adminFile));
-			    	admins.nextLine(); // skips the header at the beginning of the file
-
-			    	while (admins.hasNext() && !userFound) {
-
-			    		String row = admins.nextLine();
-			    		String[] elements = row.split("\\|");
-
-			    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
-
-			    			//Admin.Admin(user);
-			    			//frmLogin.setVisible(false);
-			    			userFound = true;
-			    			break;
-			    		}
-
-			    	}
-
-			    	admins.close();
-
-			    } catch (FileNotFoundException e) {
-
-			    	userFound = false;
-
-			    }
-
-			    if (!userFound) {
-
-					username.setText("");
-					password.setText("");
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-
-					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
-
-				}*/
 			}
 		});
 		loginButton.setBackground(new Color(0, 124, 65));
@@ -332,14 +244,14 @@ public class Login {
 	 * @param password
 	 * @return account type as an int (0=admin, 1=author, 2=reviewer)
 	 */
-	private int[] checkLogin(String username, String password) {
+	private String[] checkLogin(String username, String password) {
 		//ps is the statement of the sql query
 		PreparedStatement ps;
 
 		//rs is the result of the query
 		ResultSet rs;
 
-		int [] loginInfo = {-1,-1};
+		String [] loginInfo = new String[3];
 
 		//the string to be used to query. ? indicates a parameter
 		//this query finds entries that match the input username and password
@@ -363,8 +275,9 @@ public class Login {
 			if(rs.next()) {
 				//loginExists gets the usertype field from the query
 				//0=admin, 1=author, 2=reviewer
-				loginInfo[0]=rs.getInt("usertype");
-				loginInfo[1]=rs.getInt("userID");
+				loginInfo[0]=Integer.toString(rs.getInt("usertype"));
+				loginInfo[1]=Integer.toString(rs.getInt("userID"));
+				loginInfo[2]=rs.getString("name");
 			}
 		}catch(Exception e) {System.out.println(e);}
 		
@@ -380,29 +293,23 @@ public class Login {
 			String user = username.getText();
 			String pw = String.valueOf(password.getPassword());
 
-			/*String authorFile = "login_credentials/authors.txt";
-			String reviewerFile = "login_credentials/reviewers.txt";
-			String adminFile = "login_credentials/admins.txt";
-			boolean userFound = false;
-			Scanner authors, reviewers, admins;
-			*/
-
 			//loginDetails[0]=usertype [1]=userID
-			int[] loginDetails = checkLogin(user,pw);
+			String[] loginDetails = checkLogin(user,pw);
 
 			/*if(trylogin[0]==0) {
 				Admin.Admin(user);
 				frmLogin.setVisible(false);
     			userFound = true;
 			}*/
-			if(loginDetails[0]==1) {
+			if(loginDetails[0].equals("1")) {
 				login.setVisible(false);
-    			Author author = new Author(user, loginDetails[1]);
+    			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
     			author.setVisible(true);
     			author.setLocationRelativeTo(null);
-			}else if(loginDetails[0]==2) {
+			}
+			else if(loginDetails[0].equals("2")) {
 				login.setVisible(false);
-				Reviewer reviewer = new Reviewer(user, loginDetails[1]);
+				Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]));
 				reviewer.setVisible(true);
 				reviewer.setLocationRelativeTo(null);
 			}
@@ -415,88 +322,6 @@ public class Login {
 				JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
 
 			}
-
-		    /*try {
-
-		    	authors = new Scanner(new File(authorFile));
-		    	authors.nextLine(); // skips the header at the beginning of the file
-
-		    	while (authors.hasNext() && !userFound) {
-
-		    		String row = authors.nextLine();
-		    		String[] elements = row.split("\\|");
-
-		    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
-
-		    			login.setVisible(false);
-		    			Author author = new Author(user);
-		    			author.setVisible(true);
-		    			author.setLocationRelativeTo(null);
-		    			userFound = true;
-		    			break;
-		    		}
-
-		    	}
-
-		    	authors.close();
-
-		    	reviewers = new Scanner(new File(reviewerFile));
-		    	reviewers.nextLine(); // skips the header at the beginning of the file
-
-		    	while (reviewers.hasNext() && !userFound) {
-
-		    		String row = reviewers.nextLine();
-		    		String[] elements = row.split("\\|");
-
-		    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
-
-		    			//Reviewer.Reviewer(user);
-		    			//frmLogin.setVisible(false);
-		    			userFound = true;
-		    			break;
-		    		}
-
-		    	}
-
-		    	reviewers.close();
-
-		    	admins = new Scanner(new File(adminFile));
-		    	admins.nextLine(); // skips the header at the beginning of the file
-
-		    	while (admins.hasNext() && !userFound) {
-
-		    		String row = admins.nextLine();
-		    		String[] elements = row.split("\\|");
-
-		    		if (user.equals(elements[0]) && pw.equals(elements[1])) {
-
-		    			//Admin.Admin(user);
-		    			//frmLogin.setVisible(false);
-		    			userFound = true;
-		    			break;
-		    		}
-
-		    	}
-
-		    	admins.close();
-
-		    } catch (FileNotFoundException e) {
-
-		    	userFound = false;
-
-		    }
-
-		    if (!userFound) {
-
-				username.setText("");
-				password.setText("");
-				UIManager UI = new UIManager();
-				UI.put("OptionPane.background", Color.WHITE);
-				UI.put("Panel.background", Color.WHITE);
-
-				JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
-
-			}*/
 		}
 	}
 }
