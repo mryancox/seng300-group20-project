@@ -2,6 +2,8 @@ package seng300project;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SubmissionObject {
 
@@ -45,6 +47,10 @@ public class SubmissionObject {
 	//May be null if reviewerIDs is null
 	public String reviewerNames;
 
+	//Map for reviewer assigned papers logic to check if
+	//a paper is assigned to a reviewer
+	public Map<Integer, Integer> reviewers = new HashMap<Integer, Integer>();
+	
 
 	/**
 	 * Test main method
@@ -97,7 +103,6 @@ public class SubmissionObject {
 		}
 	}
 
-
 	/**
 	 * Gets assigned reviewers for a particular submission
 	 * @param reviewerIDs String list of reviewer ID numbers, separated by commas
@@ -111,6 +116,10 @@ public class SubmissionObject {
 		String[] IDs = reviewerIDs.split("[,]");
 		StringBuilder reviewerNames = new StringBuilder();
 
+		//populate reviewers map 
+		for(int i=0;i<IDs.length;i++)
+			reviewers.put(Integer.parseInt(IDs[i]), 1);
+		
 		//the query string (check Login class for a more detailed explanation)
 		String query = "SELECT * FROM users WHERE userID = ?";
 
@@ -128,7 +137,10 @@ public class SubmissionObject {
 
 			}catch(Exception e) {}
 		}
+		
+		//remove last 2 characters in names (a space and comma))
 		reviewerNames.setLength(reviewerNames.length()-2);
+		
 		this.reviewerNames = reviewerNames.toString();
 	}
 

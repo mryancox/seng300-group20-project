@@ -205,22 +205,27 @@ public class Login {
 				//loginDetails[0]=usertype [1]=userID
 				int[] loginDetails = checkLogin(user,pw);
 
-				/*if(trylogin[0]==0) {
-					Admin.Admin(user);
-					frmLogin.setVisible(false);
-	    			userFound = true;
+				/*if(loginDetails[0]==0) {
+					login.setVisible(false);
+	    			Admin admin = new Admin(user, loginDetails[1]);
+	    			admin.setVisible(true);
+	    			Admin.setLocationRelativeTo(null);
 				}*/
+				
+				
+				
 				if(loginDetails[0]==1) {
 					login.setVisible(false);
 	    			Author author = new Author(user, loginDetails[1]);
 	    			author.setVisible(true);
 	    			author.setLocationRelativeTo(null);
-				}/*
-				else if(trylogin[0]==2) {
-					Reviewer.Reviewer(user);
-					frmLogin.setVisible(false);
-					userFound = true;
-				}*/
+				}
+				else if(loginDetails[0]==2) {
+					login.setVisible(false);
+					Reviewer reviewer = new Reviewer(user, loginDetails[1]);
+					reviewer.setVisible(true);
+					reviewer.setLocationRelativeTo(null);
+				}
 				else {
 					password.setText("");
 					UIManager UI = new UIManager();
@@ -228,7 +233,6 @@ public class Login {
 					UI.put("Panel.background", Color.WHITE);
 
 					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
-
 				}
 
 			    /*try {
@@ -363,7 +367,8 @@ public class Login {
 				loginInfo[1]=rs.getInt("userID");
 			}
 		}catch(Exception e) {System.out.println(e);}
-
+		
+		System.out.println(loginInfo[0] + " " + loginInfo[1]);
 		return loginInfo;
 	}
 
@@ -395,12 +400,12 @@ public class Login {
     			Author author = new Author(user, loginDetails[1]);
     			author.setVisible(true);
     			author.setLocationRelativeTo(null);
-			}/*
-			else if(trylogin[0]==2) {
-				Reviewer.Reviewer(user);
-				frmLogin.setVisible(false);
-				userFound = true;
-			}*/
+			}else if(loginDetails[0]==2) {
+				login.setVisible(false);
+				Reviewer reviewer = new Reviewer(user, loginDetails[1]);
+				reviewer.setVisible(true);
+				reviewer.setLocationRelativeTo(null);
+			}
 			else {
 				password.setText("");
 				UIManager UI = new UIManager();

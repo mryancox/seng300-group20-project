@@ -470,7 +470,6 @@ public class Author extends JFrame {
 		JTextArea feedbackTextArea = new JTextArea();
 		feedbackTextArea.setEditable(false);
 		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
-		Scanner feedbackList;
 		
 		//populates feedback list with papers that have feedback
 		
@@ -956,36 +955,6 @@ public class Author extends JFrame {
 		submitLabel.setForeground(Color.WHITE);
 		submitLabel.setFont(new Font("Arial", Font.BOLD, 12));
 
-	}
-
-
-	/**
-	 * Gets assigned reviewers for a particular submission
-	 * @param reviewerIDs String list of reviewer ID numbers, separated by commas
-	 * @return returns complete StringBuilder of reviewers
-	 */
-	private StringBuilder getSubReviewers(String reviewerIDs) {
-		PreparedStatement ps;
-		ResultSet rs;
-		String[] IDs = reviewerIDs.split("[,]");
-		StringBuilder reviewerNames = new StringBuilder();
-
-		String query = "SELECT * FROM users WHERE userID = ?";
-
-		for(int i=0; i<IDs.length; i++) {
-			try {
-				ps = SQLConnection.getConnection().prepareStatement(query);
-				ps.setString(1, IDs[i]);
-
-				rs = ps.executeQuery();
-				rs.next();
-
-				reviewerNames.append(rs.getString("name") + ", ");
-
-			}catch(Exception e) {}
-		}
-		reviewerNames.setLength(reviewerNames.length()-2);
-		return reviewerNames;
 	}
 
 

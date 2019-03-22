@@ -14,13 +14,19 @@ import java.awt.Font;
 import java.awt.Image;
 
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.swing.JTextArea;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
@@ -47,6 +53,7 @@ public class Reviewer extends JFrame {
 	protected ResultSet submissionSet;
 	protected SubmissionObject[] submissions;
 	protected FeedbackObject[] feedback;
+	protected String[] subjects = new String[100];
 
 	/**
 	 * Launch the application.
@@ -70,6 +77,10 @@ public class Reviewer extends JFrame {
 	 */
 	public Reviewer(String user, int ID) {
 		this.userID=ID;
+		
+		getSubjects();
+		getSubmissions();
+		populateSubmissions();
 
 		setTitle("Journal Submission System");
 		setResizable(false);
@@ -163,12 +174,9 @@ public class Reviewer extends JFrame {
 		
 		DefaultListModel<String> subjectModel = new DefaultListModel<>();
 		JList<String> subjectList = new JList<String>(subjectModel);
-		subjectList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent arg0) {
-
-				// Add subjectList Code Here
-			}
-		});
+		
+		
+		
 		subjectList.setFont(new Font("Arial", Font.PLAIN, 12));
 		JScrollPane subjectListScrollPane = new JScrollPane(subjectList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		subjectListScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -204,6 +212,7 @@ public class Reviewer extends JFrame {
 		nominateListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		nominateListScrollPane.setBounds(24, 330, 650, 180);
 		browsePanel.add(nominateListScrollPane);
+		nominateList.removeAll();
 		
 		JPanel nominateButton = new JPanel();
 		JLabel nominateLabel = new JLabel("Nominate");
@@ -236,6 +245,36 @@ public class Reviewer extends JFrame {
 		nominateButton.setBounds(555, 520, 119, 30);
 		browsePanel.add(nominateButton);
 
+		
+		//populates list of subjects
+		for(int i=0;i<subjects.length;i++) 
+			if(subjects[i]!=null)
+				subjectModel.addElement(subjects[i]);
+				
+		
+		//SUBJECT LIST LOGIC
+		subjectList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+				if(!subjectList.getValueIsAdjusting()) {
+					nominateModel.removeAllElements();
+					int[] selectedSubject = subjectList.getSelectedIndices();
+					
+					if(selectedSubject.length==1) {
+						for(int i=0;i<submissions.length;i++) 
+							if(submissions[i].subject.equals(subjects[selectedSubject[0]])) 
+								nominateModel.addElement(submissions[i].submissionName);
+
+					}else if (selectedSubject.length >=2) {
+						UIManager UI = new UIManager();
+						UI.put("OptionPane.background", Color.WHITE);
+						UI.put("Panel.background", Color.WHITE);
+						JOptionPane.showMessageDialog(null, "Please Select Only 1 Subject", "Too Many Subjects Selected", JOptionPane.PLAIN_MESSAGE, null);
+					}
+				}
+			}
+		});
+		
 		JPanel feedbackPanel = new JPanel();
 		feedbackPanel.setBackground(Color.WHITE);
 		contentPanel.add(feedbackPanel, "name_47558521480000");
@@ -252,16 +291,36 @@ public class Reviewer extends JFrame {
 		papersLabel.setBounds(24, 90, 180, 14);
 		feedbackPanel.add(papersLabel);
 
+		
+		//LOGIC FOR ASSIGNED PAPERS LIST
 		DefaultListModel<String> paperModel = new DefaultListModel<>();
 		JList<String> assignedList = new JList<String>(paperModel);
 		assignedList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
-
-				// Add code to handle paperList
+				int[] selectedPaper = assignedList.getSelectedIndices();
+				if(selectedPaper.length==1) {
+					
+					
+					
+					
+					
+				}else if (selectedPaper.length >=2) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
+				}
+				
 			}
 		});
 		assignedList.setFont(new Font("Arial", Font.PLAIN, 12));
 
+		//populates list of assigned papers
+		for(int i=0;i<submissions.length;i++) {
+			if(submissions[i].reviewers.get(this.userID)!=null)
+				paperModel.addElement(submissions[i].submissionName);
+		}
+		
 		JScrollPane assignedListScrollPane = new JScrollPane(assignedList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		assignedListScrollPane.setSize(650, 110);
 		assignedListScrollPane.setLocation(24, 115);
@@ -484,6 +543,105 @@ public class Reviewer extends JFrame {
 		ualogo.setBounds(40, 420, 100, 100);
 		menuPanel.add(ualogo);
 		ualogo.setIcon(new ImageIcon(ualogoImg));
+
+	}
+	
+	
+	private void getSubjects() {
+		PreparedStatement ps;
+		ResultSet rs;
+		
+		String query = "SELECT DISTINCT subject FROM submission";
+		
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			rs = ps.executeQuery();
+			int count = 0;
+			while(rs.next()) {
+				subjects[count] = rs.getString("subject");
+				count++;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * Gets user's submissions from an sql query and stores in a global ResultSet
+	 */
+	private void getSubmissions() {
+		PreparedStatement ps;
+
+		String query = "SELECT * FROM submission";
+
+		try {
+			ps=SQLConnection.getConnection().prepareStatement(query);
+
+
+			submissionSet=ps.executeQuery();
+		}catch(Exception e) {System.out.println(e); System.out.println("Failure searching for user submissions");}
+	}
+	
+	
+	/**
+	 * Populates a global array of SubmissionObjects to store results of initial SQL query
+	 * for user submissions, eliminating the need to constantly query SQL database
+	 */
+	private void populateSubmissions() {
+
+		try {
+			int numOfSubmissions = 0;
+			while(submissionSet.next())
+				numOfSubmissions++;
+
+			int i=0;
+
+			submissions = new SubmissionObject[numOfSubmissions];
+			submissionSet.beforeFirst();
+
+			while(submissionSet.next()) {
+				int submissionID = submissionSet.getInt("submissionID");
+				String submissionName = submissionSet.getString("submissionName");
+				String submissionAuthors = submissionSet.getString("submissionAuthors");
+				String subject = submissionSet.getString("subject");
+				String submissionDate = submissionSet.getString("submissionDate");
+				int submissionStage = submissionSet.getInt("submissionStage");
+				String filename= submissionSet.getString("filename");
+				int submissionUserID = submissionSet.getInt("submissionUserID");
+				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
+
+				String submissionDeadline = submissionSet.getString("submissionDeadline");
+				String reviewerIDs = submissionSet.getString("reviewerIDs");
+				String feedbackIDs = submissionSet.getString("feedbackIDs");
+				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
+
+				if(submissionDeadline==null)
+					submissions[i].submissionDeadline = null;
+				else
+					submissions[i].submissionDeadline = submissionDeadline;
+
+				if(reviewerIDs==null)
+					submissions[i].reviewerIDs = null;
+				else
+					submissions[i].reviewerIDs = reviewerIDs;
+
+				if(feedbackIDs==null)
+					submissions[i].feedbackIDs = null;
+				else
+					submissions[i].feedbackIDs = feedbackIDs;
+
+				if(preferredReviewerIDs==null)
+					submissions[i].preferredReviewerIDs = null;
+				else
+					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+				submissions[i].setReviewerNames();
+
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 	}
 
