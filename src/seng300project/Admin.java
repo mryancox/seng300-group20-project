@@ -20,15 +20,23 @@ import javax.swing.UIManager;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import javax.swing.JTextArea;
@@ -65,6 +73,7 @@ public class Admin extends JFrame implements Constants {
 	protected String[] subjects = new String[100];
 	private int[] selectedPaper = new int[0];
 	private int[] selected = 	new int[0];
+	private int[] fbAreaSelected = new int[0];
 	
 	/**
 	 * Launch the application.
@@ -509,6 +518,7 @@ public class Admin extends JFrame implements Constants {
 		JList<SubmissionObject> assignpaperList = new JList<>(assignpaperModel);
 		assignpaperListScrollPane.setViewportView(assignpaperList);
 		
+		
 		JPanel assignreviewerButton = new JPanel();
 		JLabel assignreviewerLabel = new JLabel("Assign");
 		assignreviewerLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -572,7 +582,9 @@ public class Admin extends JFrame implements Constants {
 		releaseLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		releaseLabel.setBounds(0, 0, 119, 30);
 		releaseButton.add(releaseLabel);
+		releaseButton.setVisible(false);
 
+		
 		releaseButton.setBackground(new Color(0, 124, 65));
 		releaseButton.setBounds(555, 520, 119, 30);
 		feedbackPanel.add(releaseButton);
@@ -751,10 +763,13 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
+				paperModel.clear();
 				getSubmissions(FEEDBACK_REVIEW_STAGE);
 				newSubmissions = populateSubmissions(newSubmissions);
 				
-				
+				for (int i = 0; i < newSubmissions.length; i++) {
+					paperModel.addElement(newSubmissions[i]);
+				}
 
 				contentPanel.add(feedbackPanel);
 				contentPanel.repaint();
@@ -831,6 +846,7 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
+				reviewerModel.clear();
 				assignpaperModel.clear();
 				//get submissions with stage = 2
 				getSubmissions(APPROVED_SUBMISSION_STAGE);
@@ -840,7 +856,8 @@ public class Admin extends JFrame implements Constants {
 					assignpaperModel.addElement(newSubmissions[i]);
 				}
 				for(int i=0;i<reviewers.length;i++) {
-					reviewerModel.addElement(reviewers[i]);
+					if(reviewers[i]!=null)
+						reviewerModel.addElement(reviewers[i]);
 				}
 				contentPanel.add(assignPanel);
 				contentPanel.repaint();
@@ -939,6 +956,8 @@ public class Admin extends JFrame implements Constants {
 		ualogo.setIcon(new ImageIcon(ualogoImg));
 		
 		
+		
+		
 		// populates new submissions list
 		for (int i = 0; i < newSubmissions.length; i++) {
 			newSubmissionModel.addElement(newSubmissions[i]);
@@ -996,6 +1015,7 @@ public class Admin extends JFrame implements Constants {
 				opennewLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -1011,7 +1031,7 @@ public class Admin extends JFrame implements Constants {
 					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(selectedPaper[0]);
 
 					
-					String paperName = paperOfInterest.submissionName;
+					//String paperName = paperOfInterest.submissionName;
 
 					// gets filename of paper
 					String filename = paperOfInterest.filename;
@@ -1234,6 +1254,30 @@ public class Admin extends JFrame implements Constants {
 			}
 		});
 
+		//assign reviewers paper list logic
+		assignpaperList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+				selected = assignpaperList.getSelectedIndices();
+				if(selected.length==1) {
+					//nothing here
+					
+				}else if (selectedPaper.length >= 2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					assignpaperList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+				
+				
+			}
+			
+			
+		});
+		
 		// ASSIGN REVIEWER BUTTON
 		assignreviewerButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1252,16 +1296,94 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-
-			}
+				SubmissionObject paperOfInterest = assignpaperModel.getElementAt(selected[0]);
+				ReviewerObject[] selectedReviewers = new ReviewerObject[20];
+				
+				int[] reviewerIndices = reviewerList.getSelectedIndices();
+				for(int i=0; i<reviewerIndices.length; i++) {
+					selectedReviewers[i] = new ReviewerObject();
+					selectedReviewers[i] = reviewerModel.getElementAt(reviewerIndices[i]);
+				}
+				
+				StringBuilder reviewerIDs = new StringBuilder();
+				for(int i=0; i<selectedReviewers.length; i++) {
+					if(selectedReviewers[i]!=null) {
+						reviewerIDs.append(selectedReviewers[i].userID + ",");
+					}
+				}
+				reviewerIDs.setLength(reviewerIDs.length()-1);
+				
+				assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
+				
+				assignpaperModel.clear();
+				//get submissions with stage = 2
+				getSubmissions(APPROVED_SUBMISSION_STAGE);
+				newSubmissions = populateSubmissions(newSubmissions);
+				
+				for (int i = 0; i < newSubmissions.length; i++) {
+					assignpaperModel.addElement(newSubmissions[i]);
+				}
+				
+				
+				
+			}	
 		});
 
 		// REVIEW FEEDBACK LIST LOGIC
 		feedbackList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
+				feedbackTextArea.setText("");
+				fbAreaSelected = feedbackList.getSelectedIndices();
 
-				// Add code to handle paperList
+				if(fbAreaSelected.length==0)
+					releaseButton.setVisible(false);
+				
+				if (fbAreaSelected.length == 1) {
+					releaseButton.setVisible(true);
+
+					
+					SubmissionObject paperInDetail = newSubmissions[fbAreaSelected[0]];
+
+					String feedbackFile = "submissions/" + paperInDetail.submissionUserID + "/feedback/" + paperInDetail.submissionName.split("\\.")[0] + ".txt";
+					
+					System.out.println(feedbackFile);
+					
+					Scanner feedback;
+
+					try {
+
+						feedback = new Scanner(new File(feedbackFile));
+
+						while (feedback.hasNext()) {
+							
+							feedbackTextArea.append(feedback.nextLine());
+							feedbackTextArea.append("\n");
+						}
+
+						feedbackTextArea.setCaretPosition(0);
+						feedback.close();
+						
+						
+							
+						
+					} catch (FileNotFoundException e) {
+					}
+
+				} else if (fbAreaSelected.length >= 2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					feedbackList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+
 			}
+				// Add code to handle paperList
+			
 		});
 
 		// RELEASE FEEDBACK BUTTON
@@ -1280,9 +1402,84 @@ public class Admin extends JFrame implements Constants {
 				releaseLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				if (fbAreaSelected.length == 0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				} else if (fbAreaSelected.length == 1) {
+					if (!feedbackTextArea.getText().equals("")) {
 
+						SubmissionObject paperOfInterest = paperModel.getElementAt(fbAreaSelected[0]);
+
+						String papername = paperOfInterest.submissionName;
+
+						// gets filename of paper
+						String filename = paperOfInterest.filename;
+
+						// get filepath of project folder
+						File f = new File(filename);
+						StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
+						filepath.setLength(filepath.length() - filename.length());
+
+						// replaces instances of "\" with "\\" (java requires this)
+						String separator = "\\";
+						String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\")
+								.split("\\\\");
+
+						// builds new filepath string, inserting / instead of \
+						filepath = new StringBuilder(intermediate[0] + "/");
+						for (int i = 1; i < intermediate.length; i++) {
+							filepath.append(intermediate[i] + "/");
+						}
+
+						// final string containing file location
+						String fileLocation = filepath.toString() + "submissions/" + paperOfInterest.submissionUserID
+								+ "/feedback/" + papername + ".txt";
+
+						// replacing file
+						try {
+							FileWriter fw = new FileWriter(fileLocation, false);
+							BufferedWriter bw = new BufferedWriter(fw);
+							PrintWriter pw = new PrintWriter(bw);
+							pw.println(feedbackTextArea.getText());
+							pw.close();
+
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						// example final string format
+						// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
+
+						// Updates submission stage in database
+						approveFeedback(paperOfInterest.submissionID);
+
+						JOptionPane.showMessageDialog(null,
+								"Feedback approved!\n Available for author's viewing.", "Feedback Approved",
+								JOptionPane.PLAIN_MESSAGE, null);
+
+						//updates feedback area
+						paperModel.clear();
+						getSubmissions(FEEDBACK_REVIEW_STAGE);
+						newSubmissions = populateSubmissions(newSubmissions);
+
+						for (int i = 0; i < newSubmissions.length; i++) {
+							paperModel.addElement(newSubmissions[i]);
+						}
+
+					} else {
+
+						JOptionPane.showMessageDialog(null, "Please ensure the feedback field is not blank",
+								"Missing Feedback Details", JOptionPane.PLAIN_MESSAGE, null);
+
+					}
+
+				}
+				
 				// Add submit logic that grabs from feedbackTextArea and appends to a file
 			}
 		});
@@ -1484,8 +1681,38 @@ public class Admin extends JFrame implements Constants {
 	}
 	
 	private void getReviewers(int submissionID) {
+
+	}
+	
+	private void assignReviewers(int submissionID, String reviewerIDs) {
+		PreparedStatement ps;
 		
+		String query = "UPDATE submission SET reviewerIDs = ? , submissionStage = ? WHERE submissionID = ?";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setString(1, reviewerIDs);
+			ps.setInt(2, FEEDBACK_GATHERING_STAGE);
+			ps.setInt(3, submissionID);
+			
+			ps.executeUpdate();
+			
+		}catch(Exception e) {e.printStackTrace();}
 		
+	}
+	
+	private void approveFeedback(int submissionID) {
+		PreparedStatement ps;
+		
+		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setInt(1, RESUBMIT_STAGE);
+			ps.setInt(2, submissionID);
+			
+			
+			ps.executeUpdate();
+			
+		}catch(Exception e) {e.printStackTrace();}
 	}
 	
 }

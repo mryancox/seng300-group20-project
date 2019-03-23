@@ -529,7 +529,16 @@ public class Author extends JFrame implements Constants{
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
-
+				paperModel.clear();
+				
+				getSubmissions();
+				populateSubmissions();
+				
+				for(int i=0;i<submissions.length;i++) {
+					if(submissions[i].submissionStage == RESUBMIT_STAGE)
+						paperModel.addElement(submissions[i]);
+				}
+				
 				contentPanel.add(feedbackPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
@@ -707,9 +716,8 @@ public class Author extends JFrame implements Constants{
 
 		// populates feedback list with papers that have feedback
 		for(int i=0;i<submissions.length;i++) {
-			if(submissionIDtoFeedbackApproval.get(submissions[i].submissionID)!=null)
-				if(submissionIDtoFeedbackApproval.get(submissions[i].submissionID)==1)
-					paperModel.addElement(submissions[i]);
+			if(submissions[i].submissionStage == RESUBMIT_STAGE)
+				paperModel.addElement(submissions[i]);
 		}
 
 		//Gets feedback for selected submission
@@ -721,10 +729,16 @@ public class Author extends JFrame implements Constants{
 				int[] selectedPaper = paperList.getSelectedIndices();
 				if (selectedPaper.length == 1) {
 
-					paperInDetail = submissions[selectedPaper[0]].filename.split("\\.")[0];
-					resubmitFilename = submissions[selectedPaper[0]].filename;
+					SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
+					
+					paperInDetail = paperOfInterest.submissionName.split("\\.")[0];
+					
+					
+					resubmitFilename = paperOfInterest.filename;
 					String feedbackFile = "submissions/" + userID + "/feedback/" + paperInDetail + ".txt";
 
+
+					
 					Scanner feedback;
 
 					try {
@@ -740,21 +754,22 @@ public class Author extends JFrame implements Constants{
 						feedbackTextArea.setCaretPosition(0);
 						feedback.close();
 						
-						
-						//checks if current date is before deadline and makes
-						//resubmit button visible if true and not visible if false
-						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-						Date today = new Date();
-						try {
-							Date deadline = format.parse(submissions[selectedPaper[0]].submissionDeadline);
-							if(today.before(deadline))
-								resubmitButton.setVisible(true);
-							else
-								resubmitButton.setVisible(false);
+						if(paperOfInterest.submissionDeadline != null) {
 							
-						} catch (ParseException e) {e.printStackTrace();}
-						
-						
+							//checks if current date is before deadline and makes
+							//resubmit button visible if true and not visible if false
+							SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+							Date today = new Date();
+							try {
+								Date deadline = format.parse(submissions[selectedPaper[0]].submissionDeadline);
+								if(today.before(deadline))
+									resubmitButton.setVisible(true);
+								else
+									resubmitButton.setVisible(false);
+								
+							} catch (ParseException e) {e.printStackTrace();}
+							
+							}
 						
 					} catch (FileNotFoundException e) {
 					}

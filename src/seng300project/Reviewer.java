@@ -22,7 +22,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,8 +30,6 @@ import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.JTextArea;
@@ -516,7 +513,7 @@ public class Reviewer extends JFrame implements Constants{
 
 		// populates list of assigned papers while storing info for later use
 		for (int i = 0; i < submissions.length; i++) {
-			if (submissions[i].reviewers.get(this.userID) != null) {
+			if (submissions[i].reviewers.get(this.userID) != null && submissions[i].submissionStage == FEEDBACK_GATHERING_STAGE) {
 				paperModel.addElement(submissions[i]);
 			}
 		}
@@ -713,6 +710,17 @@ public class Reviewer extends JFrame implements Constants{
 						JOptionPane.showMessageDialog(null,
 								"Thank you for your feedback!\n It will be reviewed shortly.", "Feedback Accepted",
 								JOptionPane.PLAIN_MESSAGE, null);
+						
+						paperModel.clear();
+						
+						getSubmissions();
+						populateSubmissions();
+						
+						for (int i = 0; i < submissions.length; i++) {
+							if (submissions[i].reviewers.get(userID) != null && submissions[i].submissionStage==FEEDBACK_GATHERING_STAGE) {
+								paperModel.addElement(submissions[i]);
+							}
+						}
 
 					} else {
 
@@ -898,6 +906,7 @@ public class Reviewer extends JFrame implements Constants{
 
 		String query1 = "SELECT * FROM feedback WHERE submissionID = ?";
 		String query = "INSERT INTO feedback (filename, submissionID, userID) values (?, ?, ?)";
+		String query2 = "UPDATE submission SET submissionStage = 4 WHERE submissionID = ?";
 		
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query1);
@@ -912,6 +921,11 @@ public class Reviewer extends JFrame implements Constants{
 				
 				ps.executeUpdate();
 			}
+			
+			ps = SQLConnection.getConnection().prepareStatement(query2);
+			ps.setInt(1, submissionID);
+			
+			ps.executeUpdate();
 		}catch(Exception e) {e.printStackTrace();}
 	}
 

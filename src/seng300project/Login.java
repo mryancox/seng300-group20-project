@@ -148,10 +148,10 @@ public class Login {
 			public void mouseReleased(MouseEvent arg0) {
 
 				try {
-                    String url = "https://github.com/mryancox/seng300-group20-project";
+					String url = "https://github.com/mryancox/seng300-group20-project";
 					Desktop.getDesktop().browse(new URI(url));
 				} catch (URISyntaxException | IOException ex) {
-                    //It looks like there's a problem
+					// It looks like there's a problem
 				}
 
 			}

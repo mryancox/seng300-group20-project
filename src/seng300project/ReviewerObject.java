@@ -21,6 +21,9 @@ public class ReviewerObject {
 
 	}
 
+	public ReviewerObject() {
+	}
+
 	public String toString() {
 		return name + " - " + email;
 	}
