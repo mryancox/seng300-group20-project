@@ -27,13 +27,14 @@ public class FeedbackObject {
 
 	public FeedbackObject() {}
 
-	public FeedbackObject(int feedbackID, String feedbackDate, String filename, int userID, int submissionID, int feedbackStage) {
+	public FeedbackObject(int feedbackID, String feedbackDate, String filename, int userID, int submissionID, int feedbackStage, int approval) {
 		this.feedbackID = feedbackID;
 		this.feedbackDate = feedbackDate;
 		this.filename = filename;
 		this.userID = userID;
 		this.submissionID = submissionID;
 		this.feedbackStage = feedbackStage;
+		this.approval = approval;
 	}
 
 

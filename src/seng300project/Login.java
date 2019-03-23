@@ -200,12 +200,12 @@ public class Login {
 				String[] loginDetails = checkLogin(user,pw);
 
 				
-				/*if(loginDetails[0].equals("0")) {
+				if(loginDetails[0].equals("0")) {
 					login.setVisible(false);
-	    			Admin admin = new Admin(user, loginDetails[1]);
+	    			Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]));
 	    			admin.setVisible(true);
-	    			Admin.setLocationRelativeTo(null);
-				}*/
+	    			admin.setLocationRelativeTo(null);
+				}
 				if(loginDetails[0].equals("1")) {
 					login.setVisible(false);
 	    			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
@@ -281,10 +281,15 @@ public class Login {
 			}
 		}catch(Exception e) {System.out.println(e);}
 		
-		System.out.println(loginInfo[0] + " " + loginInfo[1]);
 		return loginInfo;
 	}
 
+	
+	/**
+	 * Logic for pressing enter key on login screen
+	 * Exhibits the same behavior as clicking login button
+	 * @param arg0
+	 */
 	@SuppressWarnings("static-access")
 	public void keyeventLogic(KeyEvent arg0) {
 
@@ -293,14 +298,17 @@ public class Login {
 			String user = username.getText();
 			String pw = String.valueOf(password.getPassword());
 
-			//loginDetails[0]=usertype [1]=userID
+			
+			//loginDetails[0]=usertype [1]=userID [2]=name
 			String[] loginDetails = checkLogin(user,pw);
 
-			/*if(trylogin[0]==0) {
-				Admin.Admin(user);
-				frmLogin.setVisible(false);
-    			userFound = true;
-			}*/
+			
+			if(loginDetails[0].equals("0")) {
+				login.setVisible(false);
+    			Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]));
+    			admin.setVisible(true);
+    			admin.setLocationRelativeTo(null);
+			}
 			if(loginDetails[0].equals("1")) {
 				login.setVisible(false);
     			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
@@ -320,8 +328,8 @@ public class Login {
 				UI.put("Panel.background", Color.WHITE);
 
 				JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
-
 			}
+
 		}
 	}
 }

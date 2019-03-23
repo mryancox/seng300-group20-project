@@ -34,6 +34,11 @@ import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.JTextArea;
@@ -42,7 +47,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 
-public class Author extends JFrame {
+public class Author extends JFrame implements Constants{
 
 	/**
 	 *
@@ -63,8 +68,9 @@ public class Author extends JFrame {
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
 	protected SubmissionObject[] submissions;
-	protected FeedbackObject[] feedback;
+	protected FeedbackObject[] feedback = new FeedbackObject[50];
 	protected int numOfFeedback = 0;
+	private Map<Integer, Integer> submissionIDtoFeedbackApproval = new HashMap<Integer, Integer>();
 		
 
 	/**
@@ -144,13 +150,13 @@ public class Author extends JFrame {
 
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
-		menuPanel.setBounds(0, 0, 180, 580);
+		menuPanel.setBounds(0, 0, 180, 571);
 		contentPane.add(menuPanel);
 		menuPanel.setLayout(null);
 
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBackground(Color.WHITE);
-		contentPanel.setBounds(180, 0, 725, 580);
+		contentPanel.setBounds(180, 0, 714, 571);
 		contentPane.add(contentPanel);
 		contentPanel.setLayout(new CardLayout(0, 0));
 
@@ -264,23 +270,8 @@ public class Author extends JFrame {
 		submissionPanel.add(filelocationLabel);
 
 		
-		//FILE LOCATION FOR NEW SUBMISSION BUTTON
 		JTextArea filelocationTextArea = new JTextArea();
-		filelocationTextArea.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
 
-				JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(null);
-				if(returnVal == JFileChooser.CANCEL_OPTION) {
-
-				} else {
-					File file = fc.getSelectedFile();
-					filename = file.getName();
-					filelocationTextArea.setText(file.getAbsolutePath());
-				}
-			}
-		});
 		filelocationTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		filelocationTextArea.setBounds(24, 485, 650, 30);
 		submissionPanel.add(filelocationTextArea);
@@ -379,67 +370,8 @@ public class Author extends JFrame {
 		datasubjectListLabel.setBounds(24, 500, 325, 14);
 		listPanel.add(datasubjectListLabel);
 
-		DefaultListModel<String> submissionModel = new DefaultListModel<>();
-		JList<String> submissionList = new JList<String>(submissionModel);
-		String papersFile = "submissions/" + userID + "/submission_list.txt";
-
-		try {
-			submissionSet.beforeFirst();
-			while(submissionSet.next()) {
-				submissionModel.addElement(submissionSet.getString("submissionName"));
-			}
-		} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
-
-
-		//THIS SECTION POPULATES THE SUBMISSION LIST
-		submissionList.addListSelectionListener(new ListSelectionListener() {
-			@SuppressWarnings("static-access")
-			public void valueChanged(ListSelectionEvent arg0) {
-				int[] selectedPaper = submissionList.getSelectedIndices();
-				if (selectedPaper.length == 1) {
-					
-						int paperIndex = selectedPaper[0];
-
-						
-						datatitleListLabel.setText(submissions[paperIndex].submissionName);
-						dataauthorsListLabel.setText(submissions[paperIndex].submissionAuthors);
-						datasubjectListLabel.setText(submissions[paperIndex].subject);
-
-						if(submissions[paperIndex].reviewerIDs==null)
-							datareviewersListLabel.setText("No Reviewers Assigned");
-						else
-							datareviewersListLabel.setText(submissions[paperIndex].reviewerNames);
-
-						if(submissions[paperIndex].feedbackIDs==null)
-							datafeedbackListLabel.setText("No Feedback Available");
-						else
-							datafeedbackListLabel.setText("Feedback Available");
-
-						if(submissions[paperIndex].submissionDeadline==null)
-							datadeadlineListLabel.setText("Not yet set");
-						else
-							datadeadlineListLabel.setText(submissions[paperIndex].submissionDeadline);
-
-
-				}else if (selectedPaper.length >=2) {
-
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-
-					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
-				} else if (selectedPaper.length == 0) {
-
-					datatitleListLabel.setText("");
-		    		dataauthorsListLabel.setText("");
-		    		datasubjectListLabel.setText("");
-		    		datareviewersListLabel.setText("");
-		    		datafeedbackListLabel.setText("");
-		    		datadeadlineListLabel.setText("");
-				}
-			}
-		});
-
+		DefaultListModel<SubmissionObject> submissionModel = new DefaultListModel<>();
+		JList<SubmissionObject> submissionList = new JList<SubmissionObject>(submissionModel);
 
 		submissionList.setFont(new Font("Arial", Font.PLAIN, 12));
 
@@ -465,128 +397,13 @@ public class Author extends JFrame {
 		papersLabel.setBounds(24, 90, 180, 14);
 		feedbackPanel.add(papersLabel);
 
-		DefaultListModel<String> paperModel = new DefaultListModel<>();
-		JList<String> paperList = new JList<String>(paperModel);
+		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
+		JList<SubmissionObject> paperList = new JList<SubmissionObject>(paperModel);
 		JTextArea feedbackTextArea = new JTextArea();
 		feedbackTextArea.setEditable(false);
 		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		//populates feedback list with papers that have feedback
-		
-		
-		try {
-			submissionSet.beforeFirst();
-			while(submissionSet.next()) {
-				if(submissionSet.getString("feedbackIDs")!=null)
-					paperModel.addElement(submissionSet.getString("submissionName"));
-			}
-		} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
-		
-		
-		paperList.addListSelectionListener(new ListSelectionListener() {
-			@SuppressWarnings("static-access")
-			public void valueChanged(ListSelectionEvent arg0) {
 
-				feedbackTextArea.setText("");
-				int[] selectedPaper = paperList.getSelectedIndices();
-				if (selectedPaper.length == 1) {
-
-					
-					paperInDetail = submissions[selectedPaper[0]].filename.split("\\.")[0];
-					resubmitFilename = submissions[selectedPaper[0]].filename;
-					String feedbackFile = "submissions/" + userID + "/feedback/" + paperInDetail + ".txt";
-
-					Scanner feedback;
-
-					try {
-
-						feedback = new Scanner(new File(feedbackFile));
-
-				    	while (feedback.hasNext()) {
-
-							feedbackTextArea.append(feedback.nextLine());
-							feedbackTextArea.append("\n");
-				    	}
-
-						feedbackTextArea.setCaretPosition(0);
-				    	feedback.close();
-					} catch (FileNotFoundException e) {}
-
-
-				} else if (selectedPaper.length >=2) {
-
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-
-					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
-				}
-					
-			}
-				
-		});
-		
-		
-		
-		
-		//THIS SECTION POPULATES THE FEEDBACK LIST
-/*
-		
-		
-		try {
-
-			feedbackList = new Scanner(new File(userFeedbackList));
-
-	    	while (feedbackList.hasNext()) {
-
-	    		paperModel.addElement(feedbackList.nextLine());
-	    	}
-
-	    	feedbackList.close();
-		} catch (FileNotFoundException e) {
-
-	    }
-		
-		paperList.addListSelectionListener(new ListSelectionListener() {
-			@SuppressWarnings("static-access")
-			public void valueChanged(ListSelectionEvent arg0) {
-
-				feedbackTextArea.setText("");
-				int[] selectedPaper = paperList.getSelectedIndices();
-				if (selectedPaper.length == 1) {
-
-					paperInDetail = paperModel.getElementAt(selectedPaper[0]).split("\\.")[0];
-					resubmitFilename = paperModel.getElementAt(selectedPaper[0]);
-					String feedbackFile = "submissions/" + user + "/feedback/" + paperInDetail + ".txt";
-					Scanner feedback;
-
-					try {
-
-						feedback = new Scanner(new File(feedbackFile));
-
-				    	while (feedback.hasNext()) {
-
-							feedbackTextArea.append(feedback.nextLine());
-							feedbackTextArea.append("\n");
-				    	}
-
-						feedbackTextArea.setCaretPosition(0);
-				    	feedback.close();
-					} catch (FileNotFoundException e) {
-
-				    }
-
-				} else if (selectedPaper.length >=2) {
-
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-
-					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected", JOptionPane.PLAIN_MESSAGE, null);
-				}
-			}
-		});
-*/
 		
 		paperList.setFont(new Font("Arial", Font.PLAIN, 12));
 
@@ -620,42 +437,7 @@ public class Author extends JFrame {
 		resubmitLabel.setBounds(0, 0, 119, 30);
 		resubmitButton.add(resubmitLabel);
 		
-		//RESUBMIT BUTTON LOGIC
-		resubmitButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-
-				resubmitButton.setBackground(new Color(255, 219, 5));
-				resubmitLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-				resubmitButton.setBackground(new Color(0, 124, 65));
-				resubmitLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(null);
-
-				if(returnVal == JFileChooser.CANCEL_OPTION) {
-
-				} else {
-					File resubFile = fc.getSelectedFile();
-					Path newsource = Paths.get(resubFile.getAbsolutePath());
-					Path newdest = Paths.get(userFolder+"/" + resubmitFilename);
-					try {
-						Files.copy(newsource, newdest, StandardCopyOption.REPLACE_EXISTING);
-					} catch (IOException e) {
-
-					}
-				}
-			}
-		});
-
-
+		resubmitButton.setVisible(false);
 
 		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackScrollPane.setSize(650, 180);
@@ -845,7 +627,190 @@ public class Author extends JFrame {
 
 		JLabel submitLabel = new JLabel("Submit");
 		
-		//THIS SECTION HANDLES NEW SUBMISSION LOGIC
+
+		submitLabel.setBounds(0, 0, 119, 30);
+		submitButton.add(submitLabel);
+		submitLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		submitLabel.setForeground(Color.WHITE);
+		submitLabel.setFont(new Font("Arial", Font.BOLD, 12));
+		
+		// FILE LOCATION FOR NEW SUBMISSION
+		filelocationTextArea.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(null);
+				if (returnVal == JFileChooser.CANCEL_OPTION) {
+
+				} else {
+					File file = fc.getSelectedFile();
+					filename = file.getName();
+					filelocationTextArea.setText(file.getAbsolutePath());
+				}
+			}
+		});
+
+		
+		//populates list of submissions
+		for(int i=0;i<submissions.length;i++) {
+			submissionModel.addElement(submissions[i]);
+		}
+		
+		// THIS SECTION HANDLES SUBMISSION DETAILS
+		submissionList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+				int[] selectedPaper = submissionList.getSelectedIndices();
+				if (selectedPaper.length == 1) {
+
+					int paperIndex = selectedPaper[0];
+
+					datatitleListLabel.setText(submissions[paperIndex].submissionName);
+					dataauthorsListLabel.setText(submissions[paperIndex].submissionAuthors);
+					datasubjectListLabel.setText(submissions[paperIndex].subject);
+
+					if (submissions[paperIndex].reviewerIDs == null)
+						datareviewersListLabel.setText("No Reviewers Assigned");
+					else
+						datareviewersListLabel.setText(submissions[paperIndex].reviewerNames);
+
+					if (submissions[paperIndex].feedbackIDs == null)
+						datafeedbackListLabel.setText("No Feedback Available");
+					else
+						datafeedbackListLabel.setText("Feedback Available");
+
+					if (submissions[paperIndex].submissionDeadline == null)
+						datadeadlineListLabel.setText("Not yet set");
+					else
+						datadeadlineListLabel.setText(submissions[paperIndex].submissionDeadline);
+
+				} else if (selectedPaper.length >= 2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					submissionList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				} else if (selectedPaper.length == 0) {
+
+					datatitleListLabel.setText("");
+					dataauthorsListLabel.setText("");
+					datasubjectListLabel.setText("");
+					datareviewersListLabel.setText("");
+					datafeedbackListLabel.setText("");
+					datadeadlineListLabel.setText("");
+				}
+			}
+		});
+
+		// populates feedback list with papers that have feedback
+		for(int i=0;i<submissions.length;i++) {
+			if(submissionIDtoFeedbackApproval.get(submissions[i].submissionID)!=null)
+				if(submissionIDtoFeedbackApproval.get(submissions[i].submissionID)==1)
+					paperModel.addElement(submissions[i]);
+		}
+
+		//Gets feedback for selected submission
+		paperList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				feedbackTextArea.setText("");
+				int[] selectedPaper = paperList.getSelectedIndices();
+				if (selectedPaper.length == 1) {
+
+					paperInDetail = submissions[selectedPaper[0]].filename.split("\\.")[0];
+					resubmitFilename = submissions[selectedPaper[0]].filename;
+					String feedbackFile = "submissions/" + userID + "/feedback/" + paperInDetail + ".txt";
+
+					Scanner feedback;
+
+					try {
+
+						feedback = new Scanner(new File(feedbackFile));
+
+						while (feedback.hasNext()) {
+
+							feedbackTextArea.append(feedback.nextLine());
+							feedbackTextArea.append("\n");
+						}
+
+						feedbackTextArea.setCaretPosition(0);
+						feedback.close();
+						
+						
+						//checks if current date is before deadline and makes
+						//resubmit button visible if true and not visible if false
+						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+						Date today = new Date();
+						try {
+							Date deadline = format.parse(submissions[selectedPaper[0]].submissionDeadline);
+							if(today.before(deadline))
+								resubmitButton.setVisible(true);
+							else
+								resubmitButton.setVisible(false);
+							
+						} catch (ParseException e) {e.printStackTrace();}
+						
+						
+						
+					} catch (FileNotFoundException e) {
+					}
+
+				} else if (selectedPaper.length >= 2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					paperList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+
+			}
+
+		});
+
+		// RESUBMIT BUTTON LOGIC
+		resubmitButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				resubmitButton.setBackground(new Color(255, 219, 5));
+				resubmitLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				resubmitButton.setBackground(new Color(0, 124, 65));
+				resubmitLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(null);
+
+				if (returnVal == JFileChooser.CANCEL_OPTION) {
+
+				} else {
+					File resubFile = fc.getSelectedFile();
+					Path newsource = Paths.get(resubFile.getAbsolutePath());
+					Path newdest = Paths.get(userFolder + "/" + resubmitFilename);
+					try {
+						Files.copy(newsource, newdest, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e) {
+
+					}
+				}
+			}
+		});
+
+		// THIS SECTION HANDLES NEW SUBMISSION LOGIC
 		submitLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -853,23 +818,28 @@ public class Author extends JFrame {
 				submitButton.setBackground(new Color(255, 219, 5));
 				submitLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				submitButton.setBackground(new Color(0, 124, 65));
 				submitLabel.setForeground(Color.WHITE);
 			}
+
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				if (titleTextArea.getText().isEmpty() || authorsTextArea.getText().isEmpty() || researchTextArea.getText().isEmpty() || prefreviewersTextArea.getText().isEmpty() || filelocationTextArea.getText().isEmpty()) {
+				if (titleTextArea.getText().isEmpty() || authorsTextArea.getText().isEmpty()
+						|| researchTextArea.getText().isEmpty() || prefreviewersTextArea.getText().isEmpty()
+						|| filelocationTextArea.getText().isEmpty()) {
 
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
-					JOptionPane.showMessageDialog(null, "Ensure all fields are filled out correctly", "Missing Submission Details", JOptionPane.PLAIN_MESSAGE, null);
+					JOptionPane.showMessageDialog(null, "Ensure all fields are filled out correctly",
+							"Missing Submission Details", JOptionPane.PLAIN_MESSAGE, null);
 				} else {
 
 					newTitle = titleTextArea.getText();
@@ -903,57 +873,35 @@ public class Author extends JFrame {
 					}
 
 					Path source = Paths.get(filelocation);
-					Path dest = Paths.get(userFolder+"/"+filename);
+					Path dest = Paths.get(userFolder + "/" + filename);
 					try {
 						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-					} catch (IOException e) {}
-
-					/*
-					Scanner papers;
-					submissionModel.removeAllElements();
-					try {
-
-						papers = new Scanner(new File(papersFile));
-				    	while (papers.hasNext()) {
-
-				    		submissionModel.addElement(papers.nextLine());
-				    	}
-
-				    	papers.close();
-					} catch (FileNotFoundException e) {
-
-				    }*/
+					} catch (IOException e) {
+					}
 
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
 					makeSubmission(newTitle, newAuthors, newSubject, filename);
-					
-					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.", "Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
-					
+
+					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.",
+							"Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
+
 					getSubmissions();
 					getReviewers();
 					populateSubmissions();
-					
+
 					submissionModel.removeAllElements();
 
-					try {
-						submissionSet.beforeFirst();
-						while(submissionSet.next()) {
-							submissionModel.addElement(submissionSet.getString("submissionName"));
-						}
-					} catch (SQLException e1) {System.out.println("Error browsing submissionSet");}
-					
+					for(int i=0;i<submissions.length;i++) {
+						submissionModel.addElement(submissions[i]);
+					}
+
 				}
 
 			}
 		});
-		submitLabel.setBounds(0, 0, 119, 30);
-		submitButton.add(submitLabel);
-		submitLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		submitLabel.setForeground(Color.WHITE);
-		submitLabel.setFont(new Font("Arial", Font.BOLD, 12));
 
 	}
 
@@ -1055,11 +1003,10 @@ public class Author extends JFrame {
 	}
 
 	/**
-	 * Populates a global array of FeedbackObjects to store on startup 
-	 * so loading between feedback is fast.
+	 * Populates a global array of FeedbackObjects to store on startup so loading
+	 * between feedback is fast.
 	 */
 	private void getFeedback() {
-		feedback = new FeedbackObject[50];
 		
 		PreparedStatement ps;
 		ResultSet feedbackSet;
@@ -1074,20 +1021,25 @@ public class Author extends JFrame {
 				
 				int counter = 0;
 				
-				while(feedbackSet.next()) {					
-					feedback[counter].feedbackID = feedbackSet.getInt("feedbackID");
-					feedback[counter].feedbackDate = feedbackSet.getString("feedbackDate");
-					feedback[counter].filename = feedbackSet.getString("filename");
-					feedback[counter].userID = feedbackSet.getInt("userID");
-					feedback[counter].submissionID = feedbackSet.getInt("feedbackID");
-					feedback[counter].approval = feedbackSet.getInt("approval");
-					feedback[counter].feedbackStage = feedbackSet.getInt("feedbackStage");
+				while(feedbackSet.next()) {
+					int feedbackID = feedbackSet.getInt("feedbackID");
+					String feedbackDate = feedbackSet.getString("feedbackDate");
+					String filename = feedbackSet.getString("filename");
+					int userID = feedbackSet.getInt("userID");
+					int submissionID = feedbackSet.getInt("submissionID");
+					int approval = feedbackSet.getInt("approval");
+					int feedbackStage = feedbackSet.getInt("feedbackStage");
 					
+					feedback[counter] = new FeedbackObject(feedbackID, feedbackDate, filename, userID, submissionID, feedbackStage, approval);
+
+					submissionIDtoFeedbackApproval.put(submissions[i].submissionID, feedbackSet.getInt("approval"));
+
 					numOfFeedback++;
 					counter++;
 				}
 			}
-		}catch(Exception e) {System.out.println("Failed fetching feedback");}
+		}catch(Exception e) {System.out.println("Failed fetching feedback");
+		e.printStackTrace();}
 
 	}
 	

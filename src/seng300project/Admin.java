@@ -5,6 +5,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
+import java.awt.Desktop;
+
 import javax.swing.JLabel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -14,18 +16,29 @@ import java.awt.Font;
 import java.awt.Image;
 
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import javax.swing.JTextArea;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 
-public class Admin extends JFrame {
+public class Admin extends JFrame implements Constants {
 
 	/**
 	 *
@@ -45,9 +58,14 @@ public class Admin extends JFrame {
 	protected int userID;
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
-	protected SubmissionObject[] submissions;
+	protected SubmissionObject[] newSubmissions;
+	protected SubmissionObject[] finalSubmissions;
 	protected FeedbackObject[] feedback;
-
+	protected ReviewerObject[] reviewers;
+	protected String[] subjects = new String[100];
+	private int[] selectedPaper = new int[0];
+	private int[] selected = 	new int[0];
+	
 	/**
 	 * Launch the application.
 	 */
@@ -55,7 +73,7 @@ public class Admin extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Admin frame = new Admin("Test Reviewer",8);
+					Admin frame = new Admin("Admin2",9);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -71,6 +89,10 @@ public class Admin extends JFrame {
 	public Admin(String user, int ID) {
 		this.userID=ID;
 
+		getSubmissions(1);
+		newSubmissions = populateSubmissions(newSubmissions);
+		getReviewers();
+		
 		setTitle("Journal Submission System");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,17 +102,21 @@ public class Admin extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		String userFolder = "submissions/" + user;
-		String userDetails = "submissions/" + user + "/details";
-		String userFeedback = "submissions/" + user + "/feedback";
-		String userFeedbackList = "submissions/" + user + "/feedback_list.txt";
-		String userSubmissionList = "submissions/" + user + "/submission_list.txt";
+		String userFolder = "submissions/" + userID;
+		String userDetails = "submissions/" + userID + "/details";
+		String userFeedback = "submissions/" + userID + "/feedback";
+		String userFeedbackList = "submissions/" + userID + "/feedback_list.txt";
+		String userSubmissionList = "submissions/" + userID + "/submission_list.txt";
+		String acceptedSubmissionsList = "submissions/acceptedsubmissions/";
 		File authorFolder = new File(userFolder);
 		File detailsFolder = new File(userDetails);
 		File feedbackFolder = new File(userFeedback);
 		File feedbackListFile = new File (userFeedbackList);
 		File submissionListFile = new File (userSubmissionList);
+		File acceptedSubmissionsFolder = new File (acceptedSubmissionsList);
 
+		if(!acceptedSubmissionsFolder.exists())
+			acceptedSubmissionsFolder.mkdirs();
 		if (!authorFolder.exists()) {
 			authorFolder.mkdirs();
 		}
@@ -114,7 +140,7 @@ public class Admin extends JFrame {
 
 			}
 		}
-		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
+		String niceUsername = user;
 
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
@@ -161,14 +187,15 @@ public class Admin extends JFrame {
 		newsubLabel.setBounds(24, 90, 230, 14);
 		submissionsPanel.add(newsubLabel);
 		
-		DefaultListModel<String> subjectModel = new DefaultListModel<>();
-		JList<String> submissionsList = new JList<String>(subjectModel);
-		submissionsList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent arg0) {
-
-				// Add subjectList Code Here
-			}
-		});
+		
+				
+		DefaultListModel<SubmissionObject> newSubmissionModel = new DefaultListModel<>();
+		JList<SubmissionObject> submissionsList = new JList<SubmissionObject>(newSubmissionModel);
+		
+		
+		
+		
+		
 		submissionsList.setFont(new Font("Arial", Font.PLAIN, 12));
 		JScrollPane submissionsListScrollPane = new JScrollPane(submissionsList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		submissionsListScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -182,24 +209,7 @@ public class Admin extends JFrame {
 		opennewLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		opennewLabel.setBounds(0, 0, 119, 30);
 		opennewButton.add(opennewLabel);
-		opennewButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				opennewButton.setBackground(new Color(255, 219, 5));
-				opennewLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				opennewButton.setBackground(new Color(0, 124, 65));
-				opennewLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-			}
-		});
+
 		opennewButton.setLayout(null);
 		opennewButton.setBackground(new Color(0, 124, 65));
 		opennewButton.setBounds(555, 235, 119, 30);
@@ -275,6 +285,7 @@ public class Admin extends JFrame {
 		deadlineTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		deadlineTextArea.setBounds(24, 510, 291, 30);
 		submissionsPanel.add(deadlineTextArea);
+		deadlineTextArea.append("YYYY-MM-DD");
 		
 		JPanel approveButton = new JPanel();
 		JLabel approveLabel = new JLabel("Approve");
@@ -283,25 +294,7 @@ public class Admin extends JFrame {
 		approveLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		approveLabel.setBounds(0, 0, 119, 30);
 		approveButton.add(approveLabel);
-		approveButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				approveButton.setBackground(new Color(255, 219, 5));
-				approveLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				approveButton.setBackground(new Color(0, 124, 65));
-				approveLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				// Add Nomination Code Here
-			}
-		});
+
 		approveButton.setLayout(null);
 		approveButton.setBackground(new Color(0, 124, 65));
 		approveButton.setBounds(425, 520, 119, 30);
@@ -314,25 +307,7 @@ public class Admin extends JFrame {
 		rejectLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		rejectLabel.setBounds(0, 0, 119, 30);
 		rejectButton.add(rejectLabel);
-		rejectButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				rejectButton.setBackground(new Color(255, 219, 5));
-				rejectLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				rejectButton.setBackground(new Color(0, 124, 65));
-				rejectLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		rejectButton.setLayout(null);
 		rejectButton.setBackground(new Color(0, 124, 65));
 		rejectButton.setBounds(555, 520, 119, 30);
@@ -416,25 +391,7 @@ public class Admin extends JFrame {
 		approveappLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		approveappLabel.setBounds(0, 0, 119, 30);
 		approveappButton.add(approveappLabel);
-		approveappButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				approveappButton.setBackground(new Color(255, 219, 5));
-				approveappLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				approveappButton.setBackground(new Color(0, 124, 65));
-				approveappLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		approveappButton.setLayout(null);
 		approveappButton.setBackground(new Color(0, 124, 65));
 		approveappButton.setBounds(425, 520, 119, 30);
@@ -447,25 +404,7 @@ public class Admin extends JFrame {
 		rejectappLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		rejectappLabel.setBounds(0, 0, 119, 30);
 		rejectappButton.add(rejectappLabel);
-		rejectappButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				rejectappButton.setBackground(new Color(255, 219, 5));
-				rejectappLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				rejectButton.setBackground(new Color(0, 124, 65));
-				rejectappLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		rejectappButton.setLayout(null);
 		rejectappButton.setBackground(new Color(0, 124, 65));
 		rejectappButton.setBounds(555, 520, 119, 30);
@@ -494,7 +433,8 @@ public class Admin extends JFrame {
 		reviewerListScrollPane.setBounds(24, 115, 650, 110);
 		assignPanel.add(reviewerListScrollPane);
 		
-		JList reviewerList = new JList();
+		DefaultListModel<ReviewerObject> reviewerModel = new DefaultListModel<ReviewerObject>();
+		JList <ReviewerObject>reviewerList = new JList<>(reviewerModel);
 		reviewerListScrollPane.setViewportView(reviewerList);
 		
 		JPanel sortselfButton = new JPanel();
@@ -504,25 +444,7 @@ public class Admin extends JFrame {
 		sortselfLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		sortselfLabel.setBounds(0, 0, 135, 20);
 		sortselfButton.add(sortselfLabel);
-		sortselfButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				sortselfButton.setBackground(new Color(255, 219, 5));
-				sortselfLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				sortselfButton.setBackground(new Color(0, 124, 65));
-				sortselfLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		sortselfButton.setLayout(null);
 		sortselfButton.setBackground(new Color(0, 124, 65));
 		sortselfButton.setBounds(394, 90, 135, 20);
@@ -535,25 +457,7 @@ public class Admin extends JFrame {
 		sortauthorLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		sortauthorLabel.setBounds(0, 0, 135, 20);
 		sortauthorButton.add(sortauthorLabel);
-		sortauthorButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				sortauthorButton.setBackground(new Color(255, 219, 5));
-				sortauthorLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				sortauthorButton.setBackground(new Color(0, 124, 65));
-				sortauthorLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		sortauthorButton.setLayout(null);
 		sortauthorButton.setBackground(new Color(0, 124, 65));
 		sortauthorButton.setBounds(539, 90, 135, 20);
@@ -601,7 +505,8 @@ public class Admin extends JFrame {
 		assignpaperListScrollPane.setBounds(24, 390, 650, 110);
 		assignPanel.add(assignpaperListScrollPane);
 		
-		JList assignpaperList = new JList();
+		DefaultListModel<SubmissionObject> assignpaperModel = new DefaultListModel<SubmissionObject>();
+		JList<SubmissionObject> assignpaperList = new JList<>(assignpaperModel);
 		assignpaperListScrollPane.setViewportView(assignpaperList);
 		
 		JPanel assignreviewerButton = new JPanel();
@@ -611,25 +516,7 @@ public class Admin extends JFrame {
 		assignreviewerLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		assignreviewerLabel.setBounds(0, 0, 119, 30);
 		assignreviewerButton.add(assignreviewerLabel);
-		assignreviewerButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				assignreviewerButton.setBackground(new Color(255, 219, 5));
-				assignreviewerLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				assignreviewerButton.setBackground(new Color(0, 124, 65));
-				assignreviewerLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		assignreviewerButton.setLayout(null);
 		assignreviewerButton.setBackground(new Color(0, 124, 65));
 		assignreviewerButton.setBounds(555, 520, 119, 30);
@@ -651,14 +538,9 @@ public class Admin extends JFrame {
 		reviewLabel.setBounds(24, 90, 326, 14);
 		feedbackPanel.add(reviewLabel);
 
-		DefaultListModel<String> paperModel = new DefaultListModel<>();
-		JList<String> feedbackList = new JList<String>(paperModel);
-		feedbackList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent arg0) {
+		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
+		JList<SubmissionObject> feedbackList = new JList<SubmissionObject>(paperModel);
 
-				// Add code to handle paperList
-			}
-		});
 		feedbackList.setFont(new Font("Arial", Font.PLAIN, 12));
 
 		JScrollPane feedbackListScrollPane = new JScrollPane(feedbackList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -690,25 +572,7 @@ public class Admin extends JFrame {
 		releaseLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		releaseLabel.setBounds(0, 0, 119, 30);
 		releaseButton.add(releaseLabel);
-		releaseButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
 
-				releaseButton.setBackground(new Color(255, 219, 5));
-				releaseLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-				releaseButton.setBackground(new Color(0, 124, 65));
-				releaseLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
-			}
-		});
 		releaseButton.setBackground(new Color(0, 124, 65));
 		releaseButton.setBounds(555, 520, 119, 30);
 		feedbackPanel.add(releaseButton);
@@ -753,25 +617,7 @@ public class Admin extends JFrame {
 		openfinalpaperLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		openfinalpaperLabel.setBounds(0, 0, 119, 30);
 		openfinalpaperButton.add(openfinalpaperLabel);
-		openfinalpaperButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
 
-				openfinalpaperButton.setBackground(new Color(255, 219, 5));
-				openfinalpaperLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-				openfinalpaperButton.setBackground(new Color(0, 124, 65));
-				openfinalpaperLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
-			}
-		});
 		openfinalpaperButton.setLayout(null);
 		openfinalpaperButton.setBackground(new Color(0, 124, 65));
 		openfinalpaperButton.setBounds(555, 235, 119, 30);
@@ -802,25 +648,7 @@ public class Admin extends JFrame {
 		finalapproveLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		finalapproveLabel.setBounds(0, 0, 119, 30);
 		finalapproveButton.add(finalapproveLabel);
-		finalapproveButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
 
-				finalapproveButton.setBackground(new Color(255, 219, 5));
-				finalapproveLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-				finalapproveButton.setBackground(new Color(0, 124, 65));
-				finalapproveLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
-			}
-		});
 		finalapproveButton.setLayout(null);
 		finalapproveButton.setBackground(new Color(0, 124, 65));
 		finalapproveButton.setBounds(425, 520, 119, 30);
@@ -833,25 +661,7 @@ public class Admin extends JFrame {
 		finalrejectLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		finalrejectLabel.setBounds(0, 0, 119, 30);
 		finalrejectButton.add(finalrejectLabel);
-		finalrejectButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
 
-				finalrejectButton.setBackground(new Color(255, 219, 5));
-				finalrejectLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-				finalrejectButton.setBackground(new Color(0, 124, 65));
-				finalrejectLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
-			}
-		});
 		finalrejectButton.setLayout(null);
 		finalrejectButton.setBackground(new Color(0, 124, 65));
 		finalrejectButton.setBounds(555, 520, 119, 30);
@@ -895,6 +705,14 @@ public class Admin extends JFrame {
 				contentPanel.add(submissionsPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
+				
+				//refreshes new submissions when its panel is opened
+				getSubmissions(1);
+				newSubmissions = populateSubmissions(newSubmissions);
+				newSubmissionModel.clear();
+				for (int i = 0; i < newSubmissions.length; i++) {
+					newSubmissionModel.addElement(newSubmissions[i]);
+				}
 			}
 		});
 
@@ -933,6 +751,10 @@ public class Admin extends JFrame {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
+				getSubmissions(FEEDBACK_REVIEW_STAGE);
+				newSubmissions = populateSubmissions(newSubmissions);
+				
+				
 
 				contentPanel.add(feedbackPanel);
 				contentPanel.repaint();
@@ -1009,7 +831,17 @@ public class Admin extends JFrame {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
-
+				assignpaperModel.clear();
+				//get submissions with stage = 2
+				getSubmissions(APPROVED_SUBMISSION_STAGE);
+				newSubmissions = populateSubmissions(newSubmissions);
+				
+				for (int i = 0; i < newSubmissions.length; i++) {
+					assignpaperModel.addElement(newSubmissions[i]);
+				}
+				for(int i=0;i<reviewers.length;i++) {
+					reviewerModel.addElement(reviewers[i]);
+				}
 				contentPanel.add(assignPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
@@ -1107,7 +939,554 @@ public class Admin extends JFrame {
 		ualogo.setIcon(new ImageIcon(ualogoImg));
 		
 		
+		// populates new submissions list
+		for (int i = 0; i < newSubmissions.length; i++) {
+			newSubmissionModel.addElement(newSubmissions[i]);
+		}
 
+		// REVIEW NEW SUBMISSIONS LIST LOGIC
+		submissionsList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+				selectedPaper = submissionsList.getSelectedIndices();
+				if (selectedPaper.length == 1) {
+
+					int paperIndex = selectedPaper[0];
+
+					detailtitleSubLabel.setText(newSubmissions[paperIndex].submissionName);
+					detailauthorsSubLabel.setText(newSubmissions[paperIndex].submissionAuthors);
+					detailsubjectSubLabel.setText(newSubmissions[paperIndex].subject);
+
+					if (newSubmissions[paperIndex].preferredReviewerIDs == null)
+						detailprefreviewerSubLabel.setText("No Preferred Reviewers");
+					else
+						detailprefreviewerSubLabel.setText(newSubmissions[paperIndex].preferredReviewerNames);
+
+				} else if (selectedPaper.length >= 2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					submissionsList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				} else if (selectedPaper.length == 0) {
+
+					detailtitleSubLabel.setText("");
+					detailauthorsSubLabel.setText("");
+					detailsubjectSubLabel.setText("");
+					detailprefreviewerSubLabel.setText("");
+				}
+			}
+		});
+
+		// NEW SUBMISSIONS OPEN PAPER BUTTON LOGIC
+		opennewButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				opennewButton.setBackground(new Color(255, 219, 5));
+				opennewLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				opennewButton.setBackground(new Color(0, 124, 65));
+				opennewLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				if (selectedPaper.length == 0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				} else {
+
+					
+					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(selectedPaper[0]);
+
+					
+					String paperName = paperOfInterest.submissionName;
+
+					// gets filename of paper
+					String filename = paperOfInterest.filename;
+
+					// get filepath of project folder
+					File f = new File(filename);
+					StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
+					filepath.setLength(filepath.length() - filename.length());
+
+					// replaces instances of "\" with "\\" (java requires this)
+					String separator = "\\";
+					String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\")
+							.split("\\\\");
+
+					// builds new filepath string, inserting / instead of \
+					filepath = new StringBuilder(intermediate[0] + "/");
+					for (int i = 1; i < intermediate.length; i++) {
+						filepath.append(intermediate[i] + "/");
+					}
+
+					// final string containing file location
+					String fileLocation = "file:///" + filepath.toString() + "submissions/"
+							+ paperOfInterest.submissionUserID + "/" + filename;
+
+					try {
+						Desktop.getDesktop().browse(new URI(fileLocation));
+					} catch (IOException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+
+					// example final string format
+					// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
+				}
+				
+				
+			}
+		});
+		
+		//private void setSubmissionStage(String submissionName, String subject, int stage) 
+
+		// APPROVE NEW SUBMISSION BUTTON LOGIC
+		approveButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				approveButton.setBackground(new Color(255, 219, 5));
+				approveLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				approveButton.setBackground(new Color(0, 124, 65));
+				approveLabel.setForeground(Color.WHITE);
+			}
+
+			@SuppressWarnings("static-access")
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				if(selectedPaper.length==1) {
+					int paperIndex = selectedPaper[0];
+					String submissionName = newSubmissionModel.getElementAt(paperIndex).submissionName;
+					String subject = detailsubjectSubLabel.getText();
+					
+					setSubmissionStage(submissionName, subject, 2);
+
+					getSubmissions(1);
+					newSubmissions = populateSubmissions(newSubmissions);
+					
+					newSubmissionModel.clear();
+					for (int i = 0; i < newSubmissions.length; i++) {
+						newSubmissionModel.addElement(newSubmissions[i]);
+					}
+				}
+				else {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected to approve.", "No paper selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+				// Add approve new submission here
+			}
+		});
+
+		// REJECT NEW SUBMISSION BUTTON LOGIC
+		rejectButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				rejectButton.setBackground(new Color(255, 219, 5));
+				rejectLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				rejectButton.setBackground(new Color(0, 124, 65));
+				rejectLabel.setForeground(Color.WHITE);
+			}
+
+			@SuppressWarnings("static-access")
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				if(selectedPaper.length==1) {
+					int paperIndex = selectedPaper[0];
+					String submissionName = newSubmissionModel.getElementAt(paperIndex).submissionName;
+					String subject = detailsubjectSubLabel.getText();
+					
+					setSubmissionStage(submissionName, subject, 0);
+					
+
+					getSubmissions(1);
+					newSubmissions = populateSubmissions(newSubmissions);
+					newSubmissionModel.clear();
+					for (int i = 0; i < newSubmissions.length; i++) {
+						newSubmissionModel.addElement(newSubmissions[i]);
+					}
+				}
+				else {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected to reject.", "No paper selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+			}
+		});
+
+		// APPROVE NEW REVIEWER APPLICATION BUTTON
+		approveappButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				approveappButton.setBackground(new Color(255, 219, 5));
+				approveappLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				approveappButton.setBackground(new Color(0, 124, 65));
+				approveappLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+			}
+		});
+
+		// REJECT NEW REVIEWER APPLICATION BUTTON
+		rejectappButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				rejectappButton.setBackground(new Color(255, 219, 5));
+				rejectappLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				rejectButton.setBackground(new Color(0, 124, 65));
+				rejectappLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+			}
+		});
+
+		// SORT REVIEWERS BY REVIEWER NOMINATED BUTTON
+		sortselfButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				sortselfButton.setBackground(new Color(255, 219, 5));
+				sortselfLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				sortselfButton.setBackground(new Color(0, 124, 65));
+				sortselfLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				
+				
+				
+			}
+		});
+
+		// SORT REVIEWERS BY AUTHOR NOMINATED BUTTON
+		sortauthorButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				sortauthorButton.setBackground(new Color(255, 219, 5));
+				sortauthorLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				sortauthorButton.setBackground(new Color(0, 124, 65));
+				sortauthorLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+			}
+		});
+
+		// ASSIGN REVIEWER BUTTON
+		assignreviewerButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				assignreviewerButton.setBackground(new Color(255, 219, 5));
+				assignreviewerLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				assignreviewerButton.setBackground(new Color(0, 124, 65));
+				assignreviewerLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+			}
+		});
+
+		// REVIEW FEEDBACK LIST LOGIC
+		feedbackList.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				// Add code to handle paperList
+			}
+		});
+
+		// RELEASE FEEDBACK BUTTON
+		releaseButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				releaseButton.setBackground(new Color(255, 219, 5));
+				releaseLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				releaseButton.setBackground(new Color(0, 124, 65));
+				releaseLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				// Add submit logic that grabs from feedbackTextArea and appends to a file
+			}
+		});
+
+		// OPEN PAPER BUTTON IN FINAL SUBMISSIONS
+		openfinalpaperButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				openfinalpaperButton.setBackground(new Color(255, 219, 5));
+				openfinalpaperLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				openfinalpaperButton.setBackground(new Color(0, 124, 65));
+				openfinalpaperLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+			}
+		});
+
+		// APPROVE BUTTON FINAL SUBMISSION
+		finalapproveButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				finalapproveButton.setBackground(new Color(255, 219, 5));
+				finalapproveLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				finalapproveButton.setBackground(new Color(0, 124, 65));
+				finalapproveLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				// Add submit logic that grabs from feedbackTextArea and appends to a file
+			}
+		});
+
+		// REJECT BUTTON FINAL SUBMISSION
+		finalrejectButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				finalrejectButton.setBackground(new Color(255, 219, 5));
+				finalrejectLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				finalrejectButton.setBackground(new Color(0, 124, 65));
+				finalrejectLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				// Add submit logic that grabs from feedbackTextArea and appends to a file
+			}
+		});
+		
 	}
+	
+	
+	
+	
+	
+	/**
+	 * Gets user's submissions from an sql query and stores in a global ResultSet
+	 */
+	private void getSubmissions(int stage) {
+		PreparedStatement ps;
+
+		String query = "SELECT * FROM submission WHERE submissionStage  = ?";
+
+		try {
+			ps=SQLConnection.getConnection().prepareStatement(query);
+
+			ps.setInt(1, stage);
+
+			submissionSet=ps.executeQuery();
+		}catch(Exception e) {System.out.println(e); System.out.println("Failure searching for user submissions");}
+	}
+	
+	
+	/**
+	 * Populates a global array of SubmissionObjects to store results of initial SQL query
+	 * for user submissions, eliminating the need to constantly query SQL database
+	 */
+	private SubmissionObject[] populateSubmissions(SubmissionObject[] submissions) {
+
+		try {
+			int numOfSubmissions = 0;
+			while(submissionSet.next())
+				numOfSubmissions++;
+
+			int i=0;
+
+			submissions = new SubmissionObject[numOfSubmissions];
+			submissionSet.beforeFirst();
+
+			while(submissionSet.next()) {
+				int submissionID = submissionSet.getInt("submissionID");
+				String submissionName = submissionSet.getString("submissionName");
+				String submissionAuthors = submissionSet.getString("submissionAuthors");
+				String subject = submissionSet.getString("subject");
+				String submissionDate = submissionSet.getString("submissionDate");
+				int submissionStage = submissionSet.getInt("submissionStage");
+				String filename= submissionSet.getString("filename");
+				int submissionUserID = submissionSet.getInt("submissionUserID");
+				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
+
+				String submissionDeadline = submissionSet.getString("submissionDeadline");
+				String reviewerIDs = submissionSet.getString("reviewerIDs");
+				String feedbackIDs = submissionSet.getString("feedbackIDs");
+				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
+
+				if(submissionDeadline==null)
+					submissions[i].submissionDeadline = null;
+				else
+					submissions[i].submissionDeadline = submissionDeadline;
+
+				if(reviewerIDs==null)
+					submissions[i].reviewerIDs = null;
+				else
+					submissions[i].reviewerIDs = reviewerIDs;
+
+				if(feedbackIDs==null)
+					submissions[i].feedbackIDs = null;
+				else
+					submissions[i].feedbackIDs = feedbackIDs;
+
+				if(preferredReviewerIDs==null)
+					submissions[i].preferredReviewerIDs = null;
+				else
+					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+				submissions[i].setReviewerNames();
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return submissions;
+	}
+	
+	
+	private void setSubmissionStage(String submissionName, String subject, int stage) {
+		PreparedStatement ps;
+		
+		String query = "UPDATE submission SET submissionStage = ? WHERE submissionName = ? AND subject = ?";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setInt(1, stage);
+			ps.setString(2, submissionName);
+			ps.setString(3, subject);
+			
+			ps.executeUpdate();
+			
+			
+		}catch(Exception e) {e.printStackTrace();}
+	}
+	
+	private void getReviewers() {
+		PreparedStatement ps;
+		
+		reviewers = new ReviewerObject[50];
+		String query = "SELECT * FROM users WHERE userType = 2";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			
+			reviewerSet = ps.executeQuery();
+			int count = 0;
+			while(reviewerSet.next()) {
+				int userID = reviewerSet.getInt("userID");
+				String username = reviewerSet.getString("username");
+				String name = reviewerSet.getString("name");
+				String email = reviewerSet.getString("email");
+				int userType = 2;
+				
+				reviewers[count] = new ReviewerObject(userID, username, name, email, userType);
+				count++;
+				
+				
+				
+			}
+		}catch(Exception e) {e.printStackTrace();}
+		
+	}
+	
+	private void getReviewers(int submissionID) {
+		
+		
+	}
+	
 }
 

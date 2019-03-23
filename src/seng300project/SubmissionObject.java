@@ -46,6 +46,8 @@ public class SubmissionObject {
 	//Names of reviewers assigned to the submission
 	//May be null if reviewerIDs is null
 	public String reviewerNames;
+	
+	public String preferredReviewerNames;
 
 	//Map for reviewer assigned papers logic to check if
 	//a paper is assigned to a reviewer
@@ -99,7 +101,10 @@ public class SubmissionObject {
 	 */
 	public void setReviewerNames() {
 		if(reviewerIDs!=null) {
-			getSubReviewers(this.reviewerIDs);
+			this.reviewerNames = getSubReviewers(this.reviewerIDs);
+		}
+		if(preferredReviewerIDs!=null) {
+			this.preferredReviewerNames = getSubReviewers(this.preferredReviewerIDs);
 		}
 	}
 
@@ -108,7 +113,7 @@ public class SubmissionObject {
 	 * @param reviewerIDs String list of reviewer ID numbers, separated by commas
 	 * @return returns complete StringBuilder of reviewers
 	 */
-	private void getSubReviewers(String reviewerIDs) {
+	private String getSubReviewers(String reviewerIDs) {
 		PreparedStatement ps;
 		ResultSet rs;
 
@@ -141,8 +146,11 @@ public class SubmissionObject {
 		//remove last 2 characters in names (a space and comma))
 		reviewerNames.setLength(reviewerNames.length()-2);
 		
-		this.reviewerNames = reviewerNames.toString();
+		return reviewerNames.toString();
 	}
 
+	public String toString() {
+		return submissionName;
+	}
 
 }
