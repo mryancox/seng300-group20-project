@@ -925,7 +925,7 @@ public class Admin extends JFrame implements Constants {
 				
 				finalButton.setBackground(new Color(0, 124, 65));
 				final1Label.setForeground(Color.WHITE);
-				final2Label.setForeground(Color.BLACK);
+				final2Label.setForeground(Color.WHITE);
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {

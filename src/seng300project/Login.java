@@ -309,7 +309,7 @@ public class Login {
     			admin.setVisible(true);
     			admin.setLocationRelativeTo(null);
 			}
-			if(loginDetails[0].equals("1")) {
+			else if(loginDetails[0].equals("1")) {
 				login.setVisible(false);
     			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
     			author.setVisible(true);
