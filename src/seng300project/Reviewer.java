@@ -85,11 +85,13 @@ public class Reviewer extends JFrame implements Constants{
 
 	/**
 	 * Create the frame.
-	 * @param user
+	 * @param user - User's name (not username)
+	 * @param ID - user's userID (invisible to user)
 	 */
 	public Reviewer(String user, int ID) {
 		this.userID=ID;
 		
+		//get list of subjects and submissions, for each subject
 		getSubjects();
 		getSubmissions();
 		populateSubmissions();
@@ -103,6 +105,8 @@ public class Reviewer extends JFrame implements Constants{
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
+		
+		//check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
 		String userFeedback = "submissions/" + userID + "/feedback";
@@ -138,7 +142,6 @@ public class Reviewer extends JFrame implements Constants{
 			}
 		}
 		
-		//String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 		String niceUsername = user;
 
 		JPanel menuPanel = new JPanel();
@@ -471,10 +474,17 @@ public class Reviewer extends JFrame implements Constants{
 		subjectList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
+				//Ensure mouse click causes an update only once
 				if (!subjectList.getValueIsAdjusting()) {
+					
+					//clear elements in list of submissions
 					nominateModel.removeAllElements();
+					
+					//get indices of selected subject
 					int[] selectedSubject = subjectList.getSelectedIndices();
 
+					//Ensure only one subject is selected and display the papers in that subject
 					if (selectedSubject.length == 1) {
 						for (int i = 0; i < submissions.length; i++)
 							if (submissions[i].subject.equals(subjects[selectedSubject[0]]))
@@ -492,9 +502,12 @@ public class Reviewer extends JFrame implements Constants{
 		});
 
 		// LOGIC FOR ASSIGNED PAPERS LIST
+		// Only needs to ensure one paper is selected
 		assignedList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
+				//get indices of selected papers
 				selectedPaper = assignedList.getSelectedIndices();
 				if (selectedPaper.length == 1) {
 
@@ -511,7 +524,7 @@ public class Reviewer extends JFrame implements Constants{
 			}
 		});
 
-		// populates list of assigned papers while storing info for later use
+		// populates list of assigned papers
 		for (int i = 0; i < submissions.length; i++) {
 			if (submissions[i].reviewers.get(this.userID) != null && submissions[i].submissionStage == FEEDBACK_GATHERING_STAGE) {
 				paperModel.addElement(submissions[i]);
@@ -544,7 +557,8 @@ public class Reviewer extends JFrame implements Constants{
 					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected",
 							JOptionPane.PLAIN_MESSAGE, null);
 				} else {
-
+					
+					// gets specific paper selected as an object for easy retrieval of details
 					SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
 					
 					// gets filename of paper
@@ -570,6 +584,7 @@ public class Reviewer extends JFrame implements Constants{
 					String fileLocation = "file:///" + filepath.toString() + "submissions/"
 							+ paperOfInterest.submissionUserID + "/" + filename;
 
+					//Opens the file
 					try {
 						Desktop.getDesktop().browse(new URI(fileLocation));
 					} catch (IOException | URISyntaxException e) {
@@ -587,6 +602,8 @@ public class Reviewer extends JFrame implements Constants{
 		nominateList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
+				//get indices of selected papers
 				selected = nominateList.getSelectedIndices();
 				if (selected.length >= 2) {
 					UIManager UI = new UIManager();
@@ -626,7 +643,7 @@ public class Reviewer extends JFrame implements Constants{
 				} else {
 					int submissionID = nominateModel.getElementAt(selected[0]).submissionID;
 
-
+					//call method that sends sql update adding userID to nominated reviewers
 					nominateReview(submissionID);
 				}
 			}
@@ -660,8 +677,10 @@ public class Reviewer extends JFrame implements Constants{
 				} else {
 					if (!feedbackTextArea.getText().equals("")) {
 						
+						// gets specific paper selected as an object for easy retrieval of details
 						SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
 						
+						// gets name of paper
 						String papername = paperOfInterest.submissionName;
 
 						// gets filename of paper
@@ -687,7 +706,7 @@ public class Reviewer extends JFrame implements Constants{
 						String fileLocation = filepath.toString() + "submissions/" + paperOfInterest.submissionUserID
 								+ "/feedback/" + papername + ".txt";
 
-						// appending to the file
+						// appending to the feedback file
 						try {
 							FileWriter fw = new FileWriter(fileLocation, true);
 							BufferedWriter bw = new BufferedWriter(fw);
@@ -711,11 +730,10 @@ public class Reviewer extends JFrame implements Constants{
 								"Thank you for your feedback!\n It will be reviewed shortly.", "Feedback Accepted",
 								JOptionPane.PLAIN_MESSAGE, null);
 						
+						//refresh list of papers requiring feedback
 						paperModel.clear();
-						
 						getSubmissions();
 						populateSubmissions();
-						
 						for (int i = 0; i < submissions.length; i++) {
 							if (submissions[i].reviewers.get(userID) != null && submissions[i].submissionStage==FEEDBACK_GATHERING_STAGE) {
 								paperModel.addElement(submissions[i]);
@@ -736,7 +754,9 @@ public class Reviewer extends JFrame implements Constants{
 
 	}
 	
-	
+	/**
+	 * Get list of subjects by querying for unique strings in the sql column
+	 */
 	private void getSubjects() {
 		PreparedStatement ps;
 		ResultSet rs;
@@ -747,6 +767,8 @@ public class Reviewer extends JFrame implements Constants{
 			ps = SQLConnection.getConnection().prepareStatement(query);
 			rs = ps.executeQuery();
 			int count = 0;
+			
+			//iterates over returned subjects and populates an array with subjects
 			while(rs.next()) {
 				subjects[count] = rs.getString("subject");
 				count++;
@@ -781,16 +803,25 @@ public class Reviewer extends JFrame implements Constants{
 	private void populateSubmissions() {
 
 		try {
+			
+			// Get number of submissions retrieved in order to set size of submissions array
 			int numOfSubmissions = 0;
 			while(submissionSet.next())
 				numOfSubmissions++;
 
+			// i is a counter for iterating over submissions array
 			int i=0;
-
+			
+			// sets size of submissions array
 			submissions = new SubmissionObject[numOfSubmissions];
+			
+			// resets position of submissionSet ResultSet
 			submissionSet.beforeFirst();
 
+			// iterates over submission ResultSet and submissions array, populating the
+			// array
 			while(submissionSet.next()) {
+				// get all details of each submission for constructor
 				int submissionID = submissionSet.getInt("submissionID");
 				String submissionName = submissionSet.getString("submissionName");
 				String submissionAuthors = submissionSet.getString("submissionAuthors");
@@ -799,8 +830,11 @@ public class Reviewer extends JFrame implements Constants{
 				int submissionStage = submissionSet.getInt("submissionStage");
 				String filename= submissionSet.getString("filename");
 				int submissionUserID = submissionSet.getInt("submissionUserID");
+				
+				// SubmissionObject constructor call
 				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
 
+				// get extra details which may be null
 				String submissionDeadline = submissionSet.getString("submissionDeadline");
 				String reviewerIDs = submissionSet.getString("reviewerIDs");
 				String feedbackIDs = submissionSet.getString("feedbackIDs");
@@ -825,8 +859,11 @@ public class Reviewer extends JFrame implements Constants{
 					submissions[i].preferredReviewerIDs = null;
 				else
 					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+				
+				// call SubmissionObject method that retrieves reviewer names from reviewer IDs
 				submissions[i].setReviewerNames();
-
+				
+				//increment counter
 				i++;
 			}
 		} catch (SQLException e) {
@@ -897,24 +934,32 @@ public class Reviewer extends JFrame implements Constants{
 	/**
 	 * Submits a feedback item into SQL database if a feedback item for 
 	 * the submission in question does not already exist.
+	 * 
+	 * Performs 3 possible queries:
+	 * 1. gets feedback entry to check if feedback already exists for the submission. If already exists, skip 2.
+	 * 2. if no feedback entry already exists, inserts a new entry
+	 * 3. updates submissionStage of the submission 
+	 * 
+	 * NOTE that currently the feedback list is not used for anything
+	 * 
 	 * @param submissionID
-	 * @param filename
-	 */
+	 * @param filename - filename of feedback file
+	 */ 
 	private void submitFeedback(int submissionID, String filename) {
 		PreparedStatement ps;
 		ResultSet rs;
 
-		String query1 = "SELECT * FROM feedback WHERE submissionID = ?";
-		String query = "INSERT INTO feedback (filename, submissionID, userID) values (?, ?, ?)";
+		String query = "SELECT * FROM feedback WHERE submissionID = ?";
+		String query1 = "INSERT INTO feedback (filename, submissionID, userID) values (?, ?, ?)";
 		String query2 = "UPDATE submission SET submissionStage = 4 WHERE submissionID = ?";
 		
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query1);
+			ps = SQLConnection.getConnection().prepareStatement(query);
 			ps.setInt(1, submissionID);
 			rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				ps = SQLConnection.getConnection().prepareStatement(query);
+				ps = SQLConnection.getConnection().prepareStatement(query1);
 				ps.setString(1, filename);
 				ps.setInt(2, submissionID);
 				ps.setInt(3,  userID);

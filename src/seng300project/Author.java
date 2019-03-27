@@ -91,7 +91,8 @@ public class Author extends JFrame implements Constants{
 
 	/**
 	 * Create the frame.
-	 * @param user
+	 * @param user - User's name (not username)
+	 * @param ID - user's userID (invisible to user)
 	 */
 	public Author(String user, int ID) {
 		this.userID=ID;
@@ -100,7 +101,7 @@ public class Author extends JFrame implements Constants{
 		getSubmissions();
 		getReviewers();
 		populateSubmissions();
-		getFeedback();
+		//getFeedback();
 
 
 		setTitle("Journal Submission System");
@@ -112,6 +113,8 @@ public class Author extends JFrame implements Constants{
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
+		
+		//check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
 		String userFeedback = "submissions/" + userID + "/feedback";
@@ -660,15 +663,22 @@ public class Author extends JFrame implements Constants{
 		submissionList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
+				//get indices of selected papers
 				int[] selectedPaper = submissionList.getSelectedIndices();
+				
+				//check if only one paper is selected
 				if (selectedPaper.length == 1) {
 
+					//index of selected paper
 					int paperIndex = selectedPaper[0];
 
+					//displays the details of selected paper
 					datatitleListLabel.setText(submissions[paperIndex].submissionName);
 					dataauthorsListLabel.setText(submissions[paperIndex].submissionAuthors);
 					datasubjectListLabel.setText(submissions[paperIndex].subject);
 
+					//the following values may be null so they require checks
 					if (submissions[paperIndex].reviewerIDs == null)
 						datareviewersListLabel.setText("No Reviewers Assigned");
 					else
@@ -715,20 +725,30 @@ public class Author extends JFrame implements Constants{
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
 
+				//Clear any existing text in the feedback area
 				feedbackTextArea.setText("");
+				
+				//get indices of selected submission
 				int[] selectedPaper = paperList.getSelectedIndices();
+				
+				//check if only one paper is selected
 				if (selectedPaper.length == 1) {
 
+					//gets selected paper as an object
 					SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
 					
-					paperInDetail = paperOfInterest.submissionName.split("\\.")[0];
+					//Gets submission name
+					paperInDetail = paperOfInterest.submissionName;
 					
-					
+					//get filename of submission for resubmit button
 					resubmitFilename = paperOfInterest.filename;
+					
+					//filename of feedback file
 					String feedbackFile = "submissions/" + userID + "/feedback/" + paperInDetail + ".txt";
 
 
 					
+					//print feedback to textarea
 					Scanner feedback;
 
 					try {
@@ -835,6 +855,7 @@ public class Author extends JFrame implements Constants{
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				//Checks if any text area is empty and displays error code if true
 				if (titleTextArea.getText().isEmpty() || authorsTextArea.getText().isEmpty()
 						|| researchTextArea.getText().isEmpty() || prefreviewersTextArea.getText().isEmpty()
 						|| filelocationTextArea.getText().isEmpty()) {
@@ -847,14 +868,17 @@ public class Author extends JFrame implements Constants{
 							"Missing Submission Details", JOptionPane.PLAIN_MESSAGE, null);
 				} else {
 
+					//Gets all required details ready for submission into SQL database
 					newTitle = titleTextArea.getText();
 					newAuthors = authorsTextArea.getText();
-					newAuthorsArray = newAuthors.split("\\s*,\\s*");
+					//newAuthorsArray = newAuthors.split("\\s*,\\s*");
 					newSubject = researchTextArea.getText();
-					newPrefreviewers = prefreviewersTextArea.getText();
-					newPrefreviewersArray = newPrefreviewers.split("\\s*,\\s*");
+					//newPrefreviewers = prefreviewersTextArea.getText();
+					//newPrefreviewersArray = newPrefreviewers.split("\\s*,\\s*");
 					filelocation = filelocationTextArea.getText();
 
+					/*
+					//Legacy code from file i/o era
 					if (!submissionModel.contains(filename)) {
 						try {
 							FileWriter fw = new FileWriter(userSubmissionList, true);
@@ -876,7 +900,9 @@ public class Author extends JFrame implements Constants{
 					} catch (IOException e) {
 
 					}
-
+					 */
+					
+					//Copy file to user submissions folder
 					Path source = Paths.get(filelocation);
 					Path dest = Paths.get(userFolder + "/" + filename);
 					try {
@@ -888,17 +914,17 @@ public class Author extends JFrame implements Constants{
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
+					//Submits SQL update with new submission
 					makeSubmission(newTitle, newAuthors, newSubject, filename);
 
 					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.",
 							"Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
 
+					//refresh list of new submissions
 					getSubmissions();
 					getReviewers();
 					populateSubmissions();
-
 					submissionModel.removeAllElements();
-
 					for(int i=0;i<submissions.length;i++) {
 						submissionModel.addElement(submissions[i]);
 					}
@@ -948,57 +974,75 @@ public class Author extends JFrame implements Constants{
 
 
 	/**
-	 * Populates a global array of SubmissionObjects to store results of initial SQL query
-	 * for user submissions, eliminating the need to constantly query SQL database
+	 * Populates a global array of SubmissionObjects to store results of initial SQL
+	 * query for user submissions, eliminating the need to constantly query SQL
+	 * database
 	 */
 	private void populateSubmissions() {
 
 		try {
+
+			// Get number of submissions retrieved in order to set size of submissions array
 			int numOfSubmissions = 0;
-			while(submissionSet.next())
+			while (submissionSet.next())
 				numOfSubmissions++;
 
-			int i=0;
+			// i is a counter for iterating over submissions array
+			int i = 0;
 
+			// sets size of submissions array
 			submissions = new SubmissionObject[numOfSubmissions];
+
+			// resets position of submissionSet ResultSet
 			submissionSet.beforeFirst();
 
-			while(submissionSet.next()) {
+			// iterates over submission ResultSet and submissions array, populating the
+			// array
+			while (submissionSet.next()) {
+				// get all details of each submission for constructor
 				int submissionID = submissionSet.getInt("submissionID");
 				String submissionName = submissionSet.getString("submissionName");
 				String submissionAuthors = submissionSet.getString("submissionAuthors");
 				String subject = submissionSet.getString("subject");
 				String submissionDate = submissionSet.getString("submissionDate");
 				int submissionStage = submissionSet.getInt("submissionStage");
-				String filename= submissionSet.getString("filename");
+				String filename = submissionSet.getString("filename");
 				int submissionUserID = submissionSet.getInt("submissionUserID");
-				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
+				
+				// SubmissionObject constructor call
+				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
+						submissionDate, submissionStage, filename, submissionUserID);
 
+				// get extra details which may be null
 				String submissionDeadline = submissionSet.getString("submissionDeadline");
 				String reviewerIDs = submissionSet.getString("reviewerIDs");
 				String feedbackIDs = submissionSet.getString("feedbackIDs");
 				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
 
-				if(submissionDeadline==null)
+				if (submissionDeadline == null)
 					submissions[i].submissionDeadline = null;
 				else
 					submissions[i].submissionDeadline = submissionDeadline;
 
-				if(reviewerIDs==null)
+				if (reviewerIDs == null)
 					submissions[i].reviewerIDs = null;
 				else
 					submissions[i].reviewerIDs = reviewerIDs;
 
-				if(feedbackIDs==null)
+				if (feedbackIDs == null)
 					submissions[i].feedbackIDs = null;
 				else
 					submissions[i].feedbackIDs = feedbackIDs;
 
-				if(preferredReviewerIDs==null)
+				if (preferredReviewerIDs == null)
 					submissions[i].preferredReviewerIDs = null;
 				else
 					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+
+				// call SubmissionObject method that retrieves reviewer names from reviewer IDs
 				submissions[i].setReviewerNames();
+
+				// increment counter
 				i++;
 			}
 		} catch (SQLException e) {
@@ -1009,7 +1053,9 @@ public class Author extends JFrame implements Constants{
 
 	/**
 	 * Populates a global array of FeedbackObjects to store on startup so loading
-	 * between feedback is fast.
+	 * between feedback is fast. 
+	 * 
+	 * Currently unused
 	 */
 	private void getFeedback() {
 		
@@ -1026,6 +1072,7 @@ public class Author extends JFrame implements Constants{
 				
 				int counter = 0;
 				
+				//populates array of feedback
 				while(feedbackSet.next()) {
 					int feedbackID = feedbackSet.getInt("feedbackID");
 					String feedbackDate = feedbackSet.getString("feedbackDate");
@@ -1081,8 +1128,6 @@ public class Author extends JFrame implements Constants{
 		
 		return 0;
 	}
-	
-	
 }
 
 	

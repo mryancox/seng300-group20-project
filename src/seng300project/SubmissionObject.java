@@ -47,6 +47,7 @@ public class SubmissionObject {
 	//May be null if reviewerIDs is null
 	public String reviewerNames;
 	
+	//String for possible user specified perferred reviewers
 	public String preferredReviewerNames;
 
 	//Map for reviewer assigned papers logic to check if

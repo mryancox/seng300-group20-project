@@ -143,6 +143,8 @@ public class Login {
 		rightPanel.add(ualbertaLogo);
 
 		JLabel githubIcon = new JLabel("");
+		
+		//opens github repo when github icon is clicked
 		githubIcon.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
@@ -195,7 +197,7 @@ public class Login {
 				String user = username.getText();
 				String pw = String.valueOf(password.getPassword());
 
-				
+				//retrieves login details (checkLogin returns -1 -1 for nonmatching username + password combo)
 				//loginDetails[0]=usertype [1]=userID [2]=name
 				String[] loginDetails = checkLogin(user,pw);
 

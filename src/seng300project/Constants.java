@@ -30,7 +30,7 @@ public interface Constants {
 	final static int FINAL_SUBMISSION_STAGE = 6;
 	final static int ACCEPTED_FINAL_STAGE = 7;
 	
+	//levels for feedback currently unused
 	final static int INITIAL_FEEDBACK_LEVEL = 0;
 	final static int RELEASED_FEEDBACK = 1;
-
 }

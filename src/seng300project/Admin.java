@@ -93,13 +93,19 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Create the frame.
-	 * @param user
+	 * @param user - User's name (not username)
+	 * @param ID - user's userID (invisible to user)
 	 */
 	public Admin(String user, int ID) {
 		this.userID=ID;
 
-		getSubmissions(1);
+		//get resultset of new submissions
+		getSubmissions(NEW_SUBMISSION_STAGE);
+		
+		//populate an array of new submissions
 		newSubmissions = populateSubmissions(newSubmissions);
+		
+		//get array of reviewers
 		getReviewers();
 		
 		setTitle("Journal Submission System");
@@ -111,6 +117,8 @@ public class Admin extends JFrame implements Constants {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
+		
+		//check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
 		String userFeedback = "submissions/" + userID + "/feedback";
@@ -693,6 +701,9 @@ public class Admin extends JFrame implements Constants {
 		submissionsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		submissionsLabel.setBounds(0, 0, 180, 30);
 		submissionsButton.add(submissionsLabel);
+		
+		//MouseListener for new submissions tab that opens submission panel and 
+		//refreshes for new submissions
 		submissionsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -743,6 +754,8 @@ public class Admin extends JFrame implements Constants {
 		feedbackLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		feedbackLabel.setBounds(0, 0, 180, 30);
 		feedbackButton.add(feedbackLabel);
+		
+		//MouseListener for review feedback tab that refreshes for new feedback when clicked
 		feedbackButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -788,6 +801,8 @@ public class Admin extends JFrame implements Constants {
 		verifyLabel.setForeground(Color.WHITE);
 		verifyLabel.setBounds(0, 0, 180, 30);
 		verifyButton.add(verifyLabel);
+		
+		//MouseListener for verify new reviewers tab
 		verifyButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -826,6 +841,8 @@ public class Admin extends JFrame implements Constants {
 		assignLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		assignLabel.setBounds(0, 0, 180, 30);
 		assignButton.add(assignLabel);
+		
+		//MouseListener for assigning reviewers tab that refreshes submissions in that stage
 		assignButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -876,6 +893,8 @@ public class Admin extends JFrame implements Constants {
 		logoutLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		logoutLabel.setBounds(0, 0, 180, 30);
 		logoutButton.add(logoutLabel);
+		
+		//Logout button mouselistener
 		logoutButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -912,6 +931,8 @@ public class Admin extends JFrame implements Constants {
 		final2Label.setForeground(Color.WHITE);
 		final2Label.setBounds(0, 30, 180, 30);
 		finalButton.add(final2Label);
+		
+		//MouseListener for final submissions tab
 		finalButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -963,19 +984,26 @@ public class Admin extends JFrame implements Constants {
 			newSubmissionModel.addElement(newSubmissions[i]);
 		}
 
-		// REVIEW NEW SUBMISSIONS LIST LOGIC
+		//NEW SUBMISSIONS LIST LOGIC
 		submissionsList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
+				//gets selected indices in the list to validate if only one is selected at a time
 				selectedPaper = submissionsList.getSelectedIndices();
+				
+				
 				if (selectedPaper.length == 1) {
-
+					
+					//index of selected paper
 					int paperIndex = selectedPaper[0];
 
+					//shows details for selected paper
 					detailtitleSubLabel.setText(newSubmissions[paperIndex].submissionName);
 					detailauthorsSubLabel.setText(newSubmissions[paperIndex].submissionAuthors);
 					detailsubjectSubLabel.setText(newSubmissions[paperIndex].subject);
 
+					//Checks if any preferred reviewers were specified and displays a message if none
 					if (newSubmissions[paperIndex].preferredReviewerIDs == null)
 						detailprefreviewerSubLabel.setText("No Preferred Reviewers");
 					else
@@ -983,6 +1011,7 @@ public class Admin extends JFrame implements Constants {
 
 				} else if (selectedPaper.length >= 2) {
 
+					//Show an error message if more than 2 papers are selected
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
@@ -991,6 +1020,7 @@ public class Admin extends JFrame implements Constants {
 							JOptionPane.PLAIN_MESSAGE, null);
 				} else if (selectedPaper.length == 0) {
 
+					//clear details section if no paper is selected
 					detailtitleSubLabel.setText("");
 					detailauthorsSubLabel.setText("");
 					detailsubjectSubLabel.setText("");
@@ -1027,11 +1057,8 @@ public class Admin extends JFrame implements Constants {
 							JOptionPane.PLAIN_MESSAGE, null);
 				} else {
 
-					
+					// gets specific paper selected as an object for easy retrieval of details
 					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(selectedPaper[0]);
-
-					
-					//String paperName = paperOfInterest.submissionName;
 
 					// gets filename of paper
 					String filename = paperOfInterest.filename;
@@ -1056,6 +1083,7 @@ public class Admin extends JFrame implements Constants {
 					String fileLocation = "file:///" + filepath.toString() + "submissions/"
 							+ paperOfInterest.submissionUserID + "/" + filename;
 
+					//Opens the file 
 					try {
 						Desktop.getDesktop().browse(new URI(fileLocation));
 					} catch (IOException | URISyntaxException e) {
@@ -1070,9 +1098,10 @@ public class Admin extends JFrame implements Constants {
 			}
 		});
 		
-		//private void setSubmissionStage(String submissionName, String subject, int stage) 
 
 		// APPROVE NEW SUBMISSION BUTTON LOGIC
+		// When button is clicked, the selected paper is deleted from the list, 
+		// and its submissionStage in SQL database is changed, as well as its deadline
 		approveButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -1091,29 +1120,46 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				
+				//boolean to check if entered deadline date is valid
 				boolean validDate = true;
 				
-				String inputDate = deadlineTextArea.getText();
+				//get user input date
+				String submissionDeadline = deadlineTextArea.getText();
+				
+				//set format for date
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				
+				//get current date to check against
 				Date today = new Date();
+				
 				     try {
-				          format.parse(inputDate);
-				          if(format.parse(inputDate).before(today))
+				    	 //parses entered date by above format, throws an exception if does not match
+				          format.parse(submissionDeadline);
+				          
+				          //check if entered date is before current date 
+				          if(format.parse(submissionDeadline).before(today))
 				        	  validDate=false;
 				     }
 				     catch(ParseException e){
 				    	 validDate = false;
 				     }
-				
+				     //either improper format or date before today sets validDate to false, which then shows an error message
+				     
 				if(selectedPaper.length==1 && validDate) {
+					
+					//gets index of selected paper in list
 					int paperIndex = selectedPaper[0];
+					
+					//get selected paper's submissionID
 					int submissionID = newSubmissions[paperIndex].submissionID;
 					
-					setSubmissionStage(submissionID, APPROVED_SUBMISSION_STAGE);
+					//send SQL update
+					approveSubmission(submissionID, submissionDeadline);
 
-					getSubmissions(1);
+					//refresh new submissions list after approving 
+					getSubmissions(NEW_SUBMISSION_STAGE);
 					newSubmissions = populateSubmissions(newSubmissions);
-					
 					newSubmissionModel.clear();	
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
@@ -1134,7 +1180,24 @@ public class Admin extends JFrame implements Constants {
 							JOptionPane.PLAIN_MESSAGE, null);
 					
 				}
-				// Add approve new submission here
+			}
+			/**
+			 * Sends an sql update instruction to change submissionStage and submissionDeadline
+			 * @param submissionID 
+			 * @param submissionDeadline 
+			 */
+			private void approveSubmission(int submissionID, String submissionDeadline) {
+				PreparedStatement ps;
+				String query = "update submission set submissionStage = 2, submissionDeadline = ? where submission ID = ?";
+				
+				try {
+					ps = SQLConnection.getConnection().prepareStatement(query);
+					ps.setString(1, submissionDeadline);
+					ps.setInt(2, submissionID);
+					
+					ps.executeUpdate();
+				}catch(Exception e) {e.printStackTrace();}
+				
 			}
 		});
 
@@ -1158,13 +1221,19 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				
+				//check if only one paper selected
 				if(selectedPaper.length==1) {
+				
+					//get index of selected paper
 					int paperIndex = selectedPaper[0];
+					
+					//get selected paper's unique ID
 					int submissionID = newSubmissions[paperIndex].submissionID;
 
-					setSubmissionStage(submissionID, 0);
+					//set submissionStage to rejected stage
+					setSubmissionStage(submissionID, REJECTED_SUBMISSION_STAGE);
 					
-
+					//refresh list of new submissions after rejection
 					getSubmissions(1);
 					newSubmissions = populateSubmissions(newSubmissions);
 					newSubmissionModel.clear();
@@ -1277,9 +1346,11 @@ public class Admin extends JFrame implements Constants {
 		assignpaperList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
+				
 				selected = assignpaperList.getSelectedIndices();
 				if(selected.length==1) {
-					//nothing here
+					
+					//no details to show for a selected paper in this screen
 					
 				}else if (selectedPaper.length >= 2) {
 
@@ -1316,17 +1387,31 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				
+				//checks that only one paper is selected
 				if(selected.length==1) {
+					
+					//get selected paper as an object
 					SubmissionObject paperOfInterest = assignpaperModel.getElementAt(selected[0]);
+					
+					//Up to 20 reviewers can be selected 
 					ReviewerObject[] selectedReviewers = new ReviewerObject[20];
 					
+					//get the indices of reviewers selected
 					int[] reviewerIndices = reviewerList.getSelectedIndices();
+					
+					//check if at least one reviewer is selected
 					if(reviewerIndices.length > 0) {
+						
+						//iterates over selected reviewers' indices and adds each selected reviewer to 
+						//the array of reviewer objects, selectedReviewers
 						for(int i=0; i<reviewerIndices.length; i++) {
 							selectedReviewers[i] = new ReviewerObject();
 							selectedReviewers[i] = reviewerModel.getElementAt(reviewerIndices[i]);
 						}
 						
+						//StringBuilder to build the string that will be sent to the SQL database
+						//Will be of the form ID1,ID2,ID3, etc. ending with a reviewer ID and not a comma
 						StringBuilder reviewerIDs = new StringBuilder();
 						for(int i=0; i<selectedReviewers.length; i++) {
 							if(selectedReviewers[i]!=null) {
@@ -1335,13 +1420,13 @@ public class Admin extends JFrame implements Constants {
 						}
 						reviewerIDs.setLength(reviewerIDs.length()-1);
 						
+						//send SQL update
 						assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
 						
+						//refresh list of papers that need reviewers assigned
 						assignpaperModel.clear();
-						//get submissions with stage = 2
 						getSubmissions(APPROVED_SUBMISSION_STAGE);
 						newSubmissions = populateSubmissions(newSubmissions);
-						
 						for (int i = 0; i < newSubmissions.length; i++) {
 							assignpaperModel.addElement(newSubmissions[i]);
 						}
@@ -1370,22 +1455,26 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
 				
+				//Clear the textarea to prepare for new feedback
 				feedbackTextArea.setText("");
 				fbAreaSelected = feedbackList.getSelectedIndices();
 
+				//If no paper is selected, removes the release feedback button
 				if(fbAreaSelected.length==0)
 					releaseButton.setVisible(false);
 				
-				if (fbAreaSelected.length == 1) {
+				//Adds it back if a paper is selected
+				else if (fbAreaSelected.length == 1) {
 					releaseButton.setVisible(true);
 
-					
+					//get selected paper as an object for easy retrieval of details
 					SubmissionObject paperInDetail = newSubmissions[fbAreaSelected[0]];
 
+					//feedback file directory + filename
 					String feedbackFile = "submissions/" + paperInDetail.submissionUserID + "/feedback/" + paperInDetail.submissionName.split("\\.")[0] + ".txt";
 					
-					System.out.println(feedbackFile);
 					
+					//opening and appending feedback file to the textarea
 					Scanner feedback;
 
 					try {
@@ -1418,7 +1507,6 @@ public class Admin extends JFrame implements Constants {
 				}
 
 			}
-				// Add code to handle paperList
 			
 		});
 
@@ -1477,7 +1565,7 @@ public class Admin extends JFrame implements Constants {
 						String fileLocation = filepath.toString() + "submissions/" + paperOfInterest.submissionUserID
 								+ "/feedback/" + papername + ".txt";
 
-						// replacing file
+						// replacing original feedback text with new feedback text
 						try {
 							FileWriter fw = new FileWriter(fileLocation, false);
 							BufferedWriter bw = new BufferedWriter(fw);
@@ -1715,10 +1803,7 @@ public class Admin extends JFrame implements Constants {
 		
 	}
 	
-	private void getReviewers(int submissionID) {
 
-	}
-	
 	private void assignReviewers(int submissionID, String reviewerIDs) {
 		PreparedStatement ps;
 		

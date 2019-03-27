@@ -18,7 +18,6 @@ public class ReviewerObject {
 		this.name = name;
 		this.email = email;
 		this.userType = userType;
-
 	}
 
 	public ReviewerObject() {
