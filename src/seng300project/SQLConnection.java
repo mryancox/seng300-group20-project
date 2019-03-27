@@ -18,6 +18,9 @@ public class SQLConnection {
 
 			//for connecting locally (only on stone's computer)
 			//con=DriverManager.getConnection("jdbc:mysql://localhost:3306/mydb", "journal", "journal");
+			
+			//con=DriverManager.getConnection("jdbc:mysql://192.168.0.149:3306/mydb", "journal", "journal!sys1234");
+
 
 		}catch(Exception e) {
 			System.out.println(e);

@@ -1091,28 +1091,48 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				boolean validDate = true;
 				
-				if(selectedPaper.length==1) {
+				String inputDate = deadlineTextArea.getText();
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				Date today = new Date();
+				     try {
+				          format.parse(inputDate);
+				          if(format.parse(inputDate).before(today))
+				        	  validDate=false;
+				     }
+				     catch(ParseException e){
+				    	 validDate = false;
+				     }
+				
+				if(selectedPaper.length==1 && validDate) {
 					int paperIndex = selectedPaper[0];
-					String submissionName = newSubmissionModel.getElementAt(paperIndex).submissionName;
-					String subject = detailsubjectSubLabel.getText();
+					int submissionID = newSubmissions[paperIndex].submissionID;
 					
-					setSubmissionStage(submissionName, subject, 2);
+					setSubmissionStage(submissionID, APPROVED_SUBMISSION_STAGE);
 
 					getSubmissions(1);
 					newSubmissions = populateSubmissions(newSubmissions);
 					
-					newSubmissionModel.clear();
+					newSubmissionModel.clear();	
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
 				}
-				else {
+				else if (selectedPaper.length==0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 					JOptionPane.showMessageDialog(null, "No paper selected to approve.", "No paper selected",
 							JOptionPane.PLAIN_MESSAGE, null);
+				}
+				else if (!validDate) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Please enter a valid date in the format YYYY-MM-DD, after today.", "Invalid deadline",
+							JOptionPane.PLAIN_MESSAGE, null);
+					
 				}
 				// Add approve new submission here
 			}
@@ -1140,10 +1160,9 @@ public class Admin extends JFrame implements Constants {
 				
 				if(selectedPaper.length==1) {
 					int paperIndex = selectedPaper[0];
-					String submissionName = newSubmissionModel.getElementAt(paperIndex).submissionName;
-					String subject = detailsubjectSubLabel.getText();
-					
-					setSubmissionStage(submissionName, subject, 0);
+					int submissionID = newSubmissions[paperIndex].submissionID;
+
+					setSubmissionStage(submissionID, 0);
 					
 
 					getSubmissions(1);
@@ -1294,36 +1313,53 @@ public class Admin extends JFrame implements Constants {
 				assignreviewerLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				SubmissionObject paperOfInterest = assignpaperModel.getElementAt(selected[0]);
-				ReviewerObject[] selectedReviewers = new ReviewerObject[20];
-				
-				int[] reviewerIndices = reviewerList.getSelectedIndices();
-				for(int i=0; i<reviewerIndices.length; i++) {
-					selectedReviewers[i] = new ReviewerObject();
-					selectedReviewers[i] = reviewerModel.getElementAt(reviewerIndices[i]);
-				}
-				
-				StringBuilder reviewerIDs = new StringBuilder();
-				for(int i=0; i<selectedReviewers.length; i++) {
-					if(selectedReviewers[i]!=null) {
-						reviewerIDs.append(selectedReviewers[i].userID + ",");
+				if(selected.length==1) {
+					SubmissionObject paperOfInterest = assignpaperModel.getElementAt(selected[0]);
+					ReviewerObject[] selectedReviewers = new ReviewerObject[20];
+					
+					int[] reviewerIndices = reviewerList.getSelectedIndices();
+					if(reviewerIndices.length > 0) {
+						for(int i=0; i<reviewerIndices.length; i++) {
+							selectedReviewers[i] = new ReviewerObject();
+							selectedReviewers[i] = reviewerModel.getElementAt(reviewerIndices[i]);
+						}
+						
+						StringBuilder reviewerIDs = new StringBuilder();
+						for(int i=0; i<selectedReviewers.length; i++) {
+							if(selectedReviewers[i]!=null) {
+								reviewerIDs.append(selectedReviewers[i].userID + ",");
+							}
+						}
+						reviewerIDs.setLength(reviewerIDs.length()-1);
+						
+						assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
+						
+						assignpaperModel.clear();
+						//get submissions with stage = 2
+						getSubmissions(APPROVED_SUBMISSION_STAGE);
+						newSubmissions = populateSubmissions(newSubmissions);
+						
+						for (int i = 0; i < newSubmissions.length; i++) {
+							assignpaperModel.addElement(newSubmissions[i]);
+						}
 					}
+				} else if (selected.length == 0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				} else {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					feedbackList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
 				}
-				reviewerIDs.setLength(reviewerIDs.length()-1);
-				
-				assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
-				
-				assignpaperModel.clear();
-				//get submissions with stage = 2
-				getSubmissions(APPROVED_SUBMISSION_STAGE);
-				newSubmissions = populateSubmissions(newSubmissions);
-				
-				for (int i = 0; i < newSubmissions.length; i++) {
-					assignpaperModel.addElement(newSubmissions[i]);
-				}
-				
 				
 				
 			}	
@@ -1637,15 +1673,14 @@ public class Admin extends JFrame implements Constants {
 	}
 	
 	
-	private void setSubmissionStage(String submissionName, String subject, int stage) {
+	private void setSubmissionStage(int submissionID, int stage) {
 		PreparedStatement ps;
 		
-		String query = "UPDATE submission SET submissionStage = ? WHERE submissionName = ? AND subject = ?";
+		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
 			ps.setInt(1, stage);
-			ps.setString(2, submissionName);
-			ps.setString(3, subject);
+			ps.setInt(2, submissionID);
 			
 			ps.executeUpdate();
 			

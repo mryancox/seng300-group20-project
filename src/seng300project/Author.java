@@ -528,16 +528,6 @@ public class Author extends JFrame implements Constants{
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
-
-				paperModel.clear();
-				
-				getSubmissions();
-				populateSubmissions();
-				
-				for(int i=0;i<submissions.length;i++) {
-					if(submissions[i].submissionStage == RESUBMIT_STAGE)
-						paperModel.addElement(submissions[i]);
-				}
 				
 				contentPanel.add(feedbackPanel);
 				contentPanel.repaint();
