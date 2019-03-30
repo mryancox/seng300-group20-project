@@ -5,7 +5,7 @@ Start the program by running the "Login" class or by using the JournalSubmission
 To access each account and view its functionality, enter one the following usernames and passwords,
 
   - Author:
-    - usernames: admin, lucas@ualberta.ca, ahmed@ualberta.ca, stone@ualberta.ca
+    - usernames: author, lucas@ualberta.ca, ahmed@ualberta.ca, stone@ualberta.ca
     - password: test
   - Reviewer:
     - usernames: reviewer, anas@ualberta.ca, shahmir@ualberta.ca, matthew@ualberta.ca
