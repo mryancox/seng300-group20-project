@@ -42,7 +42,7 @@ import javax.swing.JScrollPane;
 public class Reviewer extends JFrame implements Constants{
 
 	/**
-	 *
+	 * Variables to enable database and file I/O functionality
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -64,8 +64,6 @@ public class Reviewer extends JFrame implements Constants{
 	protected String[] subjects = new String[100];
 	private int[] selectedPaper = new int[0];
 	private int[] selected = 	new int[0];
-	
-	
 	
 	/**
 	 * Launch the application.
@@ -104,7 +102,6 @@ public class Reviewer extends JFrame implements Constants{
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-
 		
 		//check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
@@ -118,6 +115,7 @@ public class Reviewer extends JFrame implements Constants{
 		File feedbackListFile = new File (userFeedbackList);
 		File submissionListFile = new File (userSubmissionList);
 
+		// Checks if the required folders exist already, if not it creates them
 		if (!authorFolder.exists()) {
 			authorFolder.mkdirs();
 		}
@@ -142,8 +140,16 @@ public class Reviewer extends JFrame implements Constants{
 			}
 		}
 		
+		// Nicely formated version of username
 		String niceUsername = user;
 
+		/*
+		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
+		 * frame were created with certain boundaries and colours to create a cohesive feel.
+		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
+		 * not appear properly with the colour scheme of the University of Alberta on Linux
+		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 */
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
 		menuPanel.setBounds(0, 0, 180, 580);

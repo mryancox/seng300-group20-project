@@ -2,16 +2,29 @@ package seng300project;
 
 public class ReviewerObject {
 
+	//unique ID for every user
 	public int userID;
 
+	// Username of reviewer
 	public String username;
 
+	// Name of reviewer
 	public String name;
 
+	// Email of reviewer
 	public String email;
 
+	// User's type as an integer
 	public int userType;
 
+	/**
+	 * Constructor for SubmissionObject
+	 * @param userID
+	 * @param username
+	 * @param name
+	 * @param email
+	 * @param userType
+	 */
 	public ReviewerObject(int userID, String username, String name, String email, int userType) {
 		this.userID = userID;
 		this.username = username;
@@ -20,6 +33,7 @@ public class ReviewerObject {
 		this.userType = userType;
 	}
 
+	//empty constructor for the test
 	public ReviewerObject() {
 	}
 

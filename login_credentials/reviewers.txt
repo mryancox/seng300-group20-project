@@ -1,3 +1,0 @@
-Username|Password
-anas@ualberta.ca|test|
-shahmir@ualberta.ca|test

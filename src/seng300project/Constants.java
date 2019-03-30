@@ -2,8 +2,6 @@ package seng300project;
 
 public interface Constants {
 	
-	
-	
 	//A new submission starts in stage 1 visible only in admin's new submission tab.
 	
 	//If accepted it moves to stage 2, where it can be assigned reviewers in the admin's assign reviewers tab.

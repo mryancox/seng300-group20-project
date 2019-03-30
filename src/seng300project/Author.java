@@ -21,12 +21,9 @@ import javax.swing.UIManager;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,7 +47,7 @@ import javax.swing.JScrollPane;
 public class Author extends JFrame implements Constants{
 
 	/**
-	 *
+	 * Variables to enable database and file I/O functionality
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -126,6 +123,7 @@ public class Author extends JFrame implements Constants{
 		File feedbackListFile = new File (userFeedbackList);
 		File submissionListFile = new File (userSubmissionList);
 
+		// Checks if the required folders exist already, if not it creates them
 		if (!authorFolder.exists()) {
 			authorFolder.mkdirs();
 		}
@@ -149,8 +147,17 @@ public class Author extends JFrame implements Constants{
 
 			}
 		}
+		
+		// Nicely formated version of username
 		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 
+		/*
+		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
+		 * frame were created with certain boundaries and colours to create a cohesive feel.
+		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
+		 * not appear properly with the colour scheme of the University of Alberta on Linux
+		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 */
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
 		menuPanel.setBounds(0, 0, 180, 571);

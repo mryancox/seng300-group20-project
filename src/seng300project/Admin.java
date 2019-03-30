@@ -34,8 +34,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -49,7 +47,7 @@ import javax.swing.JScrollPane;
 public class Admin extends JFrame implements Constants {
 
 	/**
-	 *
+	 * Variables to enable database and file I/O functionality
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -132,6 +130,7 @@ public class Admin extends JFrame implements Constants {
 		File submissionListFile = new File (userSubmissionList);
 		File acceptedSubmissionsFolder = new File (acceptedSubmissionsList);
 
+		// Checks if the required folders exist already, if not it creates them
 		if(!acceptedSubmissionsFolder.exists())
 			acceptedSubmissionsFolder.mkdirs();
 		if (!authorFolder.exists()) {
@@ -157,8 +156,17 @@ public class Admin extends JFrame implements Constants {
 
 			}
 		}
+		
+		// Nicely formated version of username
 		String niceUsername = user;
 
+		/*
+		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
+		 * frame were created with certain boundaries and colours to create a cohesive feel.
+		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
+		 * not appear properly with the colour scheme of the University of Alberta on Linux
+		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 */
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
 		menuPanel.setBounds(0, 0, 180, 580);
@@ -203,15 +211,9 @@ public class Admin extends JFrame implements Constants {
 		newsubLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		newsubLabel.setBounds(24, 90, 230, 14);
 		submissionsPanel.add(newsubLabel);
-		
-		
-				
+	
 		DefaultListModel<SubmissionObject> newSubmissionModel = new DefaultListModel<>();
 		JList<SubmissionObject> submissionsList = new JList<SubmissionObject>(newSubmissionModel);
-		
-		
-		
-		
 		
 		submissionsList.setFont(new Font("Arial", Font.PLAIN, 12));
 		JScrollPane submissionsListScrollPane = new JScrollPane(submissionsList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -427,8 +429,6 @@ public class Admin extends JFrame implements Constants {
 		rejectappButton.setBounds(555, 520, 119, 30);
 		verifyPanel.add(rejectappButton);
 		
-		
-		
 		JPanel assignPanel = new JPanel();
 		assignPanel.setBackground(Color.WHITE);
 		contentPanel.add(assignPanel, "name_100789627501200");
@@ -591,7 +591,6 @@ public class Admin extends JFrame implements Constants {
 		releaseLabel.setBounds(0, 0, 119, 30);
 		releaseButton.add(releaseLabel);
 		releaseButton.setVisible(false);
-
 		
 		releaseButton.setBackground(new Color(0, 124, 65));
 		releaseButton.setBounds(555, 520, 119, 30);

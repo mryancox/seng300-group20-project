@@ -1,3 +1,0 @@
-Username|Password
-lucas@ualberta.ca|test
-ahmed@ualberta.ca|test

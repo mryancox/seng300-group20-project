@@ -68,6 +68,13 @@ public class Login {
 		login.setLocationRelativeTo(null);
 		login.getContentPane().setLayout(null);
 
+		/*
+		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
+		 * frame were created with certain boundaries and colours to create a cohesive feel.
+		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
+		 * not appear properly with the colour scheme of the University of Alberta on Linux
+		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 */
 		JPanel leftPanel = new JPanel();
 		leftPanel.setBackground(new Color(0, 124, 65));
 		leftPanel.setBounds(0, 0, 450, 580);

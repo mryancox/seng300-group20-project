@@ -1,13 +1,14 @@
 # Group 20's Paper Submission System for a Journal
 
-Start the program by running the "Login" class or by using the Group20_JournalSystem jar file.
+Start the program by running the "Login" class or by using the JournalSubmissionSystem jar file.
 
-To access each account and view its functionality, enter the following:
+To access each account and view its functionality, enter one the following usernames and passwords,
+
   - Author:
-    - username: lucas@ualberta.ca
+    - usernames: admin, lucas@ualberta.ca, ahmed@ualberta.ca, stone@ualberta.ca
     - password: test
   - Reviewer:
-    - username: reviewer
+    - usernames: reviewer, anas@ualberta.ca, shahmir@ualberta.ca, matthew@ualberta.ca
     - password: test
   - Admin:
     - username: admin
