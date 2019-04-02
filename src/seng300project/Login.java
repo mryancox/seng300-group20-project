@@ -260,8 +260,14 @@ public class Login {
 		//rs is the result of the query
 		ResultSet rs;
 
+		//Array of details to be returned
 		String [] loginInfo = new String[3];
 
+		//initializing the array so there are no nulls
+		loginInfo[0]="-1";
+		loginInfo[1]="-1";
+		loginInfo[2]="";
+		
 		//the string to be used to query. ? indicates a parameter
 		//this query finds entries that match the input username and password
 		//the BINARY operator forces byte by byte comparison (case sensitivity)
@@ -284,7 +290,8 @@ public class Login {
 			if(rs.next()) {
 				//loginExists gets the usertype field from the query
 				//0=admin, 1=author, 2=reviewer
-				loginInfo[0]=Integer.toString(rs.getInt("usertype"));
+				if(Integer.toString(rs.getInt("usertype"))!=null)
+					loginInfo[0]=Integer.toString(rs.getInt("usertype"));
 				loginInfo[1]=Integer.toString(rs.getInt("userID"));
 				loginInfo[2]=rs.getString("name");
 			}
@@ -310,7 +317,6 @@ public class Login {
 			
 			//loginDetails[0]=usertype [1]=userID [2]=name
 			String[] loginDetails = checkLogin(user,pw);
-
 			
 			if(loginDetails[0].equals("0")) {
 				login.setVisible(false);
