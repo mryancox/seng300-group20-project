@@ -243,6 +243,30 @@ public class Login {
 		loginButton.setBounds(163, 360, 119, 30);
 		rightPanel.add(loginButton);
 		loginButton.setLayout(null);
+		
+		JLabel signupLabel = new JLabel("Sign Up");
+		signupLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				signupLabel.setForeground(new Color(0, 124, 65));
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				signupLabel.setForeground(Color.BLACK);
+			}
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				Signup signup = new Signup();
+				signup.setVisible(true);
+				signup.setLocationRelativeTo(null);
+			}
+		});
+		signupLabel.setForeground(Color.BLACK);
+		signupLabel.setFont(new Font("Arial", Font.BOLD, 12));
+		signupLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		signupLabel.setBounds(163, 430, 119, 20);
+		rightPanel.add(signupLabel);
 	}
 
 	/**
