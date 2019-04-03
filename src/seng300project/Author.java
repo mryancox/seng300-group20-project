@@ -775,7 +775,7 @@ public class Author extends JFrame implements Constants{
 
 					// Copy file to user submissions folder
 					Path source = Paths.get(filelocation);
-					Path dest = Paths.get(userFolder + "/" + filename);
+					Path dest = Paths.get(userFolder + "/" + filename.replaceAll("\\s+", ""));
 					try {
 						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e) {
@@ -786,7 +786,7 @@ public class Author extends JFrame implements Constants{
 					UI.put("Panel.background", Color.WHITE);
 
 					// Submits SQL update with new submission
-					makeSubmission(newTitle, newAuthors, newSubject, filename, reviewerID);
+					makeSubmission(newTitle, newAuthors, newSubject, filename.replaceAll("\\s+", ""), reviewerID);
 
 					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.",
 							"Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
@@ -892,7 +892,7 @@ public class Author extends JFrame implements Constants{
 					paperInDetail = paperOfInterest.submissionName;
 					
 					//get filename of submission for resubmit button
-					resubmitFilename = paperOfInterest.filename;
+					resubmitFilename = paperOfInterest.filename.replaceAll("\\s+", "");
 					
 					//filename of feedback file
 					String feedbackFile = "submissions/" + userID + "/feedback/" + paperInDetail + ".txt";
