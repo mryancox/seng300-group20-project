@@ -693,6 +693,37 @@ public class Admin extends JFrame implements Constants {
 		JTextArea commentsTextArea = new JTextArea();
 		commentsTextAreaScrollPane.setViewportView(commentsTextArea);
 		
+		JPanel extendButton = new JPanel();
+		JLabel extendLabel = new JLabel("Extend Deadline");
+		extendLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		extendLabel.setForeground(Color.WHITE);
+		extendLabel.setFont(new Font("Arial", Font.BOLD, 12));
+		extendLabel.setBounds(0, 0, 119, 30);
+		extendButton.add(extendLabel);
+		extendButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				
+				extendButton.setBackground(new Color(255, 219, 5));
+				extendLabel.setForeground(Color.BLACK);
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				
+				extendButton.setBackground(new Color(0, 124, 65));
+				extendLabel.setForeground(Color.WHITE);
+			}
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				
+			}
+		});
+		extendButton.setLayout(null);
+		extendButton.setBackground(new Color(0, 124, 65));
+		extendButton.setBounds(295, 520, 119, 30);
+		finalPanel.add(extendButton);
+		
 		JPanel finalapproveButton = new JPanel();
 		JLabel finalapproveLabel = new JLabel("Approve");
 		finalapproveLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -950,14 +981,12 @@ public class Admin extends JFrame implements Constants {
 		
 		JPanel finalButton = new JPanel();
 		JLabel final1Label = new JLabel("Review");
-		final1Label.setVerticalAlignment(SwingConstants.BOTTOM);
 		final1Label.setHorizontalAlignment(SwingConstants.CENTER);
 		final1Label.setForeground(Color.WHITE);
 		final1Label.setFont(new Font("Arial", Font.BOLD, 14));
 		final1Label.setBounds(0, 0, 180, 30);
 		finalButton.add(final1Label);
 		JLabel final2Label = new JLabel("Final Submissions");
-		final2Label.setVerticalAlignment(SwingConstants.TOP);
 		final2Label.setHorizontalAlignment(SwingConstants.CENTER);
 		final2Label.setFont(new Font("Arial", Font.BOLD, 14));
 		final2Label.setForeground(Color.WHITE);
