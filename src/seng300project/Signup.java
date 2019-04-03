@@ -21,6 +21,7 @@ import javax.swing.JRadioButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.awt.CardLayout;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -264,8 +265,11 @@ public class Signup extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				
+				//logic for if reviewer button is selected
 				if (rdbtnReviewer.isSelected()) {
 
+					//check if either username or password field is empty
 					if (newusernameTextField.getText().isEmpty() || newPasswordField.getPassword().length == 0) {
 						UIManager UI = new UIManager();
 						UI.put("OptionPane.background", Color.WHITE);
@@ -275,6 +279,7 @@ public class Signup extends JFrame implements Constants {
 								JOptionPane.PLAIN_MESSAGE, null);
 					} else {
 
+						//check if username matches email regex
 						if (!newusernameTextField.getText()
 								.matches("^([\\w-\\.]+){1,64}@([\\w&&[^_]]+){2,255}.[a-z]{2,}$")) {
 							UIManager UI = new UIManager();
@@ -285,18 +290,34 @@ public class Signup extends JFrame implements Constants {
 									JOptionPane.PLAIN_MESSAGE, null);
 						}else {
 							reviewerUsername = newusernameTextField.getText();
-							reviewerPassword = String.valueOf(newPasswordField.getPassword());
-							signupPanel.removeAll();
-							signupPanel.repaint();
-							signupPanel.revalidate();
+							
+							//check if username is already registered
+							boolean duplicate = checkDuplicateUsername(reviewerUsername);
+							if(!duplicate) {
+								reviewerPassword = String.valueOf(newPasswordField.getPassword());
+								signupPanel.removeAll();
+								signupPanel.repaint();
+								signupPanel.revalidate();
+		
+								signupPanel.add(extrasPanel);
+								signupPanel.repaint();
+								signupPanel.revalidate();
+							}
+							else {
+								UIManager UI = new UIManager();
+								UI.put("OptionPane.background", Color.WHITE);
+								UI.put("Panel.background", Color.WHITE);
 	
-							signupPanel.add(extrasPanel);
-							signupPanel.repaint();
-							signupPanel.revalidate();
+								JOptionPane.showMessageDialog(null, "This username is already registered", "Username invalid",
+										JOptionPane.PLAIN_MESSAGE, null);
+							}
 						}
 					}
 
-				} else if (rdbtnAuthor.isSelected()) {
+				} 
+				
+				//logic for if author button is selected
+				else if (rdbtnAuthor.isSelected()) {
 
 					// first check if any field is empty
 					if (newusernameTextField.getText().isEmpty() || newPasswordField.getPassword().length == 0) {
@@ -319,24 +340,36 @@ public class Signup extends JFrame implements Constants {
 									JOptionPane.PLAIN_MESSAGE, null);
 						} else {
 							String username = newusernameTextField.getText();
-							String password = String.valueOf(newPasswordField.getPassword());
-
-							// userType for author is 1
-							submitAuthor(username, password, 1);
-
-							UIManager UI = new UIManager();
-							UI.put("OptionPane.background", Color.WHITE);
-							UI.put("Panel.background", Color.WHITE);
-
-							JOptionPane.showMessageDialog(null, "Sign up successful!", "Sign up Success",
-									JOptionPane.PLAIN_MESSAGE, null);
-
-							setVisible(false);
+							
+							//check if username is already registered
+							boolean duplicate = checkDuplicateUsername(username);
+							if(!duplicate) {
+								String password = String.valueOf(newPasswordField.getPassword());
+	
+								// userType for author is 1
+								submitAuthor(username, password, 1);
+	
+								UIManager UI = new UIManager();
+								UI.put("OptionPane.background", Color.WHITE);
+								UI.put("Panel.background", Color.WHITE);
+	
+								JOptionPane.showMessageDialog(null, "Sign up successful!", "Sign up Success",
+										JOptionPane.PLAIN_MESSAGE, null);
+	
+								setVisible(false);
+							}
+							else {
+								UIManager UI = new UIManager();
+								UI.put("OptionPane.background", Color.WHITE);
+								UI.put("Panel.background", Color.WHITE);
+	
+								JOptionPane.showMessageDialog(null, "This username is already registered", "Username invalid",
+										JOptionPane.PLAIN_MESSAGE, null);
+							}
 
 						}
 
 					}
-					// Add new author to database
 				}
 			}
 		});
@@ -361,6 +394,7 @@ public class Signup extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				//check if any of the three fields is empty
 				if (occupationTextField.getText().isEmpty()
 						|| orgTextField.getText().isEmpty() | areaTextField.getText().isEmpty()) {
 					UIManager UI = new UIManager();
@@ -396,6 +430,12 @@ public class Signup extends JFrame implements Constants {
 
 	}
 
+	/**
+	 * Submits a new author entry to database
+	 * @param username
+	 * @param password
+	 * @param userType
+	 */
 	private void submitAuthor(String username, String password, int userType) {
 		PreparedStatement ps;
 
@@ -415,6 +455,15 @@ public class Signup extends JFrame implements Constants {
 		}
 	}
 
+	/**
+	 * Submits a new reviewer entry to database, with usertype = 3 to indicate user in review
+	 * @param username
+	 * @param password
+	 * @param userType
+	 * @param occupation
+	 * @param organization
+	 * @param research
+	 */
 	private void submitReviewer(String username, String password, int userType, String occupation, String organization,
 			String research) {
 		PreparedStatement ps;
@@ -438,6 +487,30 @@ public class Signup extends JFrame implements Constants {
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * Checks if a username already exists in the database
+	 * @param username
+	 * @return
+	 */
+	private boolean checkDuplicateUsername(String username) {
+		PreparedStatement ps;
+		
+		String query = "Select * FROM users WHERE username = ?";
+		
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setString(1, username);
+			
+			ResultSet rs = ps.executeQuery();
+			
+			if(rs.next())
+				return true;
+		}catch(Exception e) {e.printStackTrace();}
+		
+		
+		return false;
 	}
 
 }
