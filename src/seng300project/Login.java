@@ -227,6 +227,14 @@ public class Login {
 					reviewer.setVisible(true);
 					reviewer.setLocationRelativeTo(null);
 				}
+				else if(loginDetails[0].equals("3")) {
+					password.setText("");
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+
+					JOptionPane.showMessageDialog(null, "Your account is currently in review by the administrator", "Waiting for Approval", JOptionPane.PLAIN_MESSAGE, null);
+				}
 				else {
 					password.setText("");
 					UIManager UI = new UIManager();
@@ -317,7 +325,7 @@ public class Login {
 				if(Integer.toString(rs.getInt("usertype"))!=null)
 					loginInfo[0]=Integer.toString(rs.getInt("usertype"));
 				loginInfo[1]=Integer.toString(rs.getInt("userID"));
-				loginInfo[2]=rs.getString("name");
+				loginInfo[2]=rs.getString("username");
 			}
 		}catch(Exception e) {System.out.println(e);}
 		
@@ -359,6 +367,14 @@ public class Login {
 				Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]));
 				reviewer.setVisible(true);
 				reviewer.setLocationRelativeTo(null);
+			}
+			else if(loginDetails[0].equals("3")) {
+				password.setText("");
+				UIManager UI = new UIManager();
+				UI.put("OptionPane.background", Color.WHITE);
+				UI.put("Panel.background", Color.WHITE);
+
+				JOptionPane.showMessageDialog(null, "Your account is currently in review by the administrator", "Waiting for Approval", JOptionPane.PLAIN_MESSAGE, null);
 			}
 			else {
 				password.setText("");

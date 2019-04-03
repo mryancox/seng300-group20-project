@@ -66,6 +66,7 @@ public class Author extends JFrame implements Constants{
 	protected ResultSet submissionSet;
 	protected SubmissionObject[] submissions;
 	protected FeedbackObject[] feedback = new FeedbackObject[50];
+	protected ReviewerObject[] reviewers;
 	protected int numOfFeedback = 0;
 	private Map<Integer, Integer> submissionIDtoFeedbackApproval = new HashMap<Integer, Integer>();
 		
@@ -257,8 +258,8 @@ public class Author extends JFrame implements Constants{
 		prefreviewersLabel.setBounds(24, 350, 350, 18);
 		submissionPanel.add(prefreviewersLabel);
 		
-		DefaultListModel<SubmissionObject> prefreviewersModel = new DefaultListModel<>();
-		JList<SubmissionObject> prefreviewersList = new JList<SubmissionObject>(prefreviewersModel);
+		DefaultListModel<ReviewerObject> prefreviewersModel = new DefaultListModel<>();
+		JList<ReviewerObject> prefreviewersList = new JList<ReviewerObject>(prefreviewersModel);
 
 		prefreviewersList.setFont(new Font("Arial", Font.PLAIN, 12));
 
@@ -642,6 +643,13 @@ public class Author extends JFrame implements Constants{
 		submitLabel.setForeground(Color.WHITE);
 		submitLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		
+		
+		//Populate preferred reviewers list
+		for(int i=0;i<reviewers.length;i++) {
+			if(reviewers[i]!=null)
+				prefreviewersModel.addElement(reviewers[i]);
+		}
+		
 		// FILE LOCATION FOR NEW SUBMISSION
 		filelocationTextArea.addMouseListener(new MouseAdapter() {
 			@Override
@@ -653,12 +661,111 @@ public class Author extends JFrame implements Constants{
 
 				} else {
 					File file = fc.getSelectedFile();
-					filename = file.getName();
+					filename = file.getName().replaceAll("\\s+", "");
 					filelocationTextArea.setText(file.getAbsolutePath());
 				}
 			}
 		});
 
+		// THIS SECTION HANDLES NEW SUBMISSION LOGIC
+		submitLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				submitButton.setBackground(new Color(255, 219, 5));
+				submitLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				submitButton.setBackground(new Color(0, 124, 65));
+				submitLabel.setForeground(Color.WHITE);
+			}
+
+			@SuppressWarnings("static-access")
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				// Checks if any text area is empty and displays error code if true
+				if (titleTextArea.getText().isEmpty() || authorsTextArea.getText().isEmpty()
+						|| researchTextArea.getText().isEmpty() || filelocationTextArea.getText().isEmpty()) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+
+					JOptionPane.showMessageDialog(null, "Ensure all fields are filled out correctly",
+							"Missing Submission Details", JOptionPane.PLAIN_MESSAGE, null);
+				} else {
+
+					// Gets all required details ready for submission into SQL database
+					newTitle = titleTextArea.getText();
+					newAuthors = authorsTextArea.getText();
+					newSubject = researchTextArea.getText();
+					int[] reviewerIndices = prefreviewersList.getSelectedIndices();
+					
+					StringBuilder reviewerIDs = new StringBuilder();
+					String reviewerID = new String();
+					//Up to 20 reviewers can be selected 
+					ReviewerObject[] selectedReviewers = new ReviewerObject[20];
+					
+					if(reviewerIndices.length>0) {
+						
+						//iterates over selected reviewers' indices and adds each selected reviewer to 
+						//the array of reviewer objects, selectedReviewers
+						for(int i=0; i<reviewerIndices.length; i++) {
+							selectedReviewers[i] = new ReviewerObject();
+							selectedReviewers[i] = prefreviewersModel.getElementAt(reviewerIndices[i]);
+						}
+						
+						//StringBuilder to build the string that will be sent to the SQL database
+						//Will be of the form ID1,ID2,ID3, etc. ending with a reviewer ID and not a comma
+						for(int i=0; i<selectedReviewers.length; i++) {
+							if(selectedReviewers[i]!=null) {
+								reviewerIDs.append(selectedReviewers[i].userID + ",");
+							}
+						}
+						reviewerIDs.setLength(reviewerIDs.length()-1);
+						
+						reviewerID = reviewerIDs.toString();
+
+					}else
+						reviewerID = null;
+					
+					filelocation = filelocationTextArea.getText();
+
+					// Copy file to user submissions folder
+					Path source = Paths.get(filelocation);
+					Path dest = Paths.get(userFolder + "/" + filename);
+					try {
+						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e) {
+					}
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+
+					// Submits SQL update with new submission
+					makeSubmission(newTitle, newAuthors, newSubject, filename, reviewerID);
+
+					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.",
+							"Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
+
+					// refresh list of new submissions
+					getSubmissions();
+					getReviewers();
+					populateSubmissions();
+					submissionModel.removeAllElements();
+					for (int i = 0; i < submissions.length; i++) {
+						submissionModel.addElement(submissions[i]);
+					}
+
+				}
+
+			}
+		});
 		
 		//populates list of submissions
 		for(int i=0;i<submissions.length;i++) {
@@ -831,7 +938,7 @@ public class Author extends JFrame implements Constants{
 				} else {
 					File resubFile = fc.getSelectedFile();
 					Path newsource = Paths.get(resubFile.getAbsolutePath());
-					Path newdest = Paths.get(userFolder + "/" + resubmitFilename);
+					Path newdest = Paths.get(userFolder + "/" + resubmitFilename.replaceAll("\\s+", ""));
 					try {
 						Files.copy(newsource, newdest, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e) {
@@ -841,122 +948,35 @@ public class Author extends JFrame implements Constants{
 			}
 		});
 
-		// THIS SECTION HANDLES NEW SUBMISSION LOGIC
-		submitLabel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-
-				submitButton.setBackground(new Color(255, 219, 5));
-				submitLabel.setForeground(Color.BLACK);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-				submitButton.setBackground(new Color(0, 124, 65));
-				submitLabel.setForeground(Color.WHITE);
-			}
-
-			@SuppressWarnings("static-access")
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				//Checks if any text area is empty and displays error code if true
-				if (titleTextArea.getText().isEmpty() || authorsTextArea.getText().isEmpty()
-						|| researchTextArea.getText().isEmpty() || filelocationTextArea.getText().isEmpty()) {
-
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-
-					JOptionPane.showMessageDialog(null, "Ensure all fields are filled out correctly",
-							"Missing Submission Details", JOptionPane.PLAIN_MESSAGE, null);
-				} else {
-
-					//Gets all required details ready for submission into SQL database
-					newTitle = titleTextArea.getText();
-					newAuthors = authorsTextArea.getText();
-					//newAuthorsArray = newAuthors.split("\\s*,\\s*");
-					newSubject = researchTextArea.getText();
-					//newPrefreviewers = prefreviewersTextArea.getText();
-					//newPrefreviewersArray = newPrefreviewers.split("\\s*,\\s*");
-					filelocation = filelocationTextArea.getText();
-
-					/*
-					//Legacy code from file i/o era
-					if (!submissionModel.contains(filename)) {
-						try {
-							FileWriter fw = new FileWriter(userSubmissionList, true);
-							BufferedWriter bw = new BufferedWriter(fw);
-							PrintWriter pw = new PrintWriter(bw);
-							pw.println(filename);
-							pw.close();
-						} catch (IOException e) {
-
-						}
-					}
-
-					try {
-						FileWriter fw = new FileWriter(userDetails + "/" + filename.split("\\.")[0] + ".txt", false);
-						BufferedWriter bw = new BufferedWriter(fw);
-						PrintWriter pw = new PrintWriter(bw);
-						pw.println(newTitle + "|" + newAuthors + "|" + newSubject);
-						pw.close();
-					} catch (IOException e) {
-
-					}
-					 */
-					
-					//Copy file to user submissions folder
-					Path source = Paths.get(filelocation);
-					Path dest = Paths.get(userFolder + "/" + filename);
-					try {
-						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-					} catch (IOException e) {
-					}
-
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-
-					//Submits SQL update with new submission
-					makeSubmission(newTitle, newAuthors, newSubject, filename);
-
-					JOptionPane.showMessageDialog(null, "Thank you for your submission!\n It will be reviewed shortly.",
-							"Submission Accepted", JOptionPane.PLAIN_MESSAGE, null);
-
-					//refresh list of new submissions
-					getSubmissions();
-					getReviewers();
-					populateSubmissions();
-					submissionModel.removeAllElements();
-					for(int i=0;i<submissions.length;i++) {
-						submissionModel.addElement(submissions[i]);
-					}
-
-				}
-
-			}
-		});
+		
 
 	}
 
-
-	/**
-	 * Gets reviewers from an sql query and stores in a global ResultSet
-	 */
+	
 	private void getReviewers() {
 		PreparedStatement ps;
-
-		String query = "SELECT * FROM users WHERE usertype = ?";
-
+		
+		reviewers = new ReviewerObject[50];
+		String query = "SELECT * FROM users WHERE userType = 2";
 		try {
-			ps=SQLConnection.getConnection().prepareStatement(query);
-
-			ps.setInt(1, 2);
-
-			reviewerSet=ps.executeQuery();
-		}catch(Exception e) {System.out.println(e); System.out.println("Failure searching for reviewers");}
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			
+			reviewerSet = ps.executeQuery();
+			int count = 0;
+			while(reviewerSet.next()) {
+				int userID = reviewerSet.getInt("userID");
+				String username = reviewerSet.getString("username");
+				String name = String.valueOf(username.charAt(0)).toUpperCase() + username.substring(1).split("\\@")[0];
+				String email = reviewerSet.getString("email");
+				int userType = 2;
+				
+				reviewers[count] = new ReviewerObject(userID, username, name, email, userType);
+				count++;
+				
+				
+			}
+		}catch(Exception e) {e.printStackTrace();}
+		
 	}
 
 
@@ -1110,10 +1130,10 @@ public class Author extends JFrame implements Constants{
 	 * @param filename
 	 * @return
 	 */
-	private int makeSubmission(String submissionName, String submissionAuthors, String subject, String filename) {
+	private void makeSubmission(String submissionName, String submissionAuthors, String subject, String filename, String reviewerIDs) {
 		PreparedStatement ps;
 		String query = "INSERT INTO submission (submissionName, submissionAuthors, subject, submissionStage, "
-				+ "filename, submissionUserID) values (? , ? , ? , ? , ? , ?)";
+				+ "filename, submissionUserID, preferredReviewerIDs) values (? , ? , ? , ? , ? , ?, ?)";
 		
 
 		
@@ -1125,13 +1145,11 @@ public class Author extends JFrame implements Constants{
 			ps.setInt(4, 1);
 			ps.setString(5, filename);
 			ps.setInt(6, this.userID);
+			ps.setString(7, reviewerIDs);
 			
-			ps.execute();
+			ps.executeUpdate();
 			
 		}catch(Exception e) {e.printStackTrace();}
-		
-		
-		return 0;
 	}
 }
 

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -141,7 +142,7 @@ public class Reviewer extends JFrame implements Constants{
 		}
 		
 		// Nicely formated version of username
-		String niceUsername = user;
+		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 
 		/*
 		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
@@ -590,7 +591,14 @@ public class Reviewer extends JFrame implements Constants{
 					String fileLocation = "file:///" + filepath.toString() + "submissions/"
 							+ paperOfInterest.submissionUserID + "/" + filename;
 
+					/*
+					String encodedUrl = null;
+					try {
+						encodedUrl = fileLocation + URLEncoder.encode(filename, "UTF-8");
+					}catch(Exception e) {}
 					//Opens the file
+					System.out.println(encodedUrl);
+					*/
 					try {
 						Desktop.getDesktop().browse(new URI(fileLocation));
 					} catch (IOException | URISyntaxException e) {

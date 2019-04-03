@@ -34,6 +34,8 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -64,15 +66,19 @@ public class Admin extends JFrame implements Constants {
 	protected int userID;
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
+	protected ResultSet applicantSet;
 	protected SubmissionObject[] newSubmissions;
 	protected SubmissionObject[] finalSubmissions;
 	protected FeedbackObject[] feedback;
 	protected ReviewerObject[] reviewers;
+	protected ReviewerObject[] applicants;
 	protected String[] subjects = new String[100];
 	private int[] selectedPaper = new int[0];
-	private int[] selected = 	new int[0];
+	private int[] selected = new int[0];
 	private int[] fbAreaSelected = new int[0];
-	
+	private int[] selectedApplicant = new int[0];
+	private Map<Integer, ReviewerObject> reviewerIDtoObject = new HashMap<Integer, ReviewerObject>();
+
 	/**
 	 * Launch the application.
 	 */
@@ -80,7 +86,7 @@ public class Admin extends JFrame implements Constants {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Admin frame = new Admin("Admin2",9);
+					Admin frame = new Admin("Admin2", 9);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -91,21 +97,25 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Create the frame.
-	 * @param user - User's name (not username)
-	 * @param ID - user's userID (invisible to user)
+	 * 
+	 * @param user
+	 *            - User's name (not username)
+	 * @param ID
+	 *            - user's userID (invisible to user)
 	 */
 	public Admin(String user, int ID) {
-		this.userID=ID;
+		this.userID = ID;
 
-		//get resultset of new submissions
+		// get resultset of new submissions
 		getSubmissions(NEW_SUBMISSION_STAGE);
-		
-		//populate an array of new submissions
+
+		// populate an array of new submissions
 		newSubmissions = populateSubmissions(newSubmissions);
-		
-		//get array of reviewers
+
+		// get array of reviewers
 		getReviewers();
-		
+		getApplicants();
+
 		setTitle("Journal Submission System");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -115,8 +125,7 @@ public class Admin extends JFrame implements Constants {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		
-		//check for and create possible folders for user
+		// check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
 		String userFeedback = "submissions/" + userID + "/feedback";
@@ -126,12 +135,12 @@ public class Admin extends JFrame implements Constants {
 		File authorFolder = new File(userFolder);
 		File detailsFolder = new File(userDetails);
 		File feedbackFolder = new File(userFeedback);
-		File feedbackListFile = new File (userFeedbackList);
-		File submissionListFile = new File (userSubmissionList);
-		File acceptedSubmissionsFolder = new File (acceptedSubmissionsList);
+		File feedbackListFile = new File(userFeedbackList);
+		File submissionListFile = new File(userSubmissionList);
+		File acceptedSubmissionsFolder = new File(acceptedSubmissionsList);
 
 		// Checks if the required folders exist already, if not it creates them
-		if(!acceptedSubmissionsFolder.exists())
+		if (!acceptedSubmissionsFolder.exists())
 			acceptedSubmissionsFolder.mkdirs();
 		if (!authorFolder.exists()) {
 			authorFolder.mkdirs();
@@ -156,16 +165,17 @@ public class Admin extends JFrame implements Constants {
 
 			}
 		}
-		
+
 		// Nicely formated version of username
-		String niceUsername = user;
+		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 
 		/*
-		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
-		 * frame were created with certain boundaries and colours to create a cohesive feel.
-		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
-		 * not appear properly with the colour scheme of the University of Alberta on Linux
-		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in
+		 * the frame were created with certain boundaries and colours to create a
+		 * cohesive feel. Buttons are implemented with jpanels instead of jbuttons
+		 * simply because they did not appear properly with the colour scheme of the
+		 * University of Alberta on Linux and MacOS. Most of the functionality is near
+		 * the bottom of this class.
 		 */
 		JPanel menuPanel = new JPanel();
 		menuPanel.setBackground(new Color(0, 124, 65));
@@ -195,32 +205,33 @@ public class Admin extends JFrame implements Constants {
 		adminIcon.setIcon(new ImageIcon(authorIconImg));
 		adminIcon.setBounds(184, 212, 346, 200);
 		welcomePanel.add(adminIcon);
-		
+
 		JPanel submissionsPanel = new JPanel();
 		contentPanel.add(submissionsPanel, "name_35648043125700");
 		submissionsPanel.setLayout(null);
 		submissionsPanel.setBackground(Color.WHITE);
-		
+
 		JLabel submissionsTitleLabel = new JLabel("Review Submissions");
 		submissionsTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		submissionsTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		submissionsTitleLabel.setBounds(24, 30, 325, 40);
 		submissionsPanel.add(submissionsTitleLabel);
-		
+
 		JLabel newsubLabel = new JLabel("New Submissions");
 		newsubLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		newsubLabel.setBounds(24, 90, 350, 18);
 		submissionsPanel.add(newsubLabel);
-	
+
 		DefaultListModel<SubmissionObject> newSubmissionModel = new DefaultListModel<>();
 		JList<SubmissionObject> submissionsList = new JList<SubmissionObject>(newSubmissionModel);
-		
+
 		submissionsList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane submissionsListScrollPane = new JScrollPane(submissionsList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane submissionsListScrollPane = new JScrollPane(submissionsList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		submissionsListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		submissionsListScrollPane.setBounds(24, 115, 650, 110);
 		submissionsPanel.add(submissionsListScrollPane);
-		
+
 		JPanel opennewButton = new JPanel();
 		JLabel opennewLabel = new JLabel("Open Paper");
 		opennewLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -233,79 +244,79 @@ public class Admin extends JFrame implements Constants {
 		opennewButton.setBackground(new Color(0, 124, 65));
 		opennewButton.setBounds(555, 235, 119, 30);
 		submissionsPanel.add(opennewButton);
-		
+
 		JPanel subSepPanel = new JPanel();
 		subSepPanel.setBackground(Color.BLACK);
 		subSepPanel.setBounds(24, 270, 650, 2);
 		submissionsPanel.add(subSepPanel);
-		
+
 		JLabel detailsLabel = new JLabel("Submission Details");
 		detailsLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		detailsLabel.setBounds(24, 285, 350, 18);
 		submissionsPanel.add(detailsLabel);
-		
+
 		JLabel detailsextraLabel = new JLabel("(select a paper above)");
 		detailsextraLabel.setForeground(Color.DARK_GRAY);
 		detailsextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		detailsextraLabel.setBounds(24, 305, 350, 18);
 		submissionsPanel.add(detailsextraLabel);
-		
+
 		JLabel titleSubLabel = new JLabel("Title");
 		titleSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		titleSubLabel.setBounds(24, 350, 325, 18);
 		submissionsPanel.add(titleSubLabel);
-		
+
 		JLabel detailtitleSubLabel = new JLabel("");
 		detailtitleSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailtitleSubLabel.setBounds(24, 380, 325, 18);
 		submissionsPanel.add(detailtitleSubLabel);
-		
+
 		JLabel authorsSubLabel = new JLabel("Author");
 		authorsSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		authorsSubLabel.setBounds(24, 410, 325, 18);
 		submissionsPanel.add(authorsSubLabel);
-		
+
 		JLabel detailauthorsSubLabel = new JLabel("");
 		detailauthorsSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailauthorsSubLabel.setBounds(24, 440, 325, 18);
 		submissionsPanel.add(detailauthorsSubLabel);
-		
+
 		JLabel subjectSubLabel = new JLabel("Research Subject");
 		subjectSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		subjectSubLabel.setBounds(359, 350, 315, 18);
 		submissionsPanel.add(subjectSubLabel);
-		
+
 		JLabel detailsubjectSubLabel = new JLabel("");
 		detailsubjectSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailsubjectSubLabel.setBounds(359, 380, 315, 18);
 		submissionsPanel.add(detailsubjectSubLabel);
-		
+
 		JLabel prefreviewersSubLabel = new JLabel("Preferred Reviewers");
 		prefreviewersSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		prefreviewersSubLabel.setBounds(359, 410, 315, 18);
 		submissionsPanel.add(prefreviewersSubLabel);
-		
+
 		JLabel detailprefreviewerSubLabel = new JLabel("");
 		detailprefreviewerSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailprefreviewerSubLabel.setBounds(359, 440, 315, 18);
 		submissionsPanel.add(detailprefreviewerSubLabel);
-		
+
 		JPanel detailsSepPanel = new JPanel();
 		detailsSepPanel.setBackground(Color.BLACK);
 		detailsSepPanel.setBounds(24, 470, 650, 2);
 		submissionsPanel.add(detailsSepPanel);
-		
+
 		JLabel deadlineLabel = new JLabel("Set Deadline");
 		deadlineLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		deadlineLabel.setBounds(24, 485, 350, 18);
 		submissionsPanel.add(deadlineLabel);
-		
+
 		JTextArea deadlineTextArea = new JTextArea();
 		deadlineTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		deadlineTextArea.setBounds(24, 510, 350, 30);
 		submissionsPanel.add(deadlineTextArea);
 		deadlineTextArea.append("YYYY-MM-DD");
-		
+
 		JPanel approveButton = new JPanel();
 		JLabel approveLabel = new JLabel("Approve");
 		approveLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -318,7 +329,7 @@ public class Admin extends JFrame implements Constants {
 		approveButton.setBackground(new Color(0, 124, 65));
 		approveButton.setBounds(425, 520, 119, 30);
 		submissionsPanel.add(approveButton);
-		
+
 		JPanel rejectButton = new JPanel();
 		JLabel rejectLabel = new JLabel("Reject");
 		rejectLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -331,78 +342,80 @@ public class Admin extends JFrame implements Constants {
 		rejectButton.setBackground(new Color(0, 124, 65));
 		rejectButton.setBounds(555, 520, 119, 30);
 		submissionsPanel.add(rejectButton);
-		
+
 		JPanel verifyPanel = new JPanel();
 		verifyPanel.setBackground(Color.WHITE);
 		contentPanel.add(verifyPanel, "name_95100187161800");
 		verifyPanel.setLayout(null);
-		
+
 		JLabel verifyTitleLabel = new JLabel("Verify Reviewers");
 		verifyTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		verifyTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		verifyTitleLabel.setBounds(24, 30, 350, 40);
 		verifyPanel.add(verifyTitleLabel);
-		
+
 		JLabel applicantsLabel = new JLabel("Applicants");
 		applicantsLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		applicantsLabel.setBounds(24, 90, 350, 18);
 		verifyPanel.add(applicantsLabel);
-		
+
 		JScrollPane applicantListScrollPane = new JScrollPane();
 		applicantListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		applicantListScrollPane.setBounds(24, 115, 650, 178);
 		verifyPanel.add(applicantListScrollPane);
-		
-		JList applicantList = new JList();
+
+		DefaultListModel<ReviewerObject> applicantModel = new DefaultListModel<>();
+		JList<ReviewerObject> applicantList = new JList<ReviewerObject>(applicantModel);
+
 		applicantList.setFont(new Font("Arial", Font.PLAIN, 12));
 		applicantListScrollPane.setViewportView(applicantList);
-		
+
 		JPanel verifySepPanel = new JPanel();
 		verifySepPanel.setBackground(Color.BLACK);
 		verifySepPanel.setBounds(24, 305, 650, 2);
 		verifyPanel.add(verifySepPanel);
-		
+
 		JLabel appdetailsLabel = new JLabel("Applicant Details");
 		appdetailsLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		appdetailsLabel.setBounds(24, 320, 350, 18);
 		verifyPanel.add(appdetailsLabel);
-		
+
 		JLabel appdetailsextraLabel = new JLabel("(select a new applicant above)");
 		appdetailsextraLabel.setForeground(Color.DARK_GRAY);
 		appdetailsextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		appdetailsextraLabel.setBounds(24, 340, 350, 18);
 		verifyPanel.add(appdetailsextraLabel);
-		
+
 		JLabel occupationLabel = new JLabel("Occupation");
 		occupationLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		occupationLabel.setBounds(24, 385, 325, 18);
 		verifyPanel.add(occupationLabel);
-		
+
 		JLabel detailsoccupationLabel = new JLabel("");
 		detailsoccupationLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailsoccupationLabel.setBounds(24, 415, 325, 18);
 		verifyPanel.add(detailsoccupationLabel);
-		
+
 		JLabel organizationLabel = new JLabel("Organization");
 		organizationLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		organizationLabel.setBounds(24, 445, 325, 18);
 		verifyPanel.add(organizationLabel);
-		
+
 		JLabel detailsorganizationLabel = new JLabel("");
 		detailsorganizationLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailsorganizationLabel.setBounds(24, 475, 325, 18);
 		verifyPanel.add(detailsorganizationLabel);
-		
+
 		JLabel researchareaLabel = new JLabel("Research Area");
 		researchareaLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		researchareaLabel.setBounds(359, 385, 315, 18);
 		verifyPanel.add(researchareaLabel);
-		
+
 		JLabel detailsresearchareaLabel = new JLabel("");
 		detailsresearchareaLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		detailsresearchareaLabel.setBounds(359, 415, 315, 18);
 		verifyPanel.add(detailsresearchareaLabel);
-		
+
 		JPanel approveappButton = new JPanel();
 		JLabel approveappLabel = new JLabel("Approve");
 		approveappLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -414,8 +427,8 @@ public class Admin extends JFrame implements Constants {
 		approveappButton.setLayout(null);
 		approveappButton.setBackground(new Color(0, 124, 65));
 		approveappButton.setBounds(425, 520, 119, 30);
-		verifyPanel.add(approveappButton);	
-		
+		verifyPanel.add(approveappButton);
+
 		JPanel rejectappButton = new JPanel();
 		JLabel rejectappLabel = new JLabel("Reject");
 		rejectappLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -428,70 +441,46 @@ public class Admin extends JFrame implements Constants {
 		rejectappButton.setBackground(new Color(0, 124, 65));
 		rejectappButton.setBounds(555, 520, 119, 30);
 		verifyPanel.add(rejectappButton);
-		
+
 		JPanel assignPanel = new JPanel();
 		assignPanel.setBackground(Color.WHITE);
 		contentPanel.add(assignPanel, "name_100789627501200");
 		assignPanel.setLayout(null);
-		
+
 		JLabel assignTitleLabel = new JLabel("Assign Reviewers");
 		assignTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		assignTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		assignTitleLabel.setBounds(24, 30, 350, 40);
 		assignPanel.add(assignTitleLabel);
-		
+
 		JLabel assignpaperLabel = new JLabel("Choose Paper To Assign Reviewers To");
 		assignpaperLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		assignpaperLabel.setBounds(24, 90, 350, 18);
 		assignPanel.add(assignpaperLabel);
-		
+
 		DefaultListModel<SubmissionObject> assignpaperModel = new DefaultListModel<SubmissionObject>();
-		
+
 		JScrollPane assignpaperListScrollPane = new JScrollPane();
 		assignpaperListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		assignpaperListScrollPane.setBounds(24, 115, 650, 170);
 		assignPanel.add(assignpaperListScrollPane);
 		JList<SubmissionObject> assignpaperList = new JList<>(assignpaperModel);
 		assignpaperListScrollPane.setViewportView(assignpaperList);
+
 		
-				//assign reviewers paper list logic
-				assignpaperList.addListSelectionListener(new ListSelectionListener() {
-					@SuppressWarnings("static-access")
-					public void valueChanged(ListSelectionEvent arg0) {
-						
-						selected = assignpaperList.getSelectedIndices();
-						if(selected.length==1) {
-							
-							//no details to show for a selected paper in this screen
-							
-						}else if (selectedPaper.length >= 2) {
-		
-							UIManager UI = new UIManager();
-							UI.put("OptionPane.background", Color.WHITE);
-							UI.put("Panel.background", Color.WHITE);
-							assignpaperList.clearSelection();
-							JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
-									JOptionPane.PLAIN_MESSAGE, null);
-						}
-						
-						
-					}
-					
-					
-				});
-		
-				JPanel assignSepPanel = new JPanel();
-				assignSepPanel.setBackground(Color.BLACK);
-				assignSepPanel.setBounds(24, 305, 650, 2);
-				assignPanel.add(assignSepPanel);
-		
+
+		JPanel assignSepPanel = new JPanel();
+		assignSepPanel.setBackground(Color.BLACK);
+		assignSepPanel.setBounds(24, 305, 650, 2);
+		assignPanel.add(assignSepPanel);
+
 		JLabel reviewersLabel = new JLabel("Reviewer List");
 		reviewersLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		reviewersLabel.setBounds(24, 320, 350, 18);
 		assignPanel.add(reviewersLabel);
-		
+
 		DefaultListModel<ReviewerObject> reviewerModel = new DefaultListModel<ReviewerObject>();
-		
+
 		JPanel sortallButton = new JPanel();
 		JLabel sortallLabel = new JLabel("All");
 		sortallLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -499,33 +488,12 @@ public class Admin extends JFrame implements Constants {
 		sortallLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		sortallLabel.setBounds(0, 0, 70, 20);
 		sortallButton.add(sortallLabel);
-		sortallButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				sortallButton.setBackground(new Color(255, 219, 5));
-				sortallLabel.setForeground(Color.BLACK);
 
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				sortallButton.setBackground(new Color(0, 124, 65));
-
-				sortallLabel.setForeground(Color.WHITE);
-
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-			}
-		});
 		sortallButton.setLayout(null);
 		sortallButton.setBackground(new Color(0, 124, 65));
 		sortallButton.setBounds(315, 320, 70, 20);
 		assignPanel.add(sortallButton);
-		
-		
-		
+
 		JPanel sortselfButton = new JPanel();
 		JLabel sortselfLabel = new JLabel("Self-Nominated");
 		sortselfLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -538,7 +506,7 @@ public class Admin extends JFrame implements Constants {
 		sortselfButton.setBackground(new Color(0, 124, 65));
 		sortselfButton.setBounds(394, 320, 135, 20);
 		assignPanel.add(sortselfButton);
-		
+
 		JPanel sortauthorButton = new JPanel();
 		JLabel sortauthorLabel = new JLabel("Nominated By Author");
 		sortauthorLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -551,15 +519,14 @@ public class Admin extends JFrame implements Constants {
 		sortauthorButton.setBackground(new Color(0, 124, 65));
 		sortauthorButton.setBounds(539, 320, 135, 20);
 		assignPanel.add(sortauthorButton);
-		
+
 		JScrollPane reviewerListScrollPane = new JScrollPane();
 		reviewerListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		reviewerListScrollPane.setBounds(24, 345, 650, 170);
 		assignPanel.add(reviewerListScrollPane);
-		JList <ReviewerObject>reviewerList = new JList<>(reviewerModel);
+		JList<ReviewerObject> reviewerList = new JList<>(reviewerModel);
 		reviewerListScrollPane.setViewportView(reviewerList);
-		
-		
+
 		JPanel assignreviewerButton = new JPanel();
 		JLabel assignreviewerLabel = new JLabel("Assign");
 		assignreviewerLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -594,7 +561,8 @@ public class Admin extends JFrame implements Constants {
 
 		feedbackList.setFont(new Font("Arial", Font.PLAIN, 12));
 
-		JScrollPane feedbackListScrollPane = new JScrollPane(feedbackList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane feedbackListScrollPane = new JScrollPane(feedbackList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackListScrollPane.setSize(650, 143);
 		feedbackListScrollPane.setLocation(24, 115);
 		feedbackListScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -624,44 +592,46 @@ public class Admin extends JFrame implements Constants {
 		releaseLabel.setBounds(0, 0, 119, 30);
 		releaseButton.add(releaseLabel);
 		releaseButton.setVisible(false);
-		
+
 		releaseButton.setBackground(new Color(0, 124, 65));
 		releaseButton.setBounds(555, 520, 119, 30);
 		feedbackPanel.add(releaseButton);
 		releaseButton.setLayout(null);
-		
+
 		JTextArea feedbackTextArea = new JTextArea();
 		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackScrollPane.setSize(650, 180);
 		feedbackScrollPane.setLocation(24, 330);
 		feedbackScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		feedbackPanel.add(feedbackScrollPane);
-		
+
 		JPanel finalPanel = new JPanel();
 		finalPanel.setBackground(Color.WHITE);
 		contentPanel.add(finalPanel, "name_95139545658000");
 		finalPanel.setLayout(null);
-		
+
 		JLabel finalTitleLabel = new JLabel("Review Final Submissions");
 		finalTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		finalTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		finalTitleLabel.setBounds(24, 30, 350, 40);
 		finalPanel.add(finalTitleLabel);
-		
+
 		JLabel pastdeadlineLabel = new JLabel("Papers Past Deadline");
 		pastdeadlineLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		pastdeadlineLabel.setBounds(24, 90, 350, 18);
 		finalPanel.add(pastdeadlineLabel);
-		
+
 		JScrollPane deadlineListScrollPane = new JScrollPane();
 		deadlineListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		deadlineListScrollPane.setBounds(24, 115, 650, 110);
 		finalPanel.add(deadlineListScrollPane);
-		
-		JList deadlineList = new JList();
+
+		DefaultListModel<SubmissionObject> deadlineModel = new DefaultListModel<SubmissionObject>();
+		JList<SubmissionObject> deadlineList = new JList<SubmissionObject>(deadlineModel);
 		deadlineListScrollPane.setViewportView(deadlineList);
-		
+
 		JPanel openfinalpaperButton = new JPanel();
 		JLabel openfinalpaperLabel = new JLabel("Open Paper");
 		openfinalpaperLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -674,25 +644,25 @@ public class Admin extends JFrame implements Constants {
 		openfinalpaperButton.setBackground(new Color(0, 124, 65));
 		openfinalpaperButton.setBounds(555, 235, 119, 30);
 		finalPanel.add(openfinalpaperButton);
-		
+
 		JPanel finalSepPanel = new JPanel();
 		finalSepPanel.setBackground(Color.BLACK);
 		finalSepPanel.setBounds(24, 270, 650, 2);
 		finalPanel.add(finalSepPanel);
-		
+
 		JLabel finalcommentsLabel = new JLabel("Final Comments");
 		finalcommentsLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		finalcommentsLabel.setBounds(24, 291, 350, 18);
 		finalPanel.add(finalcommentsLabel);
-		
+
 		JScrollPane commentsTextAreaScrollPane = new JScrollPane();
 		commentsTextAreaScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		commentsTextAreaScrollPane.setBounds(24, 326, 650, 180);
 		finalPanel.add(commentsTextAreaScrollPane);
-		
+
 		JTextArea commentsTextArea = new JTextArea();
 		commentsTextAreaScrollPane.setViewportView(commentsTextArea);
-		
+
 		JPanel extendButton = new JPanel();
 		JLabel extendLabel = new JLabel("Extend Deadline");
 		extendLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -700,30 +670,12 @@ public class Admin extends JFrame implements Constants {
 		extendLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		extendLabel.setBounds(0, 0, 119, 30);
 		extendButton.add(extendLabel);
-		extendButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-				extendButton.setBackground(new Color(255, 219, 5));
-				extendLabel.setForeground(Color.BLACK);
-			}
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-				extendButton.setBackground(new Color(0, 124, 65));
-				extendLabel.setForeground(Color.WHITE);
-			}
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				
-			}
-		});
+
 		extendButton.setLayout(null);
 		extendButton.setBackground(new Color(0, 124, 65));
 		extendButton.setBounds(295, 520, 119, 30);
 		finalPanel.add(extendButton);
-		
+
 		JPanel finalapproveButton = new JPanel();
 		JLabel finalapproveLabel = new JLabel("Approve");
 		finalapproveLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -736,7 +688,7 @@ public class Admin extends JFrame implements Constants {
 		finalapproveButton.setBackground(new Color(0, 124, 65));
 		finalapproveButton.setBounds(425, 520, 119, 30);
 		finalPanel.add(finalapproveButton);
-		
+
 		JPanel finalrejectButton = new JPanel();
 		JLabel finalrejectLabel = new JLabel("Reject");
 		finalrejectLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -764,9 +716,9 @@ public class Admin extends JFrame implements Constants {
 		submissionsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		submissionsLabel.setBounds(0, 0, 180, 30);
 		submissionsButton.add(submissionsLabel);
-		
-		//MouseListener for new submissions tab that opens submission panel and 
-		//refreshes for new submissions
+
+		// MouseListener for new submissions tab that opens submission panel and
+		// refreshes for new submissions
 		submissionsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -774,12 +726,14 @@ public class Admin extends JFrame implements Constants {
 				submissionsButton.setBackground(new Color(255, 219, 5));
 				submissionsLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				submissionsButton.setBackground(new Color(0, 124, 65));
 				submissionsLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -787,13 +741,12 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
-
 				contentPanel.add(submissionsPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
-				
-				//refreshes new submissions when its panel is opened
-				getSubmissions(1);
+
+				// refreshes new submissions when its panel is opened
+				getSubmissions(NEW_SUBMISSION_STAGE);
 				newSubmissions = populateSubmissions(newSubmissions);
 				newSubmissionModel.clear();
 				for (int i = 0; i < newSubmissions.length; i++) {
@@ -817,8 +770,9 @@ public class Admin extends JFrame implements Constants {
 		feedbackLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		feedbackLabel.setBounds(0, 0, 180, 30);
 		feedbackButton.add(feedbackLabel);
-		
-		//MouseListener for review feedback tab that refreshes for new feedback when clicked
+
+		// MouseListener for review feedback tab that refreshes for new feedback when
+		// clicked
 		feedbackButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -826,12 +780,14 @@ public class Admin extends JFrame implements Constants {
 				feedbackButton.setBackground(new Color(255, 219, 5));
 				feedbackLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				feedbackButton.setBackground(new Color(0, 124, 65));
 				feedbackLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -842,7 +798,7 @@ public class Admin extends JFrame implements Constants {
 				paperModel.clear();
 				getSubmissions(FEEDBACK_REVIEW_STAGE);
 				newSubmissions = populateSubmissions(newSubmissions);
-				
+
 				for (int i = 0; i < newSubmissions.length; i++) {
 					paperModel.addElement(newSubmissions[i]);
 				}
@@ -856,7 +812,7 @@ public class Admin extends JFrame implements Constants {
 		feedbackButton.setBackground(new Color(0, 124, 65));
 		feedbackButton.setBounds(0, 185, 180, 30);
 		menuPanel.add(feedbackButton);
-		
+
 		JPanel verifyButton = new JPanel();
 		JLabel verifyLabel = new JLabel("Verify Reviewers");
 		verifyLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -864,28 +820,29 @@ public class Admin extends JFrame implements Constants {
 		verifyLabel.setForeground(Color.WHITE);
 		verifyLabel.setBounds(0, 0, 180, 30);
 		verifyButton.add(verifyLabel);
-		
-		//MouseListener for verify new reviewers tab
+
+		// MouseListener for verify new reviewers tab
 		verifyButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				
+
 				verifyButton.setBackground(new Color(255, 219, 5));
 				verifyLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
-				
+
 				verifyButton.setBackground(new Color(0, 124, 65));
 				verifyLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
-
 
 				contentPanel.add(verifyPanel);
 				contentPanel.repaint();
@@ -896,7 +853,7 @@ public class Admin extends JFrame implements Constants {
 		verifyButton.setBounds(0, 115, 180, 30);
 		menuPanel.add(verifyButton);
 		verifyButton.setLayout(null);
-		
+
 		JPanel assignButton = new JPanel();
 		JLabel assignLabel = new JLabel("Assign Reviewers");
 		assignLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -904,39 +861,42 @@ public class Admin extends JFrame implements Constants {
 		assignLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		assignLabel.setBounds(0, 0, 180, 30);
 		assignButton.add(assignLabel);
-		
-		//MouseListener for assigning reviewers tab that refreshes submissions in that stage
+
+		// MouseListener for assigning reviewers tab that refreshes submissions in that
+		// stage
 		assignButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				
+
 				assignButton.setBackground(new Color(255, 219, 5));
 				assignLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
-				
+
 				assignButton.setBackground(new Color(0, 124, 65));
 				assignLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
 				reviewerModel.clear();
 				assignpaperModel.clear();
-				//get submissions with stage = 2
+				// get submissions with stage = 2
 				getSubmissions(APPROVED_SUBMISSION_STAGE);
 				newSubmissions = populateSubmissions(newSubmissions);
-				
+
 				for (int i = 0; i < newSubmissions.length; i++) {
 					assignpaperModel.addElement(newSubmissions[i]);
 				}
-				for(int i=0;i<reviewers.length;i++) {
-					if(reviewers[i]!=null)
+				for (int i = 0; i < reviewers.length; i++) {
+					if (reviewers[i] != null)
 						reviewerModel.addElement(reviewers[i]);
 				}
 				contentPanel.add(assignPanel);
@@ -956,8 +916,8 @@ public class Admin extends JFrame implements Constants {
 		logoutLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		logoutLabel.setBounds(0, 0, 180, 30);
 		logoutButton.add(logoutLabel);
-		
-		//Logout button mouselistener
+
+		// Logout button mouselistener
 		logoutButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -965,12 +925,14 @@ public class Admin extends JFrame implements Constants {
 				logoutButton.setBackground(new Color(255, 219, 5));
 				logoutLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				logoutButton.setBackground(new Color(0, 124, 65));
 				logoutLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -978,7 +940,7 @@ public class Admin extends JFrame implements Constants {
 				Login.main(null);
 			}
 		});
-		
+
 		JPanel finalButton = new JPanel();
 		JLabel final1Label = new JLabel("Review");
 		final1Label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -992,30 +954,45 @@ public class Admin extends JFrame implements Constants {
 		final2Label.setForeground(Color.WHITE);
 		final2Label.setBounds(0, 30, 180, 30);
 		finalButton.add(final2Label);
-		
-		//MouseListener for final submissions tab
+
+		// MouseListener for final submissions tab
 		finalButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				
+
 				finalButton.setBackground(new Color(255, 219, 5));
 				final1Label.setForeground(Color.BLACK);
 				final2Label.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
-				
+
 				finalButton.setBackground(new Color(0, 124, 65));
 				final1Label.setForeground(Color.WHITE);
 				final2Label.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
+				getSubmissions(RESUBMIT_STAGE);
+				newSubmissions = populateSubmissions(newSubmissions);
+
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				Date today = new Date();
+				try {
+					for (int i = 0; i < newSubmissions.length; i++) {
+						Date deadline;
+						deadline = format.parse(newSubmissions[i].submissionDeadline);
+						if (today.after(deadline))
+							deadlineModel.addElement(newSubmissions[i]);
+				}
+				}catch (ParseException e) {e.printStackTrace();}
 
 				contentPanel.add(finalPanel);
 				contentPanel.repaint();
@@ -1036,35 +1013,40 @@ public class Admin extends JFrame implements Constants {
 		ualogo.setBounds(40, 420, 100, 100);
 		menuPanel.add(ualogo);
 		ualogo.setIcon(new ImageIcon(ualogoImg));
-		
-		
-		
-		
-		// populates new submissions list
-		for (int i = 0; i < newSubmissions.length; i++) {
-			newSubmissionModel.addElement(newSubmissions[i]);
+
+		//populate new applicants list
+		for (int i = 0; i < applicants.length; i++) {
+			if (applicants[i] != null)
+				applicantModel.addElement(applicants[i]);
 		}
 
-		//NEW SUBMISSIONS LIST LOGIC
+		// populates new submissions list
+		for (int i = 0; i < newSubmissions.length; i++) {
+			if (newSubmissions[i] != null)
+				newSubmissionModel.addElement(newSubmissions[i]);
+		}
+
+		// NEW SUBMISSIONS LIST LOGIC
 		submissionsList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
-				
-				//gets selected indices in the list to validate if only one is selected at a time
+
+				// gets selected indices in the list to validate if only one is selected at a
+				// time
 				selectedPaper = submissionsList.getSelectedIndices();
-				
-				
+
 				if (selectedPaper.length == 1) {
-					
-					//index of selected paper
+
+					// index of selected paper
 					int paperIndex = selectedPaper[0];
 
-					//shows details for selected paper
+					// shows details for selected paper
 					detailtitleSubLabel.setText(newSubmissions[paperIndex].submissionName);
 					detailauthorsSubLabel.setText(newSubmissions[paperIndex].submissionAuthors);
 					detailsubjectSubLabel.setText(newSubmissions[paperIndex].subject);
 
-					//Checks if any preferred reviewers were specified and displays a message if none
+					// Checks if any preferred reviewers were specified and displays a message if
+					// none
 					if (newSubmissions[paperIndex].preferredReviewerIDs == null)
 						detailprefreviewerSubLabel.setText("No Preferred Reviewers");
 					else
@@ -1072,7 +1054,7 @@ public class Admin extends JFrame implements Constants {
 
 				} else if (selectedPaper.length >= 2) {
 
-					//Show an error message if more than 2 papers are selected
+					// Show an error message if more than 2 papers are selected
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
@@ -1081,7 +1063,7 @@ public class Admin extends JFrame implements Constants {
 							JOptionPane.PLAIN_MESSAGE, null);
 				} else if (selectedPaper.length == 0) {
 
-					//clear details section if no paper is selected
+					// clear details section if no paper is selected
 					detailtitleSubLabel.setText("");
 					detailauthorsSubLabel.setText("");
 					detailsubjectSubLabel.setText("");
@@ -1144,7 +1126,7 @@ public class Admin extends JFrame implements Constants {
 					String fileLocation = "file:///" + filepath.toString() + "submissions/"
 							+ paperOfInterest.submissionUserID + "/" + filename;
 
-					//Opens the file 
+					// Opens the file
 					try {
 						Desktop.getDesktop().browse(new URI(fileLocation));
 					} catch (IOException | URISyntaxException e) {
@@ -1154,14 +1136,12 @@ public class Admin extends JFrame implements Constants {
 					// example final string format
 					// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
 				}
-				
-				
+
 			}
 		});
-		
 
 		// APPROVE NEW SUBMISSION BUTTON LOGIC
-		// When button is clicked, the selected paper is deleted from the list, 
+		// When button is clicked, the selected paper is deleted from the list,
 		// and its submissionStage in SQL database is changed, as well as its deadline
 		approveButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1181,84 +1161,85 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
-				//boolean to check if entered deadline date is valid
-				boolean validDate = true;
-				
-				//get user input date
+
+				// boolean to check if entered deadline date is valid
+				boolean validDate = false;
+
+				// get user input date
 				String submissionDeadline = deadlineTextArea.getText();
-				
-				//set format for date
+
+				// set format for date
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				
-				//get current date to check against
+				format.setLenient(false);
+				// get current date to check against
 				Date today = new Date();
-				
-				     try {
-				    	 //parses entered date by above format, throws an exception if does not match
-				          format.parse(submissionDeadline);
-				          
-				          //check if entered date is before current date 
-				          if(format.parse(submissionDeadline).before(today))
-				        	  validDate=false;
-				     }
-				     catch(ParseException e){
-				    	 validDate = false;
-				     }
-				     //either improper format or date before today sets validDate to false, which then shows an error message
-				     
-				if(selectedPaper.length==1 && validDate) {
-					
-					//gets index of selected paper in list
+
+				try {
+					// check if entered date is before current date
+					if (format.parse(submissionDeadline).after(today))
+						validDate = true;
+				} catch (ParseException e) {
+					validDate = false;
+				}
+				// either improper format or date before today sets validDate to false, which
+				// then shows an error message
+
+				if (selectedPaper.length == 1 && validDate) {
+
+					// gets index of selected paper in list
 					int paperIndex = selectedPaper[0];
-					
-					//get selected paper's submissionID
+
+					// get selected paper's submissionID
 					int submissionID = newSubmissions[paperIndex].submissionID;
-					
-					//send SQL update
+
+					// send SQL update
 					approveSubmission(submissionID, submissionDeadline);
 
-					//refresh new submissions list after approving 
+					// refresh new submissions list after approving
 					getSubmissions(NEW_SUBMISSION_STAGE);
 					newSubmissions = populateSubmissions(newSubmissions);
-					newSubmissionModel.clear();	
+					newSubmissionModel.clear();
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
-				}
-				else if (selectedPaper.length==0) {
+				} else if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 					JOptionPane.showMessageDialog(null, "No paper selected to approve.", "No paper selected",
 							JOptionPane.PLAIN_MESSAGE, null);
-				}
-				else if (!validDate) {
+				} else if (!validDate) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
-					JOptionPane.showMessageDialog(null, "Please enter a valid date in the format YYYY-MM-DD, after today.", "Invalid deadline",
+					JOptionPane.showMessageDialog(null,
+							"Please enter a valid date in the format YYYY-MM-DD, after today.", "Invalid deadline",
 							JOptionPane.PLAIN_MESSAGE, null);
-					
+
 				}
 			}
+
 			/**
-			 * Sends an sql update instruction to change submissionStage and submissionDeadline
-			 * @param submissionID 
-			 * @param submissionDeadline 
+			 * Sends an sql update instruction to change submissionStage and
+			 * submissionDeadline
+			 * 
+			 * @param submissionID
+			 * @param submissionDeadline
 			 */
 			private void approveSubmission(int submissionID, String submissionDeadline) {
 				PreparedStatement ps;
-				String query = "update submission set submissionStage = 2, submissionDeadline = ? where submission ID = ?";
-				
+				String query = "update submission set submissionStage = 2, submissionDeadline = ? where submissionID = ?";
+
 				try {
 					ps = SQLConnection.getConnection().prepareStatement(query);
 					ps.setString(1, submissionDeadline);
 					ps.setInt(2, submissionID);
-					
+
 					ps.executeUpdate();
-				}catch(Exception e) {e.printStackTrace();}
-				
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 			}
 		});
 
@@ -1281,34 +1262,68 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
-				//check if only one paper selected
-				if(selectedPaper.length==1) {
-				
-					//get index of selected paper
+
+				// check if only one paper selected
+				if (selectedPaper.length == 1) {
+
+					// get index of selected paper
 					int paperIndex = selectedPaper[0];
-					
-					//get selected paper's unique ID
+
+					// get selected paper's unique ID
 					int submissionID = newSubmissions[paperIndex].submissionID;
 
-					//set submissionStage to rejected stage
+					// set submissionStage to rejected stage
 					setSubmissionStage(submissionID, REJECTED_SUBMISSION_STAGE);
-					
-					//refresh list of new submissions after rejection
+
+					// refresh list of new submissions after rejection
 					getSubmissions(1);
 					newSubmissions = populateSubmissions(newSubmissions);
 					newSubmissionModel.clear();
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
-				}
-				else {
+				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 					JOptionPane.showMessageDialog(null, "No paper selected to reject.", "No paper selected",
 							JOptionPane.PLAIN_MESSAGE, null);
 				}
+			}
+		});
+
+		// Applicant list listener
+		// checks if only one applicant selected
+		applicantList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				// get indices of selected papers
+				selectedApplicant = applicantList.getSelectedIndices();
+
+				if (selectedApplicant.length == 1) {
+					int selected = selectedApplicant[0];
+					
+					//populates detail text labels for selected applicant
+					detailsoccupationLabel.setText(applicants[selected].occupation);
+					detailsorganizationLabel.setText(applicants[selected].organization);
+					detailsresearchareaLabel.setText(applicants[selected].researchArea);
+					
+				} else if (selectedApplicant.length >= 2) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Applicant",
+							"Too Many Applicants Selected", JOptionPane.PLAIN_MESSAGE, null);
+					applicantList.clearSelection();
+				}
+				else {
+					detailsoccupationLabel.setText("");
+					detailsorganizationLabel.setText("");
+					detailsresearchareaLabel.setText("");
+
+				}
+
 			}
 		});
 
@@ -1328,9 +1343,31 @@ public class Admin extends JFrame implements Constants {
 				approveappLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				if (selectedApplicant.length == 1) {
+					int selectedApplicantIndex = selectedApplicant[0];
+					int applicantID = applicants[selectedApplicantIndex].userID;
+
+					approveApplicant(applicantID);
+
+					// update applicants list
+					applicantModel.clear();
+					getApplicants();
+					for (int i = 0; i < applicants.length; i++) {
+						if (applicants[i] != null)
+							applicantModel.addElement(applicants[i]);
+					}
+				} else {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Please select an applicant", "No applicant selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+
+				}
 			}
 		});
 
@@ -1350,8 +1387,87 @@ public class Admin extends JFrame implements Constants {
 				rejectappLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+
+				if (selectedApplicant.length == 1) {
+					int selectedApplicantIndex = selectedApplicant[0];
+					int applicantID = applicants[selectedApplicantIndex].userID;
+
+					rejectApplicant(applicantID);
+
+					// update applicants list
+					applicantModel.clear();
+					getApplicants();
+					for (int i = 0; i < applicants.length; i++) {
+						if (applicants[i] != null)
+							applicantModel.addElement(applicants[i]);
+					}
+				} else {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Please select an applicant", "No applicant selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+
+				}
+			}
+		});
+		
+		
+		// assign reviewers paper list logic
+		assignpaperList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				selected = assignpaperList.getSelectedIndices();
+				if (selected.length == 1) {
+
+					// no details to show for a selected paper in this screen
+
+				} else if (selectedPaper.length >= 2) {
+
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					assignpaperList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+
+			}
+
+		});
+
+		// Get all reviewers
+		sortallButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				sortallButton.setBackground(new Color(255, 219, 5));
+				sortallLabel.setForeground(Color.BLACK);
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				sortallButton.setBackground(new Color(0, 124, 65));
+
+				sortallLabel.setForeground(Color.WHITE);
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				// just clear and add all reviewers to the list
+				reviewerModel.clear();
+				for (int i = 0; i < reviewers.length; i++) {
+					if (reviewers[i] != null)
+						reviewerModel.addElement(reviewers[i]);
+				}
 
 			}
 		});
@@ -1374,10 +1490,36 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				
+				if (selected.length > 0) {
+					
+					// first clear the list
+					reviewerModel.clear();
 
-				
-				
-				
+					// get the selected submission
+					int selectedIndex = selected[0];
+					SubmissionObject selectedSubmission = assignpaperModel.getElementAt(selectedIndex);
+
+					// array of ints for reviewer IDs
+					int[] nominatedIDs = new int[100];
+
+					if (selectedSubmission.nominatedReviewers != null) {
+
+						// Split the list of preferred reviewer IDs by comma
+						String[] nominated = selectedSubmission.nominatedReviewers.split("[,]");
+
+						// store those split strings as integers
+						for (int i = 0; i < nominated.length; i++) {
+							nominatedIDs[i] = Integer.parseInt(nominated[i]);
+						}
+					}
+
+					// Populate the reviewer list by preferred reviewer IDs
+					for (int i = 0; i < nominatedIDs.length; i++) {
+						if (nominatedIDs[i] != 0)
+							reviewerModel.addElement(reviewerIDtoObject.get(nominatedIDs[i]));
+					}
+				}
 			}
 		});
 
@@ -1399,10 +1541,40 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				
+				if (selected.length > 0) {
+
+					// first clear the list
+					reviewerModel.clear();
+
+					// get the selected submission
+					int selectedIndex = selected[0];
+					SubmissionObject selectedSubmission = assignpaperModel.getElementAt(selectedIndex);
+
+					// array of ints for reviewer IDs
+					int[] preferredReviewerIDs = new int[100];
+
+					if (selectedSubmission.preferredReviewerIDs != null) {
+
+						// Split the list of preferred reviewer IDs by comma
+						String[] nominated = selectedSubmission.preferredReviewerIDs.split("[,]");
+
+						// store those split strings as integers
+						for (int i = 0; i < nominated.length; i++) {
+							preferredReviewerIDs[i] = Integer.parseInt(nominated[i]);
+						}
+					}
+
+					// Populate the reviewer list by preferred reviewer IDs
+					for (int i = 0; i < preferredReviewerIDs.length; i++) {
+						if (preferredReviewerIDs[i] != 0)
+							reviewerModel.addElement(reviewerIDtoObject.get(preferredReviewerIDs[i]));
+					}
+				}
 
 			}
 		});
-		
+
 		// ASSIGN REVIEWER BUTTON
 		assignreviewerButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1422,43 +1594,44 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
-				//checks that only one paper is selected
-				if(selected.length==1) {
-					
-					//get selected paper as an object
+
+				// checks that only one paper is selected
+				if (selected.length == 1) {
+
+					// get selected paper as an object
 					SubmissionObject paperOfInterest = assignpaperModel.getElementAt(selected[0]);
-					
-					//Up to 20 reviewers can be selected 
+
+					// Up to 20 reviewers can be selected
 					ReviewerObject[] selectedReviewers = new ReviewerObject[20];
-					
-					//get the indices of reviewers selected
+
+					// get the indices of reviewers selected
 					int[] reviewerIndices = reviewerList.getSelectedIndices();
-					
-					//check if at least one reviewer is selected
-					if(reviewerIndices.length > 0) {
-						
-						//iterates over selected reviewers' indices and adds each selected reviewer to 
-						//the array of reviewer objects, selectedReviewers
-						for(int i=0; i<reviewerIndices.length; i++) {
+
+					// check if at least one reviewer is selected
+					if (reviewerIndices.length > 0) {
+
+						// iterates over selected reviewers' indices and adds each selected reviewer to
+						// the array of reviewer objects, selectedReviewers
+						for (int i = 0; i < reviewerIndices.length; i++) {
 							selectedReviewers[i] = new ReviewerObject();
 							selectedReviewers[i] = reviewerModel.getElementAt(reviewerIndices[i]);
 						}
-						
-						//StringBuilder to build the string that will be sent to the SQL database
-						//Will be of the form ID1,ID2,ID3, etc. ending with a reviewer ID and not a comma
+
+						// StringBuilder to build the string that will be sent to the SQL database
+						// Will be of the form ID1,ID2,ID3, etc. ending with a reviewer ID and not a
+						// comma
 						StringBuilder reviewerIDs = new StringBuilder();
-						for(int i=0; i<selectedReviewers.length; i++) {
-							if(selectedReviewers[i]!=null) {
+						for (int i = 0; i < selectedReviewers.length; i++) {
+							if (selectedReviewers[i] != null) {
 								reviewerIDs.append(selectedReviewers[i].userID + ",");
 							}
 						}
-						reviewerIDs.setLength(reviewerIDs.length()-1);
-						
-						//send SQL update
+						reviewerIDs.setLength(reviewerIDs.length() - 1);
+
+						// send SQL update
 						assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
-						
-						//refresh list of papers that need reviewers assigned
+
+						// refresh list of papers that need reviewers assigned
 						assignpaperModel.clear();
 						getSubmissions(APPROVED_SUBMISSION_STAGE);
 						newSubmissions = populateSubmissions(newSubmissions);
@@ -1480,36 +1653,35 @@ public class Admin extends JFrame implements Constants {
 					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
 							JOptionPane.PLAIN_MESSAGE, null);
 				}
-				
-				
-			}	
+
+			}
 		});
 
 		// REVIEW FEEDBACK LIST LOGIC
 		feedbackList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
-				
-				//Clear the textarea to prepare for new feedback
+
+				// Clear the textarea to prepare for new feedback
 				feedbackTextArea.setText("");
 				fbAreaSelected = feedbackList.getSelectedIndices();
 
-				//If no paper is selected, removes the release feedback button
-				if(fbAreaSelected.length==0)
+				// If no paper is selected, removes the release feedback button
+				if (fbAreaSelected.length == 0)
 					releaseButton.setVisible(false);
-				
-				//Adds it back if a paper is selected
+
+				// Adds it back if a paper is selected
 				else if (fbAreaSelected.length == 1) {
 					releaseButton.setVisible(true);
 
-					//get selected paper as an object for easy retrieval of details
+					// get selected paper as an object for easy retrieval of details
 					SubmissionObject paperInDetail = newSubmissions[fbAreaSelected[0]];
 
-					//feedback file directory + filename
-					String feedbackFile = "submissions/" + paperInDetail.submissionUserID + "/feedback/" + paperInDetail.submissionName.split("\\.")[0] + ".txt";
-					
-					
-					//opening and appending feedback file to the textarea
+					// feedback file directory + filename
+					String feedbackFile = "submissions/" + paperInDetail.submissionUserID + "/feedback/"
+							+ paperInDetail.submissionName.split("\\.")[0] + ".txt";
+
+					// opening and appending feedback file to the textarea
 					Scanner feedback;
 
 					try {
@@ -1517,17 +1689,14 @@ public class Admin extends JFrame implements Constants {
 						feedback = new Scanner(new File(feedbackFile));
 
 						while (feedback.hasNext()) {
-							
+
 							feedbackTextArea.append(feedback.nextLine());
 							feedbackTextArea.append("\n");
 						}
 
 						feedbackTextArea.setCaretPosition(0);
 						feedback.close();
-						
-						
-							
-						
+
 					} catch (FileNotFoundException e) {
 					}
 
@@ -1542,7 +1711,7 @@ public class Admin extends JFrame implements Constants {
 				}
 
 			}
-			
+
 		});
 
 		// RELEASE FEEDBACK BUTTON
@@ -1617,11 +1786,10 @@ public class Admin extends JFrame implements Constants {
 						// Updates submission stage in database
 						approveFeedback(paperOfInterest.submissionID);
 
-						JOptionPane.showMessageDialog(null,
-								"Feedback approved!\n Available for author's viewing.", "Feedback Approved",
-								JOptionPane.PLAIN_MESSAGE, null);
+						JOptionPane.showMessageDialog(null, "Feedback approved!\n Available for author's viewing.",
+								"Feedback Approved", JOptionPane.PLAIN_MESSAGE, null);
 
-						//updates feedback area
+						// updates feedback area
 						paperModel.clear();
 						getSubmissions(FEEDBACK_REVIEW_STAGE);
 						newSubmissions = populateSubmissions(newSubmissions);
@@ -1638,11 +1806,36 @@ public class Admin extends JFrame implements Constants {
 					}
 
 				}
-				
+
 				// Add submit logic that grabs from feedbackTextArea and appends to a file
 			}
 		});
 
+		// FINAL SUBMISSIONS LIST LOGIC
+		deadlineList.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("static-access")
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				// gets selected indices in the list to validate if only one is selected at a
+				// time
+				selectedPaper = deadlineList.getSelectedIndices();
+
+				if (selectedPaper.length == 1) {
+
+				} else if (selectedPaper.length >= 2) {
+
+					// Show an error message if more than 2 papers are selected
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					submissionsList.clearSelection();
+					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				}
+			}
+		});
+
+		
 		// OPEN PAPER BUTTON IN FINAL SUBMISSIONS
 		openfinalpaperButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1659,12 +1852,60 @@ public class Admin extends JFrame implements Constants {
 				openfinalpaperLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				
+				if (selectedPaper.length == 0) {
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected",
+							JOptionPane.PLAIN_MESSAGE, null);
+				} else {
+
+					// gets specific paper selected as an object for easy retrieval of details
+					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedPaper[0]);
+
+					
+					// gets filename of paper
+					String filename = paperOfInterest.filename;
+
+					// get filepath of project folder
+					File f = new File(filename);
+					StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
+					filepath.setLength(filepath.length() - filename.length());
+
+					// replaces instances of "\" with "\\" (java requires this)
+					String separator = "\\";
+					String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\")
+							.split("\\\\");
+
+					// builds new filepath string, inserting / instead of \
+					filepath = new StringBuilder(intermediate[0] + "/");
+					for (int i = 1; i < intermediate.length; i++) {
+						filepath.append(intermediate[i] + "/");
+					}
+
+					// final string containing file location
+					String fileLocation = "file:///" + filepath.toString() + "submissions/"
+							+ paperOfInterest.submissionUserID + "/" + filename;
+
+					//Opens the file
+					try {
+						Desktop.getDesktop().browse(new URI(fileLocation));
+					} catch (IOException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+
+					// example final string format
+					// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
+				}
 
 			}
 		});
 
+		
 		// APPROVE BUTTON FINAL SUBMISSION
 		finalapproveButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1684,7 +1925,12 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
+				int selectedIndex = selectedPaper[0];
+				int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
+				
+				setSubmissionStage(ID,FINAL_APPROVED_STAGE);
+				
+				
 			}
 		});
 
@@ -1707,16 +1953,38 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				// Add submit logic that grabs from feedbackTextArea and appends to a file
+				int selectedIndex = selectedPaper[0];
+				int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
+				
+				setSubmissionStage(ID,REJECTED_SUBMISSION_STAGE);
+				
 			}
 		});
-		
+
+		// Extend deadline button
+		extendButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+
+				extendButton.setBackground(new Color(255, 219, 5));
+				extendLabel.setForeground(Color.BLACK);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+				extendButton.setBackground(new Color(0, 124, 65));
+				extendLabel.setForeground(Color.WHITE);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+			}
+		});
+
 	}
-	
-	
-	
-	
-	
+
 	/**
 	 * Gets user's submissions from an sql query and stores in a global ResultSet
 	 */
@@ -1726,66 +1994,77 @@ public class Admin extends JFrame implements Constants {
 		String query = "SELECT * FROM submission WHERE submissionStage  = ?";
 
 		try {
-			ps=SQLConnection.getConnection().prepareStatement(query);
+			ps = SQLConnection.getConnection().prepareStatement(query);
 
 			ps.setInt(1, stage);
 
-			submissionSet=ps.executeQuery();
-		}catch(Exception e) {System.out.println(e); System.out.println("Failure searching for user submissions");}
+			submissionSet = ps.executeQuery();
+		} catch (Exception e) {
+			System.out.println(e);
+			System.out.println("Failure searching for user submissions");
+		}
 	}
-	
-	
+
 	/**
-	 * Populates a global array of SubmissionObjects to store results of initial SQL query
-	 * for user submissions, eliminating the need to constantly query SQL database
+	 * Populates a global array of SubmissionObjects to store results of initial SQL
+	 * query for user submissions, eliminating the need to constantly query SQL
+	 * database
 	 */
 	private SubmissionObject[] populateSubmissions(SubmissionObject[] submissions) {
 
 		try {
 			int numOfSubmissions = 0;
-			while(submissionSet.next())
+			while (submissionSet.next())
 				numOfSubmissions++;
 
-			int i=0;
+			int i = 0;
 
 			submissions = new SubmissionObject[numOfSubmissions];
 			submissionSet.beforeFirst();
 
-			while(submissionSet.next()) {
+			while (submissionSet.next()) {
 				int submissionID = submissionSet.getInt("submissionID");
 				String submissionName = submissionSet.getString("submissionName");
 				String submissionAuthors = submissionSet.getString("submissionAuthors");
 				String subject = submissionSet.getString("subject");
 				String submissionDate = submissionSet.getString("submissionDate");
 				int submissionStage = submissionSet.getInt("submissionStage");
-				String filename= submissionSet.getString("filename");
+				String filename = submissionSet.getString("filename");
 				int submissionUserID = submissionSet.getInt("submissionUserID");
-				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
+				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
+						submissionDate, submissionStage, filename, submissionUserID);
 
 				String submissionDeadline = submissionSet.getString("submissionDeadline");
 				String reviewerIDs = submissionSet.getString("reviewerIDs");
 				String feedbackIDs = submissionSet.getString("feedbackIDs");
 				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
-
-				if(submissionDeadline==null)
+				String nominatedReviewers = submissionSet.getString("nominatedReviewers");
+				
+				if (submissionDeadline == null)
 					submissions[i].submissionDeadline = null;
 				else
 					submissions[i].submissionDeadline = submissionDeadline;
 
-				if(reviewerIDs==null)
+				if (reviewerIDs == null)
 					submissions[i].reviewerIDs = null;
 				else
 					submissions[i].reviewerIDs = reviewerIDs;
 
-				if(feedbackIDs==null)
+				if (feedbackIDs == null)
 					submissions[i].feedbackIDs = null;
 				else
 					submissions[i].feedbackIDs = feedbackIDs;
 
-				if(preferredReviewerIDs==null)
+				if (preferredReviewerIDs == null)
 					submissions[i].preferredReviewerIDs = null;
 				else
 					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+				
+				if (nominatedReviewers == null)
+					submissions[i].nominatedReviewers = null;
+				else
+					submissions[i].nominatedReviewers = nominatedReviewers;
+				
 				submissions[i].setReviewerNames();
 				i++;
 			}
@@ -1794,80 +2073,178 @@ public class Admin extends JFrame implements Constants {
 		}
 		return submissions;
 	}
-	
-	
+
+	/**
+	 * Sets the submission stage in the database, stored as an int. 
+	 * The stages are defined in Constants.java
+	 * @param submissionID
+	 * @param stage
+	 */
 	private void setSubmissionStage(int submissionID, int stage) {
 		PreparedStatement ps;
-		
+
 		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
 			ps.setInt(1, stage);
 			ps.setInt(2, submissionID);
-			
+
 			ps.executeUpdate();
-			
-			
-		}catch(Exception e) {e.printStackTrace();}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
+	/**
+	 * Populates global array of all approved reviewers
+	 */
 	private void getReviewers() {
 		PreparedStatement ps;
-		
+
 		reviewers = new ReviewerObject[50];
 		String query = "SELECT * FROM users WHERE userType = 2";
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
-			
+
 			reviewerSet = ps.executeQuery();
 			int count = 0;
-			while(reviewerSet.next()) {
+			while (reviewerSet.next()) {
 				int userID = reviewerSet.getInt("userID");
 				String username = reviewerSet.getString("username");
-				String name = reviewerSet.getString("name");
+				String name = String.valueOf(username.charAt(0)).toUpperCase() + username.substring(1).split("\\@")[0];
 				String email = reviewerSet.getString("email");
 				int userType = 2;
-				
-				reviewers[count] = new ReviewerObject(userID, username, name, email, userType);
-				count++;
-				
-				
-				
-			}
-		}catch(Exception e) {e.printStackTrace();}
-		
-	}
-	
 
+				reviewers[count] = new ReviewerObject(userID, username, name, email, userType);
+				reviewerIDtoObject.put(userID, reviewers[count]);
+				
+				count++;
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Populates global array of reviewers not yet approved
+	 */
+	private void getApplicants() {
+		PreparedStatement ps;
+
+		applicants = new ReviewerObject[50];
+		String query = "SELECT * FROM users WHERE userType = 3";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+
+			applicantSet = ps.executeQuery();
+			int count = 0;
+			while (applicantSet.next()) {
+				int userID = applicantSet.getInt("userID");
+				String username = applicantSet.getString("username");
+				String name = String.valueOf(username.charAt(0)).toUpperCase() + username.substring(1).split("\\@")[0];
+				String email = applicantSet.getString("email");
+				int userType = 3;
+
+				applicants[count] = new ReviewerObject(userID, username, name, email, userType);
+
+				applicants[count].occupation = applicantSet.getString("occupation");
+				applicants[count].organization = applicantSet.getString("organization");
+				applicants[count].researchArea = applicantSet.getString("research");
+
+				count++;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Assigns reviewers by their userID to a submission
+	 * @param submissionID
+	 * @param reviewerIDs
+	 */
 	private void assignReviewers(int submissionID, String reviewerIDs) {
 		PreparedStatement ps;
-		
+
 		String query = "UPDATE submission SET reviewerIDs = ? , submissionStage = ? WHERE submissionID = ?";
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
 			ps.setString(1, reviewerIDs);
 			ps.setInt(2, FEEDBACK_GATHERING_STAGE);
 			ps.setInt(3, submissionID);
-			
+
 			ps.executeUpdate();
-			
-		}catch(Exception e) {e.printStackTrace();}
-		
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
-	
+
+	/**
+	 * Approves feedback on a submission, causing it to be released to the author
+	 * @param submissionID
+	 */
 	private void approveFeedback(int submissionID) {
 		PreparedStatement ps;
-		
+
 		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
 			ps.setInt(1, RESUBMIT_STAGE);
 			ps.setInt(2, submissionID);
-			
-			
-			ps.executeUpdate();
-			
-		}catch(Exception e) {e.printStackTrace();}
-	}
-}
 
+			ps.executeUpdate();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Approves a reviewer who applied
+	 * @param userID
+	 */
+	private void approveApplicant(int userID) {
+		PreparedStatement ps;
+
+		String query = "UPDATE users SET usertype = ? WHERE userID = ?";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setInt(1, 2);
+			ps.setInt(2, userID);
+
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Rejects a reviewer who applied
+	 * @param userID
+	 */
+	private void rejectApplicant(int userID) {
+
+		PreparedStatement ps;
+
+		String query = "UPDATE users SET usertype = ? WHERE userID = ?";
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setInt(1, 4);
+			ps.setInt(2, userID);
+
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+}

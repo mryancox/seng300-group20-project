@@ -16,6 +16,12 @@ public class ReviewerObject {
 
 	// User's type as an integer
 	public int userType;
+	
+	public String occupation;
+	
+	public String organization;
+	
+	public String researchArea;
 
 	/**
 	 * Constructor for SubmissionObject

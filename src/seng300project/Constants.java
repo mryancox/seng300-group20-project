@@ -25,8 +25,8 @@ public interface Constants {
 	final static int FEEDBACK_GATHERING_STAGE = 3;
 	final static int FEEDBACK_REVIEW_STAGE = 4;
 	final static int RESUBMIT_STAGE = 5;
-	final static int FINAL_SUBMISSION_STAGE = 6;
-	final static int ACCEPTED_FINAL_STAGE = 7;
+	final static int FINAL_APPROVED_STAGE = 6;
+
 	
 	//levels for feedback currently unused
 	final static int INITIAL_FEEDBACK_LEVEL = 0;

@@ -49,6 +49,8 @@ public class SubmissionObject {
 	
 	//String for possible user specified perferred reviewers
 	public String preferredReviewerNames;
+	
+	public String nominatedReviewers;
 
 	//Map for reviewer assigned papers logic to check if
 	//a paper is assigned to a reviewer
@@ -123,31 +125,37 @@ public class SubmissionObject {
 		StringBuilder reviewerNames = new StringBuilder();
 
 		//populate reviewers map 
-		for(int i=0;i<IDs.length;i++)
-			reviewers.put(Integer.parseInt(IDs[i]), 1);
-		
-		//the query string (check Login class for a more detailed explanation)
-		String query = "SELECT * FROM users WHERE userID = ?";
+		if (!IDs[0].equals("")) {
+			for (int i = 0; i < IDs.length; i++)
+				reviewers.put(Integer.parseInt(IDs[i]), 1);
 
-		//Loops through the array of reviewer IDs,
-		//adding the name to the StringBuilder until no more IDs remain
-		for(int i=0; i<IDs.length; i++) {
-			try {
-				ps = SQLConnection.getConnection().prepareStatement(query);
-				ps.setString(1, IDs[i]);
+			// the query string (check Login class for a more detailed explanation)
+			String query = "SELECT * FROM users WHERE userID = ?";
 
-				rs = ps.executeQuery();
-				rs.next();
+			// Loops through the array of reviewer IDs,
+			// adding the name to the StringBuilder until no more IDs remain
+			for (int i = 0; i < IDs.length; i++) {
+				try {
+					ps = SQLConnection.getConnection().prepareStatement(query);
+					ps.setString(1, IDs[i]);
 
-				reviewerNames.append(rs.getString("name") + ", ");
+					rs = ps.executeQuery();
+					rs.next();
 
-			}catch(Exception e) {}
+					reviewerNames.append(rs.getString("name") + ", ");
+
+				} catch (Exception e) {
+				}
+			}
+
+			// remove last 2 characters in names (a space and comma))
+			reviewerNames.setLength(reviewerNames.length() - 2);
+
+			return reviewerNames.toString();
 		}
-		
-		//remove last 2 characters in names (a space and comma))
-		reviewerNames.setLength(reviewerNames.length()-2);
-		
-		return reviewerNames.toString();
+		else {
+			return "No Preferred Reviewers";
+		}
 	}
 
 	public String toString() {
