@@ -43,6 +43,8 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Author extends JFrame implements Constants{
 
@@ -205,6 +207,15 @@ public class Author extends JFrame implements Constants{
 		submissionPanel.add(titleLabel);
 
 		JTextArea titleTextArea = new JTextArea();
+		titleTextArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_TAB) {
+					titleTextArea.transferFocus();
+				}
+				arg0.consume();
+			}
+		});
 		titleTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		titleTextArea.setBounds(24, 125, 650, 30);
 		titleTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
@@ -221,6 +232,15 @@ public class Author extends JFrame implements Constants{
 		submissionPanel.add(authorsLabel);
 
 		JTextArea authorsTextArea = new JTextArea();
+		authorsTextArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_TAB) {
+					authorsTextArea.transferFocus();
+				}
+				arg0.consume();
+			}
+		});
 		authorsTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		authorsTextArea.setBounds(24, 225, 650, 30);
 		authorsTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
@@ -243,6 +263,15 @@ public class Author extends JFrame implements Constants{
 		submissionPanel.add(researchLabel);
 
 		JTextArea researchTextArea = new JTextArea();
+		researchTextArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_TAB) {
+					researchTextArea.transferFocus();
+				}
+				arg0.consume();
+			}
+		});
 		researchTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		researchTextArea.setBounds(24, 305, 650, 30);
 		researchTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
@@ -281,6 +310,15 @@ public class Author extends JFrame implements Constants{
 
 		
 		JTextArea filelocationTextArea = new JTextArea();
+		filelocationTextArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_TAB) {
+					filelocationTextArea.transferFocus();
+				}
+				arg0.consume();
+			}
+		});
 
 		filelocationTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		filelocationTextArea.setBounds(24, 490, 650, 30);

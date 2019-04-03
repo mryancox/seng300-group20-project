@@ -45,6 +45,8 @@ import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Admin extends JFrame implements Constants {
 
@@ -312,6 +314,15 @@ public class Admin extends JFrame implements Constants {
 		submissionsPanel.add(deadlineLabel);
 
 		JTextArea deadlineTextArea = new JTextArea();
+		deadlineTextArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_TAB) {
+					deadlineTextArea.transferFocus();
+				}
+				arg0.consume();
+			}
+		});
 		deadlineTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		deadlineTextArea.setBounds(24, 510, 350, 30);
 		submissionsPanel.add(deadlineTextArea);
