@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -45,6 +46,8 @@ import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
+import javax.mail.*;
+import javax.mail.internet.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -126,7 +129,7 @@ public class Admin extends JFrame implements Constants {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-
+		
 		// check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
@@ -1215,6 +1218,7 @@ public class Admin extends JFrame implements Constants {
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
+					
 				} else if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -2259,5 +2263,46 @@ public class Admin extends JFrame implements Constants {
 
 	}
 	
+
+	/**
+	 * Sends an email to a specified account with a subject and body
+	 * @param to, the address the email is being sent to
+	 * @param subject, the email's subject
+	 * @param body, the email's text contents
+	 */
+	private void sendEmail(String to, String subject, String body) {
+		
+		Properties props = System.getProperties();
+		String host = "smtp.gmail.com";
+		String from = "jss.ualberta";
+		String pass = "UAlbertaJSS";
+	    props.put("mail.smtp.starttls.enable", "true");
+	    props.put("mail.smtp.host", host);
+	    props.put("mail.smtp.user", from);
+	    props.put("mail.smtp.password", pass);
+	    props.put("mail.smtp.port", "587");
+	    props.put("mail.smtp.auth", "true");
+		
+		Session session = Session.getDefaultInstance(props);
+		MimeMessage message = new MimeMessage(session);
+		
+		try {
+            message.setFrom(new InternetAddress(from));
+            InternetAddress toAddress = new InternetAddress(to);
+            message.addRecipient(Message.RecipientType.TO, toAddress);
+            message.setSubject(subject);
+            message.setText(body);
+            Transport transport = session.getTransport("smtp");
+            transport.connect(host, from, pass);
+            transport.sendMessage(message, message.getAllRecipients());
+            transport.close();
+        }
+        catch (AddressException ae) {
+            ae.printStackTrace();
+        }
+        catch (MessagingException me) {
+            me.printStackTrace();
+        }
+	}
 	
 }
