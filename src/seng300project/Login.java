@@ -67,6 +67,8 @@ public class Login {
 		login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		login.setLocationRelativeTo(null);
 		login.getContentPane().setLayout(null);
+		
+		Signup signup = new Signup();
 
 		/*
 		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
@@ -210,19 +212,19 @@ public class Login {
 
 				
 				if(loginDetails[0].equals("0")) {
-					login.setVisible(false);
+					login.dispose();
 	    			Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]));
 	    			admin.setVisible(true);
 	    			admin.setLocationRelativeTo(null);
 				}
 				if(loginDetails[0].equals("1")) {
-					login.setVisible(false);
+					login.dispose();
 	    			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
 	    			author.setVisible(true);
 	    			author.setLocationRelativeTo(null);
 				}
 				else if(loginDetails[0].equals("2")) {
-					login.setVisible(false);
+					login.dispose();
 					Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]));
 					reviewer.setVisible(true);
 					reviewer.setLocationRelativeTo(null);
@@ -265,7 +267,6 @@ public class Login {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				
-				Signup signup = new Signup();
 				signup.setVisible(true);
 				signup.setLocationRelativeTo(null);
 			}

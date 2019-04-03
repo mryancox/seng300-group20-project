@@ -613,7 +613,7 @@ public class Author extends JFrame implements Constants{
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				setVisible(false);
+				dispose();
 				Login.main(null);
 			}
 		});

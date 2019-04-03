@@ -936,19 +936,21 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				setVisible(false);
+				dispose();
 				Login.main(null);
 			}
 		});
 
 		JPanel finalButton = new JPanel();
 		JLabel final1Label = new JLabel("Review");
+		final1Label.setVerticalAlignment(SwingConstants.BOTTOM);
 		final1Label.setHorizontalAlignment(SwingConstants.CENTER);
 		final1Label.setForeground(Color.WHITE);
 		final1Label.setFont(new Font("Arial", Font.BOLD, 14));
 		final1Label.setBounds(0, 0, 180, 30);
 		finalButton.add(final1Label);
 		JLabel final2Label = new JLabel("Final Submissions");
+		final2Label.setVerticalAlignment(SwingConstants.TOP);
 		final2Label.setHorizontalAlignment(SwingConstants.CENTER);
 		final2Label.setFont(new Font("Arial", Font.BOLD, 14));
 		final2Label.setForeground(Color.WHITE);

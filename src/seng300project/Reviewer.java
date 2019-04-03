@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -457,7 +456,7 @@ public class Reviewer extends JFrame implements Constants{
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				setVisible(false);
+				dispose();
 				Login.main(null);
 			}
 		});
