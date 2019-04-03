@@ -252,38 +252,37 @@ public class Author extends JFrame implements Constants{
 		researchPanel.setBounds(24, 335, 650, 2);
 		submissionPanel.add(researchPanel);
 
-		JLabel prefreviewersextraLabel = new JLabel("(seperate with commas)");
-		prefreviewersextraLabel.setForeground(Color.DARK_GRAY);
-		prefreviewersextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		prefreviewersextraLabel.setBounds(24, 370, 350, 18);
-		submissionPanel.add(prefreviewersextraLabel);
-
-		JTextArea prefreviewersTextArea = new JTextArea("None");
-		prefreviewersTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
-		prefreviewersTextArea.setBounds(24, 405, 650, 30);
-		prefreviewersTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
-
 		JLabel prefreviewersLabel = new JLabel("Preferred Reviewers");
 		prefreviewersLabel.setFont(new Font("Arial", Font.BOLD, 14));
 		prefreviewersLabel.setBounds(24, 350, 350, 18);
 		submissionPanel.add(prefreviewersLabel);
-		submissionPanel.add(prefreviewersTextArea);
+		
+		DefaultListModel<SubmissionObject> prefreviewersModel = new DefaultListModel<>();
+		JList<SubmissionObject> prefreviewersList = new JList<SubmissionObject>(prefreviewersModel);
+
+		prefreviewersList.setFont(new Font("Arial", Font.PLAIN, 12));
+
+		JScrollPane prefreviewersListScrollPane = new JScrollPane(prefreviewersList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		prefreviewersListScrollPane.setSize(650, 55);
+		prefreviewersListScrollPane.setLocation(24, 385);
+		prefreviewersListScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		submissionPanel.add(prefreviewersListScrollPane);
 
 		JPanel prefreviewersPanel = new JPanel();
 		prefreviewersPanel.setBackground(Color.BLACK);
-		prefreviewersPanel.setBounds(24, 435, 650, 2);
+		prefreviewersPanel.setBounds(24, 440, 650, 2);
 		submissionPanel.add(prefreviewersPanel);
 
 		JLabel filelocationLabel = new JLabel("File Location");
 		filelocationLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		filelocationLabel.setBounds(24, 450, 350, 18);
+		filelocationLabel.setBounds(24, 455, 350, 18);
 		submissionPanel.add(filelocationLabel);
 
 		
 		JTextArea filelocationTextArea = new JTextArea();
 
 		filelocationTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
-		filelocationTextArea.setBounds(24, 485, 650, 30);
+		filelocationTextArea.setBounds(24, 490, 650, 30);
 		submissionPanel.add(filelocationTextArea);
 
 		JPanel listPanel = new JPanel();
@@ -864,8 +863,7 @@ public class Author extends JFrame implements Constants{
 
 				//Checks if any text area is empty and displays error code if true
 				if (titleTextArea.getText().isEmpty() || authorsTextArea.getText().isEmpty()
-						|| researchTextArea.getText().isEmpty() || prefreviewersTextArea.getText().isEmpty()
-						|| filelocationTextArea.getText().isEmpty()) {
+						|| researchTextArea.getText().isEmpty() || filelocationTextArea.getText().isEmpty()) {
 
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
