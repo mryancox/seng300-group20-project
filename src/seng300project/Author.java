@@ -195,12 +195,12 @@ public class Author extends JFrame implements Constants{
 		JLabel submissionTitleLabel = new JLabel("New Submission");
 		submissionTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		submissionTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		submissionTitleLabel.setBounds(24, 30, 230, 40);
+		submissionTitleLabel.setBounds(24, 30, 350, 40);
 		submissionPanel.add(submissionTitleLabel);
 
 		JLabel titleLabel = new JLabel("Paper Title");
 		titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		titleLabel.setBounds(24, 90, 101, 14);
+		titleLabel.setBounds(24, 90, 350, 18);
 		submissionPanel.add(titleLabel);
 
 		JTextArea titleTextArea = new JTextArea();
@@ -216,7 +216,7 @@ public class Author extends JFrame implements Constants{
 
 		JLabel authorsLabel = new JLabel("Authors");
 		authorsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		authorsLabel.setBounds(24, 170, 81, 14);
+		authorsLabel.setBounds(24, 170, 350, 18);
 		submissionPanel.add(authorsLabel);
 
 		JTextArea authorsTextArea = new JTextArea();
@@ -227,7 +227,7 @@ public class Author extends JFrame implements Constants{
 		JLabel authorsextraLabel = new JLabel("(seperate with commas)");
 		authorsextraLabel.setForeground(Color.DARK_GRAY);
 		authorsextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		authorsextraLabel.setBounds(24, 190, 146, 14);
+		authorsextraLabel.setBounds(24, 190, 350, 18);
 		submissionPanel.add(authorsextraLabel);
 		submissionPanel.add(authorsTextArea);
 
@@ -238,7 +238,7 @@ public class Author extends JFrame implements Constants{
 
 		JLabel researchLabel = new JLabel("Research Subject");
 		researchLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		researchLabel.setBounds(24, 270, 146, 14);
+		researchLabel.setBounds(24, 270, 350, 18);
 		submissionPanel.add(researchLabel);
 
 		JTextArea researchTextArea = new JTextArea();
@@ -255,7 +255,7 @@ public class Author extends JFrame implements Constants{
 		JLabel prefreviewersextraLabel = new JLabel("(seperate with commas)");
 		prefreviewersextraLabel.setForeground(Color.DARK_GRAY);
 		prefreviewersextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		prefreviewersextraLabel.setBounds(24, 370, 146, 14);
+		prefreviewersextraLabel.setBounds(24, 370, 350, 18);
 		submissionPanel.add(prefreviewersextraLabel);
 
 		JTextArea prefreviewersTextArea = new JTextArea("None");
@@ -265,7 +265,7 @@ public class Author extends JFrame implements Constants{
 
 		JLabel prefreviewersLabel = new JLabel("Preferred Reviewers");
 		prefreviewersLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		prefreviewersLabel.setBounds(24, 350, 170, 14);
+		prefreviewersLabel.setBounds(24, 350, 350, 18);
 		submissionPanel.add(prefreviewersLabel);
 		submissionPanel.add(prefreviewersTextArea);
 
@@ -276,7 +276,7 @@ public class Author extends JFrame implements Constants{
 
 		JLabel filelocationLabel = new JLabel("File Location");
 		filelocationLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		filelocationLabel.setBounds(24, 450, 119, 14);
+		filelocationLabel.setBounds(24, 450, 350, 18);
 		submissionPanel.add(filelocationLabel);
 
 		
@@ -293,12 +293,12 @@ public class Author extends JFrame implements Constants{
 
 		JLabel listTitleLabel = new JLabel("Submissions List");
 		listTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		listTitleLabel.setBounds(24, 30, 230, 40);
+		listTitleLabel.setBounds(24, 30, 350, 40);
 		listPanel.add(listTitleLabel);
 
 		JLabel priorsubLabel = new JLabel("Prior Submissions");
 		priorsubLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		priorsubLabel.setBounds(24, 90, 151, 14);
+		priorsubLabel.setBounds(24, 90, 350, 18);
 		listPanel.add(priorsubLabel);
 
 		JPanel listSepPanel = new JPanel();
@@ -308,13 +308,13 @@ public class Author extends JFrame implements Constants{
 
 		JLabel detailsLabel = new JLabel("Submission Details");
 		detailsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		detailsLabel.setBounds(24, 285, 151, 14);
+		detailsLabel.setBounds(24, 285, 350, 18);
 		listPanel.add(detailsLabel);
 
 		JLabel detailsextraLabel = new JLabel("(select a paper above)");
 		detailsextraLabel.setForeground(Color.DARK_GRAY);
 		detailsextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		detailsextraLabel.setBounds(24, 305, 151, 14);
+		detailsextraLabel.setBounds(24, 305, 350, 18);
 		listPanel.add(detailsextraLabel);
 
 		JLabel titleListLabel = new JLabel("Title");
@@ -397,14 +397,14 @@ public class Author extends JFrame implements Constants{
 		feedbackPanel.setLayout(null);
 
 		JLabel feedbackTitleLabel = new JLabel("Review Feedback");
-		feedbackTitleLabel.setBounds(24, 30, 230, 40);
+		feedbackTitleLabel.setBounds(24, 30, 350, 40);
 		feedbackPanel.add(feedbackTitleLabel);
 		feedbackTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		feedbackTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
 		JLabel papersLabel = new JLabel("Papers With Feedback");
 		papersLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		papersLabel.setBounds(24, 90, 180, 14);
+		papersLabel.setBounds(24, 90, 350, 18);
 		feedbackPanel.add(papersLabel);
 
 		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
@@ -430,13 +430,13 @@ public class Author extends JFrame implements Constants{
 
 		JLabel paperfeedbackLabel = new JLabel("Feedback");
 		paperfeedbackLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		paperfeedbackLabel.setBounds(24, 285, 180, 14);
+		paperfeedbackLabel.setBounds(24, 285, 350, 18);
 		feedbackPanel.add(paperfeedbackLabel);
 
 		JLabel paperfeedbackextraLabel = new JLabel("(select a paper above)");
 		paperfeedbackextraLabel.setForeground(Color.DARK_GRAY);
 		paperfeedbackextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		paperfeedbackextraLabel.setBounds(24, 305, 151, 14);
+		paperfeedbackextraLabel.setBounds(24, 305, 350, 18);
 		feedbackPanel.add(paperfeedbackextraLabel);
 
 		JPanel resubmitButton = new JPanel();
