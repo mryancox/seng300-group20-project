@@ -2270,7 +2270,7 @@ public class Admin extends JFrame implements Constants {
 	 * @param subject, the email's subject
 	 * @param body, the email's text contents
 	 */
-	private void sendEmail(String to, String subject, String body) {
+	private void sendEmail(String subject, String body) {
 		
 		Properties props = System.getProperties();
 		String host = "smtp.gmail.com";
@@ -2288,7 +2288,7 @@ public class Admin extends JFrame implements Constants {
 		
 		try {
             message.setFrom(new InternetAddress(from));
-            InternetAddress toAddress = new InternetAddress(to);
+            InternetAddress toAddress = new InternetAddress("jss.ualberta@gmail.com");
             message.addRecipient(Message.RecipientType.TO, toAddress);
             message.setSubject(subject);
             message.setText(body);
