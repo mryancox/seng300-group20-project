@@ -209,7 +209,7 @@ public class Admin extends JFrame implements Constants {
 		
 		JLabel newsubLabel = new JLabel("New Submissions");
 		newsubLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		newsubLabel.setBounds(24, 90, 230, 14);
+		newsubLabel.setBounds(24, 90, 350, 18);
 		submissionsPanel.add(newsubLabel);
 	
 		DefaultListModel<SubmissionObject> newSubmissionModel = new DefaultListModel<>();
@@ -241,53 +241,53 @@ public class Admin extends JFrame implements Constants {
 		
 		JLabel detailsLabel = new JLabel("Submission Details");
 		detailsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		detailsLabel.setBounds(24, 285, 291, 14);
+		detailsLabel.setBounds(24, 285, 350, 18);
 		submissionsPanel.add(detailsLabel);
 		
 		JLabel detailsextraLabel = new JLabel("(select a paper above)");
 		detailsextraLabel.setForeground(Color.DARK_GRAY);
 		detailsextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		detailsextraLabel.setBounds(24, 305, 151, 14);
+		detailsextraLabel.setBounds(24, 305, 350, 18);
 		submissionsPanel.add(detailsextraLabel);
 		
 		JLabel titleSubLabel = new JLabel("Title");
 		titleSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		titleSubLabel.setBounds(24, 350, 325, 14);
+		titleSubLabel.setBounds(24, 350, 325, 18);
 		submissionsPanel.add(titleSubLabel);
 		
 		JLabel detailtitleSubLabel = new JLabel("");
 		detailtitleSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailtitleSubLabel.setBounds(24, 380, 325, 14);
+		detailtitleSubLabel.setBounds(24, 380, 325, 18);
 		submissionsPanel.add(detailtitleSubLabel);
 		
 		JLabel authorsSubLabel = new JLabel("Author");
 		authorsSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		authorsSubLabel.setBounds(24, 410, 325, 14);
+		authorsSubLabel.setBounds(24, 410, 325, 18);
 		submissionsPanel.add(authorsSubLabel);
 		
 		JLabel detailauthorsSubLabel = new JLabel("");
 		detailauthorsSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailauthorsSubLabel.setBounds(24, 440, 325, 14);
+		detailauthorsSubLabel.setBounds(24, 440, 325, 18);
 		submissionsPanel.add(detailauthorsSubLabel);
 		
 		JLabel subjectSubLabel = new JLabel("Research Subject");
 		subjectSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		subjectSubLabel.setBounds(359, 350, 315, 14);
+		subjectSubLabel.setBounds(359, 350, 315, 18);
 		submissionsPanel.add(subjectSubLabel);
 		
 		JLabel detailsubjectSubLabel = new JLabel("");
 		detailsubjectSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailsubjectSubLabel.setBounds(359, 380, 315, 14);
+		detailsubjectSubLabel.setBounds(359, 380, 315, 18);
 		submissionsPanel.add(detailsubjectSubLabel);
 		
 		JLabel prefreviewersSubLabel = new JLabel("Preferred Reviewers");
 		prefreviewersSubLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		prefreviewersSubLabel.setBounds(359, 410, 315, 14);
+		prefreviewersSubLabel.setBounds(359, 410, 315, 18);
 		submissionsPanel.add(prefreviewersSubLabel);
 		
 		JLabel detailprefreviewerSubLabel = new JLabel("");
 		detailprefreviewerSubLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailprefreviewerSubLabel.setBounds(359, 440, 315, 14);
+		detailprefreviewerSubLabel.setBounds(359, 440, 315, 18);
 		submissionsPanel.add(detailprefreviewerSubLabel);
 		
 		JPanel detailsSepPanel = new JPanel();
@@ -297,12 +297,12 @@ public class Admin extends JFrame implements Constants {
 		
 		JLabel deadlineLabel = new JLabel("Set Deadline");
 		deadlineLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		deadlineLabel.setBounds(24, 485, 291, 14);
+		deadlineLabel.setBounds(24, 485, 350, 18);
 		submissionsPanel.add(deadlineLabel);
 		
 		JTextArea deadlineTextArea = new JTextArea();
 		deadlineTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
-		deadlineTextArea.setBounds(24, 510, 291, 30);
+		deadlineTextArea.setBounds(24, 510, 350, 30);
 		submissionsPanel.add(deadlineTextArea);
 		deadlineTextArea.append("YYYY-MM-DD");
 		
@@ -340,12 +340,12 @@ public class Admin extends JFrame implements Constants {
 		JLabel verifyTitleLabel = new JLabel("Verify Reviewers");
 		verifyTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		verifyTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		verifyTitleLabel.setBounds(24, 30, 230, 40);
+		verifyTitleLabel.setBounds(24, 30, 350, 40);
 		verifyPanel.add(verifyTitleLabel);
 		
 		JLabel applicantsLabel = new JLabel("Applicants");
 		applicantsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		applicantsLabel.setBounds(24, 90, 230, 14);
+		applicantsLabel.setBounds(24, 90, 350, 18);
 		verifyPanel.add(applicantsLabel);
 		
 		JScrollPane applicantListScrollPane = new JScrollPane();
@@ -364,43 +364,43 @@ public class Admin extends JFrame implements Constants {
 		
 		JLabel appdetailsLabel = new JLabel("Applicant Details");
 		appdetailsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		appdetailsLabel.setBounds(24, 320, 230, 14);
+		appdetailsLabel.setBounds(24, 320, 350, 18);
 		verifyPanel.add(appdetailsLabel);
 		
 		JLabel appdetailsextraLabel = new JLabel("(select a new applicant above)");
 		appdetailsextraLabel.setForeground(Color.DARK_GRAY);
 		appdetailsextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		appdetailsextraLabel.setBounds(24, 340, 209, 14);
+		appdetailsextraLabel.setBounds(24, 340, 350, 18);
 		verifyPanel.add(appdetailsextraLabel);
 		
 		JLabel occupationLabel = new JLabel("Occupation");
 		occupationLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		occupationLabel.setBounds(24, 385, 325, 14);
+		occupationLabel.setBounds(24, 385, 325, 18);
 		verifyPanel.add(occupationLabel);
 		
 		JLabel detailsoccupationLabel = new JLabel("");
 		detailsoccupationLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailsoccupationLabel.setBounds(24, 415, 325, 14);
+		detailsoccupationLabel.setBounds(24, 415, 325, 18);
 		verifyPanel.add(detailsoccupationLabel);
 		
 		JLabel organizationLabel = new JLabel("Organization");
 		organizationLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		organizationLabel.setBounds(24, 445, 325, 14);
+		organizationLabel.setBounds(24, 445, 325, 18);
 		verifyPanel.add(organizationLabel);
 		
 		JLabel detailsorganizationLabel = new JLabel("");
 		detailsorganizationLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailsorganizationLabel.setBounds(24, 475, 325, 14);
+		detailsorganizationLabel.setBounds(24, 475, 325, 18);
 		verifyPanel.add(detailsorganizationLabel);
 		
 		JLabel researchareaLabel = new JLabel("Research Area");
 		researchareaLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		researchareaLabel.setBounds(359, 385, 315, 14);
+		researchareaLabel.setBounds(359, 385, 315, 18);
 		verifyPanel.add(researchareaLabel);
 		
 		JLabel detailsresearchareaLabel = new JLabel("");
 		detailsresearchareaLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailsresearchareaLabel.setBounds(359, 415, 315, 14);
+		detailsresearchareaLabel.setBounds(359, 415, 315, 18);
 		verifyPanel.add(detailsresearchareaLabel);
 		
 		JPanel approveappButton = new JPanel();
@@ -437,22 +437,94 @@ public class Admin extends JFrame implements Constants {
 		JLabel assignTitleLabel = new JLabel("Assign Reviewers");
 		assignTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		assignTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		assignTitleLabel.setBounds(24, 30, 230, 40);
+		assignTitleLabel.setBounds(24, 30, 350, 40);
 		assignPanel.add(assignTitleLabel);
+		
+		JLabel assignpaperLabel = new JLabel("Choose Paper To Assign Reviewers To");
+		assignpaperLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		assignpaperLabel.setBounds(24, 90, 350, 18);
+		assignPanel.add(assignpaperLabel);
+		
+		DefaultListModel<SubmissionObject> assignpaperModel = new DefaultListModel<SubmissionObject>();
+		
+		JScrollPane assignpaperListScrollPane = new JScrollPane();
+		assignpaperListScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		assignpaperListScrollPane.setBounds(24, 115, 650, 170);
+		assignPanel.add(assignpaperListScrollPane);
+		JList<SubmissionObject> assignpaperList = new JList<>(assignpaperModel);
+		assignpaperListScrollPane.setViewportView(assignpaperList);
+		
+				//assign reviewers paper list logic
+				assignpaperList.addListSelectionListener(new ListSelectionListener() {
+					@SuppressWarnings("static-access")
+					public void valueChanged(ListSelectionEvent arg0) {
+						
+						selected = assignpaperList.getSelectedIndices();
+						if(selected.length==1) {
+							
+							//no details to show for a selected paper in this screen
+							
+						}else if (selectedPaper.length >= 2) {
+		
+							UIManager UI = new UIManager();
+							UI.put("OptionPane.background", Color.WHITE);
+							UI.put("Panel.background", Color.WHITE);
+							assignpaperList.clearSelection();
+							JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
+									JOptionPane.PLAIN_MESSAGE, null);
+						}
+						
+						
+					}
+					
+					
+				});
+		
+				JPanel assignSepPanel = new JPanel();
+				assignSepPanel.setBackground(Color.BLACK);
+				assignSepPanel.setBounds(24, 305, 650, 2);
+				assignPanel.add(assignSepPanel);
 		
 		JLabel reviewersLabel = new JLabel("Reviewer List");
 		reviewersLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		reviewersLabel.setBounds(24, 90, 230, 14);
+		reviewersLabel.setBounds(24, 320, 350, 18);
 		assignPanel.add(reviewersLabel);
 		
-		JScrollPane reviewerListScrollPane = new JScrollPane();
-		reviewerListScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		reviewerListScrollPane.setBounds(24, 115, 650, 110);
-		assignPanel.add(reviewerListScrollPane);
-		
 		DefaultListModel<ReviewerObject> reviewerModel = new DefaultListModel<ReviewerObject>();
-		JList <ReviewerObject>reviewerList = new JList<>(reviewerModel);
-		reviewerListScrollPane.setViewportView(reviewerList);
+		
+		JPanel sortallButton = new JPanel();
+		JLabel sortallLabel = new JLabel("All");
+		sortallLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		sortallLabel.setForeground(Color.WHITE);
+		sortallLabel.setFont(new Font("Arial", Font.BOLD, 12));
+		sortallLabel.setBounds(0, 0, 70, 20);
+		sortallButton.add(sortallLabel);
+		sortallButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				
+				sortallButton.setBackground(new Color(255, 219, 5));
+				sortallLabel.setForeground(Color.BLACK);
+
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				
+				sortallButton.setBackground(new Color(0, 124, 65));
+
+				sortallLabel.setForeground(Color.WHITE);
+
+			}
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+			}
+		});
+		sortallButton.setLayout(null);
+		sortallButton.setBackground(new Color(0, 124, 65));
+		sortallButton.setBounds(315, 320, 70, 20);
+		assignPanel.add(sortallButton);
+		
+		
 		
 		JPanel sortselfButton = new JPanel();
 		JLabel sortselfLabel = new JLabel("Self-Nominated");
@@ -464,7 +536,7 @@ public class Admin extends JFrame implements Constants {
 
 		sortselfButton.setLayout(null);
 		sortselfButton.setBackground(new Color(0, 124, 65));
-		sortselfButton.setBounds(394, 90, 135, 20);
+		sortselfButton.setBounds(394, 320, 135, 20);
 		assignPanel.add(sortselfButton);
 		
 		JPanel sortauthorButton = new JPanel();
@@ -477,54 +549,15 @@ public class Admin extends JFrame implements Constants {
 
 		sortauthorButton.setLayout(null);
 		sortauthorButton.setBackground(new Color(0, 124, 65));
-		sortauthorButton.setBounds(539, 90, 135, 20);
+		sortauthorButton.setBounds(539, 320, 135, 20);
 		assignPanel.add(sortauthorButton);
-
-		JPanel assignSepPanel = new JPanel();
-		assignSepPanel.setBackground(Color.BLACK);
-		assignSepPanel.setBounds(24, 235, 650, 2);
-		assignPanel.add(assignSepPanel);
 		
-		JLabel chosenLabel = new JLabel("Chosen Paper(s)");
-		chosenLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		chosenLabel.setBounds(24, 250, 230, 14);
-		assignPanel.add(chosenLabel);
-		
-		JLabel chosenextraLabel = new JLabel("(by self-nomination or author)");
-		chosenextraLabel.setForeground(Color.DARK_GRAY);
-		chosenextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		chosenextraLabel.setBounds(24, 270, 209, 14);
-		assignPanel.add(chosenextraLabel);
-		
-		JLabel detailschosenLabel = new JLabel("");
-		detailschosenLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		detailschosenLabel.setBounds(24, 300, 650, 14);
-		assignPanel.add(detailschosenLabel);
-		
-		JPanel chosenSepPanel = new JPanel();
-		chosenSepPanel.setBackground(Color.BLACK);
-		chosenSepPanel.setBounds(24, 325, 650, 2);
-		assignPanel.add(chosenSepPanel);
-		
-		JLabel assignpaperLabel = new JLabel("Assign Paper From List To Selected Reviewer");
-		assignpaperLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		assignpaperLabel.setBounds(24, 340, 453, 14);
-		assignPanel.add(assignpaperLabel);
-		
-		JLabel assignpaperextraLabel = new JLabel("(choose reviewer from above list)");
-		assignpaperextraLabel.setForeground(Color.DARK_GRAY);
-		assignpaperextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		assignpaperextraLabel.setBounds(24, 360, 209, 14);
-		assignPanel.add(assignpaperextraLabel);
-		
-		JScrollPane assignpaperListScrollPane = new JScrollPane();
-		assignpaperListScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		assignpaperListScrollPane.setBounds(24, 390, 650, 110);
-		assignPanel.add(assignpaperListScrollPane);
-		
-		DefaultListModel<SubmissionObject> assignpaperModel = new DefaultListModel<SubmissionObject>();
-		JList<SubmissionObject> assignpaperList = new JList<>(assignpaperModel);
-		assignpaperListScrollPane.setViewportView(assignpaperList);
+		JScrollPane reviewerListScrollPane = new JScrollPane();
+		reviewerListScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		reviewerListScrollPane.setBounds(24, 345, 650, 170);
+		assignPanel.add(reviewerListScrollPane);
+		JList <ReviewerObject>reviewerList = new JList<>(reviewerModel);
+		reviewerListScrollPane.setViewportView(reviewerList);
 		
 		
 		JPanel assignreviewerButton = new JPanel();
@@ -546,14 +579,14 @@ public class Admin extends JFrame implements Constants {
 		feedbackPanel.setLayout(null);
 
 		JLabel feedbackTitleLabel = new JLabel("Review Feedback");
-		feedbackTitleLabel.setBounds(24, 30, 230, 40);
+		feedbackTitleLabel.setBounds(24, 30, 350, 40);
 		feedbackPanel.add(feedbackTitleLabel);
 		feedbackTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		feedbackTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
 		JLabel reviewLabel = new JLabel("Papers With Feedback Waiting For Review");
 		reviewLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		reviewLabel.setBounds(24, 90, 326, 14);
+		reviewLabel.setBounds(24, 90, 350, 18);
 		feedbackPanel.add(reviewLabel);
 
 		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
@@ -574,13 +607,13 @@ public class Admin extends JFrame implements Constants {
 
 		JLabel provideLabel = new JLabel("Review And Edit Feedback");
 		provideLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		provideLabel.setBounds(24, 285, 230, 14);
+		provideLabel.setBounds(24, 285, 350, 18);
 		feedbackPanel.add(provideLabel);
 
 		JLabel provideextraLabel = new JLabel("(for the paper you have selected above)");
 		provideextraLabel.setForeground(Color.DARK_GRAY);
 		provideextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		provideextraLabel.setBounds(24, 305, 267, 14);
+		provideextraLabel.setBounds(24, 305, 350, 18);
 		feedbackPanel.add(provideextraLabel);
 
 		JPanel releaseButton = new JPanel();
@@ -613,12 +646,12 @@ public class Admin extends JFrame implements Constants {
 		JLabel finalTitleLabel = new JLabel("Review Final Submissions");
 		finalTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		finalTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		finalTitleLabel.setBounds(24, 30, 348, 40);
+		finalTitleLabel.setBounds(24, 30, 350, 40);
 		finalPanel.add(finalTitleLabel);
 		
 		JLabel pastdeadlineLabel = new JLabel("Papers Past Deadline");
 		pastdeadlineLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		pastdeadlineLabel.setBounds(24, 90, 326, 14);
+		pastdeadlineLabel.setBounds(24, 90, 350, 18);
 		finalPanel.add(pastdeadlineLabel);
 		
 		JScrollPane deadlineListScrollPane = new JScrollPane();
@@ -649,7 +682,7 @@ public class Admin extends JFrame implements Constants {
 		
 		JLabel finalcommentsLabel = new JLabel("Final Comments");
 		finalcommentsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		finalcommentsLabel.setBounds(24, 291, 326, 14);
+		finalcommentsLabel.setBounds(24, 291, 350, 18);
 		finalPanel.add(finalcommentsLabel);
 		
 		JScrollPane commentsTextAreaScrollPane = new JScrollPane();
@@ -1340,32 +1373,6 @@ public class Admin extends JFrame implements Constants {
 
 			}
 		});
-
-		//assign reviewers paper list logic
-		assignpaperList.addListSelectionListener(new ListSelectionListener() {
-			@SuppressWarnings("static-access")
-			public void valueChanged(ListSelectionEvent arg0) {
-				
-				selected = assignpaperList.getSelectedIndices();
-				if(selected.length==1) {
-					
-					//no details to show for a selected paper in this screen
-					
-				}else if (selectedPaper.length >= 2) {
-
-					UIManager UI = new UIManager();
-					UI.put("OptionPane.background", Color.WHITE);
-					UI.put("Panel.background", Color.WHITE);
-					assignpaperList.clearSelection();
-					JOptionPane.showMessageDialog(null, "Please Select Only 1 Paper", "Too Many Papers Selected",
-							JOptionPane.PLAIN_MESSAGE, null);
-				}
-				
-				
-			}
-			
-			
-		});
 		
 		// ASSIGN REVIEWER BUTTON
 		assignreviewerButton.addMouseListener(new MouseAdapter() {
@@ -1833,6 +1840,5 @@ public class Admin extends JFrame implements Constants {
 			
 		}catch(Exception e) {e.printStackTrace();}
 	}
-	
 }
 

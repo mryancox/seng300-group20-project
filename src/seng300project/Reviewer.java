@@ -187,12 +187,12 @@ public class Reviewer extends JFrame implements Constants{
 		JLabel browseTitleLabel = new JLabel("Browse Journals");
 		browseTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		browseTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		browseTitleLabel.setBounds(24, 30, 230, 40);
+		browseTitleLabel.setBounds(24, 30, 350, 40);
 		browsePanel.add(browseTitleLabel);
 		
 		JLabel subjectLabel = new JLabel("Research Subjects");
 		subjectLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		subjectLabel.setBounds(24, 90, 230, 14);
+		subjectLabel.setBounds(24, 90, 350, 18);
 		browsePanel.add(subjectLabel);
 		
 		DefaultListModel<String> subjectModel = new DefaultListModel<>();
@@ -213,13 +213,13 @@ public class Reviewer extends JFrame implements Constants{
 		
 		JLabel reviewLabel = new JLabel("Choose A Paper You Want To Review");
 		reviewLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		reviewLabel.setBounds(24, 285, 291, 14);
+		reviewLabel.setBounds(24, 285, 350, 18);
 		browsePanel.add(reviewLabel);
 		
 		JLabel reviewextraLabel = new JLabel("(select a subject above)");
 		reviewextraLabel.setForeground(Color.DARK_GRAY);
 		reviewextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		reviewextraLabel.setBounds(24, 305, 151, 14);
+		reviewextraLabel.setBounds(24, 305, 350, 18);
 		browsePanel.add(reviewextraLabel);
 		
 		DefaultListModel<SubmissionObject> nominateModel = new DefaultListModel<>();
@@ -254,14 +254,14 @@ public class Reviewer extends JFrame implements Constants{
 		feedbackPanel.setLayout(null);
 
 		JLabel feedbackTitleLabel = new JLabel("Provide Feedback");
-		feedbackTitleLabel.setBounds(24, 30, 230, 40);
+		feedbackTitleLabel.setBounds(24, 30, 350, 40);
 		feedbackPanel.add(feedbackTitleLabel);
 		feedbackTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		feedbackTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
 
 		JLabel papersLabel = new JLabel("Assigned Papers");
 		papersLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		papersLabel.setBounds(24, 90, 180, 14);
+		papersLabel.setBounds(24, 90, 350, 18);
 		feedbackPanel.add(papersLabel);
 
 		
@@ -307,13 +307,13 @@ public class Reviewer extends JFrame implements Constants{
 
 		JLabel provideLabel = new JLabel("Provide Feedback Below");
 		provideLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		provideLabel.setBounds(24, 285, 180, 14);
+		provideLabel.setBounds(24, 285, 350, 18);
 		feedbackPanel.add(provideLabel);
 
 		JLabel provideextraLabel = new JLabel("(for the paper you have selected above)");
 		provideextraLabel.setForeground(Color.DARK_GRAY);
 		provideextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		provideextraLabel.setBounds(24, 305, 267, 14);
+		provideextraLabel.setBounds(24, 305, 350, 18);
 		feedbackPanel.add(provideextraLabel);
 
 		JTextArea feedbackTextArea = new JTextArea();

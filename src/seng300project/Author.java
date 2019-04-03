@@ -318,65 +318,65 @@ public class Author extends JFrame implements Constants{
 
 		JLabel titleListLabel = new JLabel("Title");
 		titleListLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		titleListLabel.setBounds(24, 350, 325, 14);
+		titleListLabel.setBounds(24, 350, 325, 18);
 		listPanel.add(titleListLabel);
 
 		JLabel authorsListLabel = new JLabel("Authors");
 		authorsListLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		authorsListLabel.setBounds(24, 410, 325, 14);
+		authorsListLabel.setBounds(24, 410, 325, 18);
 		listPanel.add(authorsListLabel);
 
 		JLabel reviewersListLabel = new JLabel("Assigned Reviewers");
 		reviewersListLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		reviewersListLabel.setBounds(359, 350, 315, 14);
+		reviewersListLabel.setBounds(359, 350, 315, 18);
 		listPanel.add(reviewersListLabel);
 
 		JLabel feedbackListLabel = new JLabel("Feedback Available");
 		feedbackListLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		feedbackListLabel.setBounds(359, 410, 315, 14);
+		feedbackListLabel.setBounds(359, 410, 315, 18);
 		listPanel.add(feedbackListLabel);
 
 		JLabel deadlineListLabel = new JLabel("Final Submission Deadline");
 		deadlineListLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		deadlineListLabel.setBounds(359, 470, 315, 14);
+		deadlineListLabel.setBounds(359, 470, 315, 18);
 		listPanel.add(deadlineListLabel);
 
 		JLabel subjectListLabel = new JLabel("Research Subject");
 		subjectListLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		subjectListLabel.setBounds(24, 470, 325, 14);
+		subjectListLabel.setBounds(24, 470, 325, 18);
 		listPanel.add(subjectListLabel);
 
 		JLabel datatitleListLabel = new JLabel("");
 		datatitleListLabel.setForeground(new Color(0, 0, 0));
 		datatitleListLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		datatitleListLabel.setBounds(24, 380, 325, 14);
+		datatitleListLabel.setBounds(24, 380, 325, 18);
 		listPanel.add(datatitleListLabel);
 
 		JLabel datareviewersListLabel = new JLabel("");
 		datareviewersListLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		datareviewersListLabel.setBounds(359, 380, 315, 14);
+		datareviewersListLabel.setBounds(359, 380, 315, 18);
 		listPanel.add(datareviewersListLabel);
 
 		JLabel dataauthorsListLabel = new JLabel("");
 		dataauthorsListLabel.setForeground(Color.BLACK);
 		dataauthorsListLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		dataauthorsListLabel.setBounds(24, 440, 325, 14);
+		dataauthorsListLabel.setBounds(24, 440, 325, 18);
 		listPanel.add(dataauthorsListLabel);
 
 		JLabel datafeedbackListLabel = new JLabel("");
 		datafeedbackListLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		datafeedbackListLabel.setBounds(359, 440, 315, 14);
+		datafeedbackListLabel.setBounds(359, 440, 315, 18);
 		listPanel.add(datafeedbackListLabel);
 
 		JLabel datadeadlineListLabel = new JLabel("");
 		datadeadlineListLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		datadeadlineListLabel.setBounds(359, 500, 315, 14);
+		datadeadlineListLabel.setBounds(359, 500, 315, 18);
 		listPanel.add(datadeadlineListLabel);
 
 		JLabel datasubjectListLabel = new JLabel("");
 		datasubjectListLabel.setForeground(Color.BLACK);
 		datasubjectListLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		datasubjectListLabel.setBounds(24, 500, 325, 14);
+		datasubjectListLabel.setBounds(24, 500, 325, 18);
 		listPanel.add(datasubjectListLabel);
 
 		DefaultListModel<SubmissionObject> submissionModel = new DefaultListModel<>();
