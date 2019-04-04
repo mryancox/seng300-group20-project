@@ -567,45 +567,19 @@ public class Reviewer extends JFrame implements Constants{
 					// gets specific paper selected as an object for easy retrieval of details
 					SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
 					
-					// gets filename of paper
-					String filename = paperOfInterest.filename;
-
-					// get filepath of project folder
-					File f = new File(filename);
-					StringBuilder filepath = new StringBuilder(f.getAbsolutePath());
-					filepath.setLength(filepath.length() - filename.length());
-
-					// replaces instances of "\" with "\\" (java requires this)
-					String separator = "\\";
-					String[] intermediate = filepath.toString().replaceAll(Pattern.quote(separator), "\\\\")
-							.split("\\\\");
-
-					// builds new filepath string, inserting / instead of \
-					filepath = new StringBuilder(intermediate[0] + "/");
-					for (int i = 1; i < intermediate.length; i++) {
-						filepath.append(intermediate[i] + "/");
-					}
+	
 
 					// final string containing file location
-					String fileLocation = "file:///" + filepath.toString() + "submissions/"
-							+ paperOfInterest.submissionUserID + "/" + filename;
+					String fileLocation = "submissions/"
+							+ paperOfInterest.submissionUserID + "/" + paperOfInterest.filename;
 
-					/*
-					String encodedUrl = null;
+					File paperToOpen = new File(fileLocation);
+					
 					try {
-						encodedUrl = fileLocation + URLEncoder.encode(filename, "UTF-8");
-					}catch(Exception e) {}
-					//Opens the file
-					System.out.println(encodedUrl);
-					*/
-					try {
-						Desktop.getDesktop().browse(new URI(fileLocation));
-					} catch (IOException | URISyntaxException e) {
+						Desktop.getDesktop().open(paperToOpen);
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
-
-					// example final string format
-					// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
 				}
 			}
 		});
