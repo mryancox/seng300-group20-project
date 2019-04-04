@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -1921,12 +1922,29 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				int selectedIndex = selectedPaper[0];
-				int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
-				
-				setSubmissionStage(ID,FINAL_APPROVED_STAGE);
-				
-				
+				if (selectedPaper.length == 1) {
+					int selectedIndex = selectedPaper[0];
+					int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
+
+					setSubmissionStage(ID, FINAL_APPROVED_STAGE);
+
+					// refresh final submissions list
+					getSubmissions(RESUBMIT_STAGE);
+					newSubmissions = populateSubmissions(newSubmissions);
+
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+					Date today = new Date();
+					try {
+						for (int i = 0; i < newSubmissions.length; i++) {
+							Date deadline;
+							deadline = format.parse(newSubmissions[i].submissionDeadline);
+							if (today.after(deadline))
+								deadlineModel.addElement(newSubmissions[i]);
+						}
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 
@@ -1949,11 +1967,29 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				int selectedIndex = selectedPaper[0];
-				int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
-				
-				setSubmissionStage(ID,REJECTED_SUBMISSION_STAGE);
-				
+				if (selectedPaper.length == 1) {
+					int selectedIndex = selectedPaper[0];
+					int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
+
+					setSubmissionStage(ID, REJECTED_SUBMISSION_STAGE);
+
+					// refresh final submissions list
+					getSubmissions(RESUBMIT_STAGE);
+					newSubmissions = populateSubmissions(newSubmissions);
+
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+					Date today = new Date();
+					try {
+						for (int i = 0; i < newSubmissions.length; i++) {
+							Date deadline;
+							deadline = format.parse(newSubmissions[i].submissionDeadline);
+							if (today.after(deadline))
+								deadlineModel.addElement(newSubmissions[i]);
+						}
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 
@@ -1975,7 +2011,38 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+				
+				if (selectedPaper.length == 1) {
+					// add 1 month to deadline
+					int selectedIndex = selectedPaper[0];
+					int submissionID = deadlineModel.getElementAt(selectedIndex).submissionID;
 
+					String dl = deadlineModel.getElementAt(selectedIndex).submissionDeadline;
+					String[] oldDl = dl.split("[-]");
+					LocalDate oldDeadline = LocalDate.of(Integer.parseInt(oldDl[0]), Integer.parseInt(oldDl[1]),
+							Integer.parseInt(oldDl[2]));
+					oldDeadline.plusMonths(1);
+
+					setDeadline(submissionID, oldDeadline.toString());
+
+					// refresh final submissions list
+					getSubmissions(RESUBMIT_STAGE);
+					newSubmissions = populateSubmissions(newSubmissions);
+
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+					Date today = new Date();
+					try {
+						for (int i = 0; i < newSubmissions.length; i++) {
+							Date deadline;
+							deadline = format.parse(newSubmissions[i].submissionDeadline);
+							if (today.after(deadline))
+								deadlineModel.addElement(newSubmissions[i]);
+						}
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+				
 			}
 		});
 
@@ -2282,6 +2349,27 @@ public class Admin extends JFrame implements Constants {
         catch (MessagingException me) {
             me.printStackTrace();
         }
+	}
+	
+	/**
+	 * Set a new deadline for submission
+	 * @param submissionID
+	 * @param newDeadline
+	 */
+	private void setDeadline(int submissionID, String newDeadline) {
+		PreparedStatement ps;
+
+		String query = "UPDATE submission SET submissionDeadline = ? WHERE submissionID = ?";
+
+		try {
+			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps.setString(1, newDeadline);
+			ps.setInt(2, submissionID);
+
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
