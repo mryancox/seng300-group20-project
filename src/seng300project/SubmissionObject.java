@@ -52,6 +52,8 @@ public class SubmissionObject {
 	
 	public String nominatedReviewers;
 
+	public String userEmail;
+	
 	//Map for reviewer assigned papers logic to check if
 	//a paper is assigned to a reviewer
 	public Map<Integer, Integer> reviewers = new HashMap<Integer, Integer>();
@@ -83,7 +85,7 @@ public class SubmissionObject {
 	 * @param submissionUserID
 	 */
 	public SubmissionObject(int submissionID, String submissionName, String submissionAuthors, String subject, String submissionDate,
-			 int submissionStage, String filename,  int submissionUserID) {
+			 int submissionStage, String filename,  int submissionUserID, String userEmail) {
 		this.submissionID=submissionID;
 		this.submissionName=submissionName;
 		this.submissionAuthors=submissionAuthors;
@@ -96,6 +98,7 @@ public class SubmissionObject {
 		//this.feedbackIDs=feedbackIDs;
 		//this.preferredReviewerIDs=preferredReviewerIDs;
 		this.submissionUserID=submissionUserID;
+		this.userEmail = userEmail;
 	}
 
 

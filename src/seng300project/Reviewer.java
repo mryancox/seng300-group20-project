@@ -703,9 +703,10 @@ public class Reviewer extends JFrame implements Constants{
 				int submissionStage = submissionSet.getInt("submissionStage");
 				String filename= submissionSet.getString("filename");
 				int submissionUserID = submissionSet.getInt("submissionUserID");
+				String userEmail = submissionSet.getString("userEmail");
 				
 				// SubmissionObject constructor call
-				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID);
+				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID, userEmail);
 
 				// get extra details which may be null
 				String submissionDeadline = submissionSet.getString("submissionDeadline");

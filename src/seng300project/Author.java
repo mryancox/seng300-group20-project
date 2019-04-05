@@ -56,6 +56,7 @@ public class Author extends JFrame implements Constants{
 	protected String resubmitFilename;
 	protected String paperInDetail;
 	protected String filelocation;
+	protected String username;
 	protected int userID;
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
@@ -87,8 +88,9 @@ public class Author extends JFrame implements Constants{
 	 * @param user - User's name (not username)
 	 * @param ID - user's userID (invisible to user)
 	 */
-	public Author(String user, int ID) {
+	public Author(String username, int ID) {
 		this.userID=ID;
+		this.username = username;
 
 		//Initial pull of user's data
 		getSubmissions();
@@ -174,7 +176,7 @@ public class Author extends JFrame implements Constants{
 		JPanel welcomePanel = new GUIObjects().contentPanel();
 		contentPanel.add(welcomePanel, "name_46926967448500");
 
-		JLabel authorWelcome = new GUIObjects().welcomeLabel(user);
+		JLabel authorWelcome = new GUIObjects().welcomeLabel(username);
 		welcomePanel.add(authorWelcome);
 
 		JLabel authorIcon = new GUIObjects().icon("/author.png");
@@ -505,7 +507,7 @@ public class Author extends JFrame implements Constants{
 
 				} else {
 					File file = fc.getSelectedFile();
-					filename = file.getName().replaceAll("\\s+", "");
+					filename = titleTextArea.getText().replaceAll("\\s+", "").replaceAll("/*", "")+".pdf";
 					filelocationTextArea.setText(file.getAbsolutePath());
 				}
 			}
@@ -641,7 +643,7 @@ public class Author extends JFrame implements Constants{
 					else
 						reviewersSubLabel.setText(submissions[paperIndex].reviewerNames);
 
-					if (submissions[paperIndex].feedbackIDs == null)
+					if (submissions[paperIndex].submissionStage < RESUBMIT_STAGE)
 						feedbackavailableSubLabel.setText("No Feedback Available");
 					else
 						feedbackavailableSubLabel.setText("Feedback Available");
@@ -877,10 +879,11 @@ public class Author extends JFrame implements Constants{
 				int submissionStage = submissionSet.getInt("submissionStage");
 				String filename = submissionSet.getString("filename");
 				int submissionUserID = submissionSet.getInt("submissionUserID");
+				String userEmail = submissionSet.getString("userEmail");
 				
 				// SubmissionObject constructor call
 				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
-						submissionDate, submissionStage, filename, submissionUserID);
+						submissionDate, submissionStage, filename, submissionUserID, userEmail);
 
 				// get extra details which may be null
 				String submissionDeadline = submissionSet.getString("submissionDeadline");
@@ -977,7 +980,7 @@ public class Author extends JFrame implements Constants{
 	private void makeSubmission(String submissionName, String submissionAuthors, String subject, String filename, String reviewerIDs) {
 		PreparedStatement ps;
 		String query = "INSERT INTO submission (submissionName, submissionAuthors, subject, submissionStage, "
-				+ "filename, submissionUserID, preferredReviewerIDs) values (? , ? , ? , ? , ? , ?, ?)";
+				+ "filename, submissionUserID, preferredReviewerIDs, userEmail) values (? , ? , ? , ? , ? , ?, ?, ?)";
 		
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
@@ -988,6 +991,7 @@ public class Author extends JFrame implements Constants{
 			ps.setString(5, filename);
 			ps.setInt(6, this.userID);
 			ps.setString(7, reviewerIDs);
+			ps.setString(8, this.username);
 			
 			ps.executeUpdate();
 			

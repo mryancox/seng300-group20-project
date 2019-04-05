@@ -22,6 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -1634,10 +1638,23 @@ public class Admin extends JFrame implements Constants {
 
 				if (selectedPaper.length == 1) {
 					int selectedIndex = selectedPaper[0];
-					int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
+					
+					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedIndex);
+					
+					int ID = paperOfInterest.submissionID;
 
+					//Change submission stage to approved
 					setSubmissionStage(ID, FINAL_APPROVED_STAGE);
 
+					//move submission file to approved submissions folder
+					File paperFile = new File("submissions/"+paperOfInterest.submissionUserID+"/"+paperOfInterest.filename);
+					Path source = Paths.get(paperFile.getAbsolutePath());
+					Path dest = Paths.get("submissions/acceptedsubmissions/"+paperOfInterest.submissionUserID+paperOfInterest.filename);
+					try {
+						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e) {}
+					
+					
 					// refresh final submissions list
 					getSubmissions(RESUBMIT_STAGE);
 					newSubmissions = populateSubmissions(newSubmissions);
@@ -1824,8 +1841,10 @@ public class Admin extends JFrame implements Constants {
 				int submissionStage = submissionSet.getInt("submissionStage");
 				String filename = submissionSet.getString("filename");
 				int submissionUserID = submissionSet.getInt("submissionUserID");
+				String userEmail = submissionSet.getString("userEmail");
+				
 				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
-						submissionDate, submissionStage, filename, submissionUserID);
+						submissionDate, submissionStage, filename, submissionUserID, userEmail);
 
 				String submissionDeadline = submissionSet.getString("submissionDeadline");
 				String reviewerIDs = submissionSet.getString("reviewerIDs");
