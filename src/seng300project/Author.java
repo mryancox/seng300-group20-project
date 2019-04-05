@@ -29,8 +29,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.JTextArea;
@@ -63,9 +61,7 @@ public class Author extends JFrame implements Constants{
 	protected SubmissionObject[] submissions;
 	protected FeedbackObject[] feedback = new FeedbackObject[50];
 	protected ReviewerObject[] reviewers;
-	protected int numOfFeedback = 0;
-	private Map<Integer, Integer> submissionIDtoFeedbackApproval = new HashMap<Integer, Integer>();
-		
+	protected int numOfFeedback = 0;		
 
 	/**
 	 * Launch the application.
@@ -922,51 +918,6 @@ public class Author extends JFrame implements Constants{
 		}
 
 	}
-
-	/**
-	 * Populates a global array of FeedbackObjects to store on startup so loading
-	 * between feedback is fast. 
-	 * 
-	 * Currently unused
-	 */
-	private void getFeedback() {
-		
-		PreparedStatement ps;
-		ResultSet feedbackSet;
-		String query = "SELECT * FROM feedback WHERE submissionID = ?";
-		
-		try {
-			
-			for(int i=0;i<submissions.length;i++) {
-				ps = SQLConnection.getConnection().prepareStatement(query);
-				ps.setInt(1, submissions[i].submissionID);
-				feedbackSet = ps.executeQuery();
-				
-				int counter = 0;
-				
-				//populates array of feedback
-				while(feedbackSet.next()) {
-					int feedbackID = feedbackSet.getInt("feedbackID");
-					String feedbackDate = feedbackSet.getString("feedbackDate");
-					String filename = feedbackSet.getString("filename");
-					int userID = feedbackSet.getInt("userID");
-					int submissionID = feedbackSet.getInt("submissionID");
-					int approval = feedbackSet.getInt("approval");
-					int feedbackStage = feedbackSet.getInt("feedbackStage");
-					
-					feedback[counter] = new FeedbackObject(feedbackID, feedbackDate, filename, userID, submissionID, feedbackStage, approval);
-
-					submissionIDtoFeedbackApproval.put(submissions[i].submissionID, feedbackSet.getInt("approval"));
-
-					numOfFeedback++;
-					counter++;
-				}
-			}
-		}catch(Exception e) {System.out.println("Failed fetching feedback");
-		e.printStackTrace();}
-
-	}
-	
 	
 	/**
 	 * Method for adding a new submission to the database

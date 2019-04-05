@@ -903,7 +903,8 @@ public class Admin extends JFrame implements Constants {
 
 					// gets index of selected paper in list
 					int paperIndex = selectedPaper[0];
-
+					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(paperIndex);
+					
 					// get selected paper's submissionID
 					int submissionID = newSubmissions[paperIndex].submissionID;
 
@@ -922,7 +923,7 @@ public class Admin extends JFrame implements Constants {
 					String body = "To Whom It May Concern,\n\nA paper you have submitted has been approved to be considered for the journal.\n\n"
 							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
 					
-					sendEmail("jss.ualberta@gmail.com", subject, body);
+					sendEmail(paperOfInterest.userEmail, subject, body);
 					
 				} else if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
@@ -990,9 +991,11 @@ public class Admin extends JFrame implements Constants {
 
 					// get index of selected paper
 					int paperIndex = selectedPaper[0];
-
+					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(paperIndex);
+					
 					// get selected paper's unique ID
 					int submissionID = newSubmissions[paperIndex].submissionID;
+					
 
 					// set submissionStage to rejected stage
 					setSubmissionStage(submissionID, REJECTED_SUBMISSION_STAGE);
@@ -1009,7 +1012,7 @@ public class Admin extends JFrame implements Constants {
 					String body = "To Whom It May Concern,\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
 							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
 					
-					sendEmail("jss.ualberta@gmail.com", subject, body);
+					sendEmail(paperOfInterest.userEmail, subject, body);
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1078,9 +1081,17 @@ public class Admin extends JFrame implements Constants {
 				if (selectedApplicant.length == 1) {
 					int selectedApplicantIndex = selectedApplicant[0];
 					int applicantID = applicants[selectedApplicantIndex].userID;
+					String applicantEmail = applicants[selectedApplicantIndex].username;
 
 					approveApplicant(applicantID);
-
+					
+					String subject = "Reviewer Application Approved";
+					String body = "To Whom It May Concern,\n\nWe are happy to inform you that your application"
+							+ " to become a University of Alberta reviewer has been accepted!\n\n"
+							+ "You may now login with your submitted email and password.\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail(applicantEmail, subject, body);
 					// update applicants list
 					applicantModel.clear();
 					getApplicants();
@@ -1122,9 +1133,16 @@ public class Admin extends JFrame implements Constants {
 				if (selectedApplicant.length == 1) {
 					int selectedApplicantIndex = selectedApplicant[0];
 					int applicantID = applicants[selectedApplicantIndex].userID;
-
+					String applicantEmail = applicants[selectedApplicantIndex].username;
+					
 					rejectApplicant(applicantID);
-
+					
+					String subject = "Reviewer Application Rejected";
+					String body = "To Whom It May Concern,\n\nWe are sorry to inform you that your application"
+							+ " to become a University of Alberta reviewer has been rejected.\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail(applicantEmail, subject, body);
 					// update applicants list
 					applicantModel.clear();
 					getApplicants();
@@ -1359,6 +1377,15 @@ public class Admin extends JFrame implements Constants {
 						// send SQL update
 						assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
 
+						String subject = "New Paper To Review";
+						String body = "To Whom It May Concern,\n\nThere is a new paper for you to review!\n\n"
+								+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+						
+						for (int i = 0; i < reviewerIndices.length; i++) {
+							
+							sendEmail(selectedReviewers[i].username, subject, body);	
+						}
+						
 						// refresh list of papers that need reviewers assigned
 						assignpaperModel.clear();
 						getSubmissions(APPROVED_SUBMISSION_STAGE);
@@ -1514,6 +1541,12 @@ public class Admin extends JFrame implements Constants {
 						// Updates submission stage in database
 						approveFeedback(paperOfInterest.submissionID);
 
+
+						String subject = "Feedback Available";
+						String body = "To Whom It May Concern,\n\nThere is a feedback for a paper you submitted!\n\n"
+								+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+						
+						sendEmail(paperOfInterest.userEmail, subject, body);
 						JOptionPane.showMessageDialog(null, "Feedback approved!\n Available for author's viewing.",
 								"Feedback Approved", JOptionPane.PLAIN_MESSAGE, null);
 
@@ -1666,7 +1699,7 @@ public class Admin extends JFrame implements Constants {
 					String body = "To Whom It May Concern,\n\nA paper you have submitted has been approved to be published in the journal!\n\n"
 							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
 					
-					sendEmail("jss.ualberta@gmail.com", subject, body);
+					sendEmail(paperOfInterest.userEmail, subject, body);
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1703,7 +1736,8 @@ public class Admin extends JFrame implements Constants {
 				if (selectedPaper.length == 1) {
 					int selectedIndex = selectedPaper[0];
 					int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
-
+					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedIndex);
+					
 					setSubmissionStage(ID, REJECTED_SUBMISSION_STAGE);
 
 					// refresh final submissions list
@@ -1717,7 +1751,7 @@ public class Admin extends JFrame implements Constants {
 					String body = "To Whom It May Concern,\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
 							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
 					
-					sendEmail("jss.ualberta@gmail.com", subject, body);
+					sendEmail(paperOfInterest.userEmail, subject, body);
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1757,6 +1791,7 @@ public class Admin extends JFrame implements Constants {
 					// add 1 month to deadline
 					int selectedIndex = selectedPaper[0];
 					int submissionID = deadlineModel.getElementAt(selectedIndex).submissionID;
+					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedIndex);
 
 					String dl = deadlineModel.getElementAt(selectedIndex).submissionDeadline;
 					String[] oldDl = dl.split("[-]");
@@ -1777,7 +1812,7 @@ public class Admin extends JFrame implements Constants {
 					String body = "To Whom It May Concern,\n\nA paper you submitted has had its deadline extended one month.\n\n"
 							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
 					
-					sendEmail("jss.ualberta@gmail.com", subject, body);
+					sendEmail(paperOfInterest.userEmail, subject, body);
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1990,12 +2025,6 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(3, submissionID);
 
 			ps.executeUpdate();
-			
-			String subject = "New Paper To Review";
-			String body = "To Whom It May Concern,\n\nThere is a new paper for you to review!\n\n"
-					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
-			
-			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2016,12 +2045,6 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(2, submissionID);
 
 			ps.executeUpdate();
-
-			String subject = "Feedback Available";
-			String body = "To Whom It May Concern,\n\nThere is a feedback for a paper you submitted!\n\n"
-					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
-			
-			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2041,14 +2064,6 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(2, userID);
 
 			ps.executeUpdate();
-			
-			String subject = "Reviewer Application Approved";
-			String body = "To Whom It May Concern,\n\nWe are happy to inform you that your application"
-					+ " to become a University of Alberta reviewer has been accepted!\n\n"
-					+ "You may now login with your submitted email and password.\n\n"
-					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
-			
-			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2070,13 +2085,6 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(2, userID);
 
 			ps.executeUpdate();
-			
-			String subject = "Reviewer Application Rejected";
-			String body = "To Whom It May Concern,\n\nWe are sorry to inform you that your application"
-					+ " to become a University of Alberta reviewer has been rejected.\n\n"
-					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
-			
-			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
