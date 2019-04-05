@@ -517,7 +517,21 @@ public class Reviewer extends JFrame implements Constants{
 					int submissionID = nominateModel.getElementAt(selected[0]).submissionID;
 
 					//call method that sends sql update adding userID to nominated reviewers
-					nominateReview(submissionID);
+					try {
+						nominateReview(submissionID);
+						
+						UIManager UI = new UIManager();
+						UI.put("OptionPane.background", Color.WHITE);
+						UI.put("Panel.background", Color.WHITE);
+						JOptionPane.showMessageDialog(null, "Nomination received!.", "Nominated",
+								JOptionPane.PLAIN_MESSAGE, null);
+					}catch(Exception e) {
+						UIManager UI = new UIManager();
+						UI.put("OptionPane.background", Color.WHITE);
+						UI.put("Panel.background", Color.WHITE);
+						JOptionPane.showMessageDialog(null, "Failed to nominate.", "Error Nominating",
+								JOptionPane.PLAIN_MESSAGE, null);
+					}
 				}
 			}
 		});
