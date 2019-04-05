@@ -12,7 +12,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 
 import java.awt.Font;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import java.awt.event.MouseAdapter;
