@@ -1722,7 +1722,7 @@ public class Admin extends JFrame implements Constants {
 
 				extendButton.setBackground(new Color(255, 219, 5));
 				extendLabel.setForeground(Color.BLACK);
-				extendLabel.setText("Add 30 Days");
+				extendLabel.setText("Add One Month");
 			}
 
 			@Override
