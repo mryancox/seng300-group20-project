@@ -617,6 +617,7 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				getReviewers();
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
