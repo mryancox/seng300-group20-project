@@ -10,12 +10,7 @@ import java.awt.Desktop;
 import javax.swing.JLabel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import java.awt.CardLayout;
 import java.awt.Font;
-import java.awt.Image;
-
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import java.awt.event.MouseAdapter;
@@ -25,8 +20,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -139,234 +132,165 @@ public class Reviewer extends JFrame implements Constants{
 
 			}
 		}
-		
-		// Nicely formated version of username
-		String niceUsername = String.valueOf(user.charAt(0)).toUpperCase() + user.substring(1).split("\\@")[0];
 
 		/*
-		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
-		 * frame were created with certain boundaries and colours to create a cohesive feel.
-		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
-		 * not appear properly with the colour scheme of the University of Alberta on Linux
-		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 * A lot of GUI elements follow. The functionality that is associated with all of these
+		 * panels, textareas, etc. are at the bottom of this class.
+		 * 
+		 * Creating the two main GUI panels
 		 */
-		JPanel menuPanel = new JPanel();
-		menuPanel.setBackground(new Color(0, 124, 65));
-		menuPanel.setBounds(0, 0, 180, 580);
+		JPanel menuPanel = new GUIObjects().menuPanel();
 		contentPane.add(menuPanel);
-		menuPanel.setLayout(null);
+		
+		JLabel menuLabel = new GUIObjects().menuLabel("MENU", 30);
+		menuPanel.add(menuLabel);
 
-		JPanel contentPanel = new JPanel();
-		contentPanel.setBackground(Color.WHITE);
-		contentPanel.setBounds(180, 0, 725, 580);
+		JPanel menuSeparator = new JPanel();
+		menuSeparator.setBounds(10, 70, 160, 2);
+		menuPanel.add(menuSeparator);
+		
+		JLabel ualogo = new GUIObjects().icon("/ualogo.jpg");
+		ualogo.setBounds(40, 420, 100, 100);
+		menuPanel.add(ualogo);
+		
+		JPanel contentPanel = new GUIObjects().mainContentPanel();
 		contentPane.add(contentPanel);
-		contentPanel.setLayout(new CardLayout(0, 0));
 
-		JPanel welcomePanel = new JPanel();
-		welcomePanel.setBackground(Color.WHITE);
+		
+		/*
+		 * Creating the welcome panel
+		 */
+		JPanel welcomePanel = new GUIObjects().contentPanel();
 		contentPanel.add(welcomePanel, "name_46926967448500");
-		welcomePanel.setLayout(null);
 
-		JLabel welcomeLabel = new JLabel("Welcome " + niceUsername + "!");
-		welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		welcomeLabel.setFont(new Font("Arial", Font.BOLD, 28));
-		welcomeLabel.setBounds(0, 124, 714, 40);
-		welcomePanel.add(welcomeLabel);
+		JLabel reviewerWelcome = new GUIObjects().welcomeLabel(user);
+		welcomePanel.add(reviewerWelcome);
 
-		JLabel reviewerIcon = new JLabel("");
-		Image authorIconImg = new ImageIcon(this.getClass().getResource("/reviewer.jpg")).getImage();
-		reviewerIcon.setIcon(new ImageIcon(authorIconImg));
+		JLabel reviewerIcon = new GUIObjects().icon("/reviewer.jpg");
 		reviewerIcon.setBounds(184, 212, 346, 200);
 		welcomePanel.add(reviewerIcon);
 		
-		JPanel browsePanel = new JPanel();
+		
+		/*
+		 * Creating the browse panel and filling it with its elements using GUIObjects
+		 */
+		JPanel browsePanel = new GUIObjects().contentPanel();
 		contentPanel.add(browsePanel, "name_35648043125700");
-		browsePanel.setLayout(null);
-		browsePanel.setBackground(Color.WHITE);
 		
-		JLabel browseTitleLabel = new JLabel("Browse Journals");
-		browseTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		browseTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		browseTitleLabel.setBounds(24, 30, 350, 40);
-		browsePanel.add(browseTitleLabel);
+		JLabel browseTitle = new GUIObjects().contentTitle("Browse Journals");
+		browsePanel.add(browseTitle);
 		
-		JLabel subjectLabel = new JLabel("Research Subjects");
-		subjectLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		subjectLabel.setBounds(24, 90, 350, 18);
-		browsePanel.add(subjectLabel);
+		JLabel subjectHeader = new GUIObjects().contentHeader("Research Subjects", 90);
+		browsePanel.add(subjectHeader);
 		
 		DefaultListModel<String> subjectModel = new DefaultListModel<>();
 		JList<String> subjectList = new JList<String>(subjectModel);
-		
-		
-		
 		subjectList.setFont(new Font("Arial", Font.PLAIN, 12));
 		JScrollPane subjectListScrollPane = new JScrollPane(subjectList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		subjectListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		subjectListScrollPane.setBounds(24, 115, 650, 143);
 		browsePanel.add(subjectListScrollPane);
 		
-		JPanel browseSepPanel = new JPanel();
-		browseSepPanel.setBackground(Color.BLACK);
-		browseSepPanel.setBounds(24, 270, 650, 2);
-		browsePanel.add(browseSepPanel);
+		JPanel browseSeparator = new GUIObjects().separatorPanel(270);
+		browsePanel.add(browseSeparator);
 		
-		JLabel reviewLabel = new JLabel("Choose A Paper You Want To Review");
-		reviewLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		reviewLabel.setBounds(24, 285, 350, 18);
-		browsePanel.add(reviewLabel);
+		JLabel reviewHeader = new GUIObjects().contentHeader("Choose A Paper You Want To Review", 285);
+		browsePanel.add(reviewHeader);
 		
-		JLabel reviewextraLabel = new JLabel("(select a subject above)");
-		reviewextraLabel.setForeground(Color.DARK_GRAY);
-		reviewextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		reviewextraLabel.setBounds(24, 305, 350, 18);
-		browsePanel.add(reviewextraLabel);
+		JLabel reviewSubHeader = new GUIObjects().contentSubHeader("(select a subject above)", 305);
+		browsePanel.add(reviewSubHeader);
 		
 		DefaultListModel<SubmissionObject> nominateModel = new DefaultListModel<>();
 		JList<SubmissionObject> nominateList = new JList<SubmissionObject>(nominateModel);
-		
 		nominateList.setFont(new Font("Arial", Font.PLAIN, 12));
 		JScrollPane nominateListScrollPane = new JScrollPane(nominateList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		nominateListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		nominateListScrollPane.setBounds(24, 330, 650, 180);
-		browsePanel.add(nominateListScrollPane);
 		nominateList.removeAll();
+		browsePanel.add(nominateListScrollPane);
 		
-		JPanel nominateButton = new JPanel();
-		JLabel nominateLabel = new JLabel("Nominate");
-		nominateLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		nominateLabel.setForeground(Color.WHITE);
-		nominateLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		nominateLabel.setBounds(0, 0, 119, 30);
+		JPanel nominateButton = new GUIObjects().contentButton(555, 520);
+		JLabel nominateLabel = new GUIObjects().contentButtonLabel("Nominate");
 		nominateButton.add(nominateLabel);
-
-		nominateButton.setLayout(null);
-		nominateButton.setBackground(new Color(0, 124, 65));
-		nominateButton.setBounds(555, 520, 119, 30);
 		browsePanel.add(nominateButton);
-
 		
-
 		
-		JPanel feedbackPanel = new JPanel();
-		feedbackPanel.setBackground(Color.WHITE);
+		/*
+		 * Creating the feedback panel and filling it with its elements using GUIObjects
+		 */
+		JPanel feedbackPanel = new GUIObjects().contentPanel();
 		contentPanel.add(feedbackPanel, "name_47558521480000");
-		feedbackPanel.setLayout(null);
 
-		JLabel feedbackTitleLabel = new JLabel("Provide Feedback");
-		feedbackTitleLabel.setBounds(24, 30, 350, 40);
-		feedbackPanel.add(feedbackTitleLabel);
-		feedbackTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		feedbackTitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-
-		JLabel papersLabel = new JLabel("Assigned Papers");
-		papersLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		papersLabel.setBounds(24, 90, 350, 18);
-		feedbackPanel.add(papersLabel);
-
+		JLabel feedbackTitle = new GUIObjects().contentTitle("Provide Feedback");
+		feedbackPanel.add(feedbackTitle);
+		
+		JLabel paperHeader = new GUIObjects().contentHeader("Assigned Papers", 90);
+		feedbackPanel.add(paperHeader);
 		
 		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
 		JList<SubmissionObject> assignedList = new JList<SubmissionObject>(paperModel);
-
 		assignedList.setFont(new Font("Arial", Font.PLAIN, 12));
-
-		
-
-		
-		
 		JScrollPane assignedListScrollPane = new JScrollPane(assignedList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		assignedListScrollPane.setSize(650, 110);
-		assignedListScrollPane.setLocation(24, 115);
+		assignedListScrollPane.setBounds(24, 115, 650, 110);
 		assignedListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		feedbackPanel.add(assignedListScrollPane);
 		
-		JPanel openButton = new JPanel();
-		JLabel openLabel = new JLabel("Open Paper");
-		openLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		openLabel.setForeground(Color.WHITE);
-		openLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		openLabel.setBounds(0, 0, 119, 30);
+		JPanel openButton = new GUIObjects().contentButton(555, 235);
+		JLabel openLabel = new GUIObjects().contentButtonLabel("Open Paper");
 		openButton.add(openLabel);
-		
-		
-
-
-		
-		
-
-		
-		openButton.setLayout(null);
-		openButton.setBackground(new Color(0, 124, 65));
-		openButton.setBounds(555, 235, 119, 30);
 		feedbackPanel.add(openButton);
-
-		JPanel feedbackSepPanel = new JPanel();
-		feedbackSepPanel.setBackground(Color.BLACK);
-		feedbackSepPanel.setBounds(24, 270, 650, 2);
-		feedbackPanel.add(feedbackSepPanel);
-
-		JLabel provideLabel = new JLabel("Provide Feedback Below");
-		provideLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		provideLabel.setBounds(24, 285, 350, 18);
-		feedbackPanel.add(provideLabel);
-
-		JLabel provideextraLabel = new JLabel("(for the paper you have selected above)");
-		provideextraLabel.setForeground(Color.DARK_GRAY);
-		provideextraLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		provideextraLabel.setBounds(24, 305, 350, 18);
-		feedbackPanel.add(provideextraLabel);
-
-		JTextArea feedbackTextArea = new JTextArea();
-		feedbackTextArea.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		JPanel submitButton = new JPanel();
-		JLabel submitLabel = new JLabel("Submit Feedback");
-		submitLabel.setForeground(Color.WHITE);
-		submitLabel.setFont(new Font("Arial", Font.BOLD, 12));
-		submitLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		submitLabel.setBounds(0, 0, 119, 30);
-		submitButton.add(submitLabel);
+		JPanel feedbackSeparator = new GUIObjects().separatorPanel(270);
+		feedbackPanel.add(feedbackSeparator);
 		
-		
+		JLabel provideHeader = new GUIObjects().contentHeader("Provide Feedback Below", 285);
+		feedbackPanel.add(provideHeader);
 
+		JLabel provideSubHeader = new GUIObjects().contentSubHeader("(for the paper you have selected above)", 305);
+		feedbackPanel.add(provideSubHeader);
 		
+		JTextArea feedbackTextArea = new GUIObjects().contentTextArea(0);
 		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		feedbackScrollPane.setSize(650, 180);
-		feedbackScrollPane.setLocation(24, 330);
+		feedbackScrollPane.setBounds(24, 330, 650, 180);
 		feedbackScrollPane.setBorder(BorderFactory.createEmptyBorder());
-
 		feedbackPanel.add(feedbackScrollPane);
-		submitButton.setBackground(new Color(0, 124, 65));
-		submitButton.setBounds(555, 520, 119, 30);
+
+		JPanel submitButton = new GUIObjects().contentButton(555, 520);
+		JLabel submitLabel = new GUIObjects().contentButtonLabel("Submit Feedback");
+		submitButton.add(submitLabel);
 		feedbackPanel.add(submitButton);
-		submitButton.setLayout(null);
 
-		JLabel menuLabel = new JLabel("MENU");
-		menuLabel.setForeground(Color.WHITE);
-		menuLabel.setFont(new Font("Arial", Font.BOLD, 18));
-		menuLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		menuLabel.setBounds(0, 30, 180, 40);
-		menuPanel.add(menuLabel);
+		
+		/*
+		 * Creating menu buttons to switch to different content panels
+		 */
+		JPanel browseMenuButton = new GUIObjects().menuButton(80, 30);
+		JLabel browseMenuLabel = new GUIObjects().menuLabel("Browse Journals", 0);
+		browseMenuButton.add(browseMenuLabel);
+		menuPanel.add(browseMenuButton);
+		
+		JPanel feedbackMenuButton = new GUIObjects().menuButton(115, 30);
+		JLabel feedbackMenuLabel = new GUIObjects().menuLabel("Provide Feedback", 0);
+		feedbackMenuButton.add(feedbackMenuLabel);
+		menuPanel.add(feedbackMenuButton);
 
-		JPanel browseButton = new JPanel();
-		JLabel browseLabel = new JLabel("Browse Journals");
-		browseLabel.setForeground(Color.WHITE);
-		browseLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		browseLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		browseLabel.setBounds(0, 0, 180, 30);
-		browseButton.add(browseLabel);
-		browseButton.addMouseListener(new MouseAdapter() {
+		JPanel logoutMenuButton = new GUIObjects().menuButton(380, 30);
+		JLabel logoutMenuLabel = new GUIObjects().menuLabel("Logout", 0);
+		logoutMenuButton.add(logoutMenuLabel);
+		menuPanel.add(logoutMenuButton);
+		
+		browseMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 
-				browseButton.setBackground(new Color(255, 219, 5));
-				browseLabel.setForeground(Color.BLACK);
+				browseMenuButton.setBackground(new Color(255, 219, 5));
+				browseMenuLabel.setForeground(Color.BLACK);
 			}
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
-				browseButton.setBackground(new Color(0, 124, 65));
-				browseLabel.setForeground(Color.WHITE);
+				browseMenuButton.setBackground(new Color(0, 124, 65));
+				browseMenuLabel.setForeground(Color.WHITE);
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -383,33 +307,18 @@ public class Reviewer extends JFrame implements Constants{
 			}
 		});
 
-		JPanel menuSepPanel = new JPanel();
-		menuSepPanel.setBounds(10, 70, 160, 2);
-		menuPanel.add(menuSepPanel);
-		browseButton.setBackground(new Color(0, 124, 65));
-		browseButton.setBounds(0, 80, 180, 30);
-		menuPanel.add(browseButton);
-		browseButton.setLayout(null);
-
-		JPanel feedbackButton = new JPanel();
-		JLabel feedbackLabel = new JLabel("Provide Feedback");
-		feedbackLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		feedbackLabel.setForeground(Color.WHITE);
-		feedbackLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		feedbackLabel.setBounds(0, 0, 180, 30);
-		feedbackButton.add(feedbackLabel);
-		feedbackButton.addMouseListener(new MouseAdapter() {
+		feedbackMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 
-				feedbackButton.setBackground(new Color(255, 219, 5));
-				feedbackLabel.setForeground(Color.BLACK);
+				feedbackMenuButton.setBackground(new Color(255, 219, 5));
+				feedbackMenuLabel.setForeground(Color.BLACK);
 			}
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
-				feedbackButton.setBackground(new Color(0, 124, 65));
-				feedbackLabel.setForeground(Color.WHITE);
+				feedbackMenuButton.setBackground(new Color(0, 124, 65));
+				feedbackMenuLabel.setForeground(Color.WHITE);
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -426,32 +335,19 @@ public class Reviewer extends JFrame implements Constants{
 				contentPanel.revalidate();
 			}
 		});
-		feedbackButton.setLayout(null);
-		feedbackButton.setBackground(new Color(0, 124, 65));
-		feedbackButton.setBounds(0, 115, 180, 30);
-		menuPanel.add(feedbackButton);
 
-
-
-		JPanel logoutButton = new JPanel();
-		JLabel logoutLabel = new JLabel("Logout");
-		logoutLabel.setFont(new Font("Arial", Font.BOLD, 14));
-		logoutLabel.setForeground(Color.WHITE);
-		logoutLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		logoutLabel.setBounds(0, 0, 180, 30);
-		logoutButton.add(logoutLabel);
-		logoutButton.addMouseListener(new MouseAdapter() {
+		logoutMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 
-				logoutButton.setBackground(new Color(255, 219, 5));
-				logoutLabel.setForeground(Color.BLACK);
+				logoutMenuButton.setBackground(new Color(255, 219, 5));
+				logoutMenuLabel.setForeground(Color.BLACK);
 			}
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
-				logoutButton.setBackground(new Color(0, 124, 65));
-				logoutLabel.setForeground(Color.WHITE);
+				logoutMenuButton.setBackground(new Color(0, 124, 65));
+				logoutMenuLabel.setForeground(Color.WHITE);
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -460,16 +356,6 @@ public class Reviewer extends JFrame implements Constants{
 				Login.main(null);
 			}
 		});
-		logoutButton.setBackground(new Color(0, 124, 65));
-		logoutButton.setBounds(0, 379, 180, 30);
-		menuPanel.add(logoutButton);
-		logoutButton.setLayout(null);
-
-		JLabel ualogo = new JLabel("");
-		Image ualogoImg = new ImageIcon(this.getClass().getResource("/ualogo.jpg")).getImage();
-		ualogo.setBounds(40, 420, 100, 100);
-		menuPanel.add(ualogo);
-		ualogo.setIcon(new ImageIcon(ualogoImg));
 		
 		// populates list of subjects
 		for (int i = 0; i < subjects.length; i++)

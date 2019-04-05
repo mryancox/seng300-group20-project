@@ -268,6 +268,7 @@ public class Admin extends JFrame implements Constants {
 		
 		JTextArea deadlineTextArea = new GUIObjects().contentTextArea(510);
 		deadlineTextArea.setText("YYYY-MM-DD");
+		deadlineTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
 		submissionsPanel.add(deadlineTextArea);
 		
 		JPanel approveButton = new GUIObjects().contentButton(425, 520);
@@ -913,6 +914,12 @@ public class Admin extends JFrame implements Constants {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
 					
+					String subject = "Paper Approved";
+					String body = "To Whom It May Concern,\n\nA paper you have submitted has been approved to be considered for the journal.\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail("jss.ualberta@gmail.com", subject, body);
+					
 				} else if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -993,6 +1000,12 @@ public class Admin extends JFrame implements Constants {
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
+					
+					String subject = "Paper Rejected";
+					String body = "To Whom It May Concern,\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail("jss.ualberta@gmail.com", subject, body);
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1631,6 +1644,12 @@ public class Admin extends JFrame implements Constants {
 
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
+					
+					String subject = "Final Paper Approved";
+					String body = "To Whom It May Concern,\n\nA paper you have submitted has been approved to be published in the journal!\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail("jss.ualberta@gmail.com", subject, body);
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1676,6 +1695,12 @@ public class Admin extends JFrame implements Constants {
 
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
+					
+					String subject = "Final Paper Rejected";
+					String body = "To Whom It May Concern,\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail("jss.ualberta@gmail.com", subject, body);
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1730,6 +1755,12 @@ public class Admin extends JFrame implements Constants {
 
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
+					
+					String subject = "Deadline Extended";
+					String body = "To Whom It May Concern,\n\nA paper you submitted has had its deadline extended one month.\n\n"
+							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					sendEmail("jss.ualberta@gmail.com", subject, body);
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1940,7 +1971,12 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(3, submissionID);
 
 			ps.executeUpdate();
-
+			
+			String subject = "New Paper To Review";
+			String body = "To Whom It May Concern,\n\nThere is a new paper for you to review!\n\n"
+					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+			
+			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1962,6 +1998,11 @@ public class Admin extends JFrame implements Constants {
 
 			ps.executeUpdate();
 
+			String subject = "Feedback Available";
+			String body = "To Whom It May Concern,\n\nThere is a feedback for a paper you submitted!\n\n"
+					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+			
+			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1981,6 +2022,14 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(2, userID);
 
 			ps.executeUpdate();
+			
+			String subject = "Reviewer Application Approved";
+			String body = "To Whom It May Concern,\n\nWe are happy to inform you that your application"
+					+ " to become a University of Alberta reviewer has been accepted!\n\n"
+					+ "You may now login with your submitted email and password.\n\n"
+					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+			
+			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2002,6 +2051,13 @@ public class Admin extends JFrame implements Constants {
 			ps.setInt(2, userID);
 
 			ps.executeUpdate();
+			
+			String subject = "Reviewer Application Rejected";
+			String body = "To Whom It May Concern,\n\nWe are sorry to inform you that your application"
+					+ " to become a University of Alberta reviewer has been rejected.\n\n"
+					+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+			
+			sendEmail("jss.ualberta@gmail.com", subject, body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2015,7 +2071,7 @@ public class Admin extends JFrame implements Constants {
 	 * @param subject, the email's subject
 	 * @param body, the email's text contents
 	 */
-	private void sendEmail(String subject, String body) {
+	private void sendEmail(String to, String subject, String body) {
 		
 		Properties props = System.getProperties();
 		String host = "smtp.gmail.com";
@@ -2033,7 +2089,7 @@ public class Admin extends JFrame implements Constants {
 		
 		try {
             message.setFrom(new InternetAddress(from));
-            InternetAddress toAddress = new InternetAddress("jss.ualberta@gmail.com");
+            InternetAddress toAddress = new InternetAddress(to);
             message.addRecipient(Message.RecipientType.TO, toAddress);
             message.setSubject(subject);
             message.setText(body);

@@ -13,6 +13,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
+/*
+ * GUIObjects helps refactor code that is present in Admin, Author, and Reviewer classes.
+ */
 public class GUIObjects {
 	
 	/*
