@@ -908,10 +908,11 @@ public class Admin extends JFrame implements Constants {
 					for (int i = 0; i < newSubmissions.length; i++) {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
-					
-					String subject = "Paper Approved";
-					String body = "To Whom It May Concern,\n\nA paper you have submitted has been approved to be considered for the journal.\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					 
+					String to = emailName(paperOfInterest.userEmail);
+					String subject = "Journal Submission System - Paper Approved";
+					String body = "Dear " + to + ",\n\nA new paper you have submitted has been approved to be considered for the journal.\n\n"
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
 					
@@ -998,11 +999,13 @@ public class Admin extends JFrame implements Constants {
 						newSubmissionModel.addElement(newSubmissions[i]);
 					}
 					
-					String subject = "Paper Rejected";
-					String body = "To Whom It May Concern,\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					String to = emailName(paperOfInterest.userEmail);
+					String subject = "Journal Submission System - Paper Rejected";
+					String body = "Dear " + to + ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
+					
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1075,11 +1078,12 @@ public class Admin extends JFrame implements Constants {
 
 					approveApplicant(applicantID);
 					
-					String subject = "Reviewer Application Approved";
-					String body = "To Whom It May Concern,\n\nWe are happy to inform you that your application"
+					String to = emailName(applicantEmail);
+					String subject = "Journal Submission System - Reviewer Application Approved";
+					String body = "Dear " + to + ",\n\nWe are happy to inform you that your application"
 							+ " to become a University of Alberta reviewer has been accepted!\n\n"
 							+ "You may now login with your submitted email and password.\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(applicantEmail, subject, body);
 					// update applicants list
@@ -1127,10 +1131,11 @@ public class Admin extends JFrame implements Constants {
 					
 					rejectApplicant(applicantID);
 					
-					String subject = "Reviewer Application Rejected";
-					String body = "To Whom It May Concern,\n\nWe are sorry to inform you that your application"
+					String to = emailName(applicantEmail);
+					String subject = "Journal Submission System - Reviewer Application Rejected";
+					String body = "Dear " + to + ",\n\nWe are sorry to inform you that your application"
 							+ " to become a University of Alberta reviewer has been rejected.\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(applicantEmail, subject, body);
 					// update applicants list
@@ -1366,13 +1371,14 @@ public class Admin extends JFrame implements Constants {
 
 						// send SQL update
 						assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
-
-						String subject = "New Paper To Review";
-						String body = "To Whom It May Concern,\n\nThere is a new paper for you to review!\n\n"
-								+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+						
+						String subject = "Journal Submission System - New Paper To Review";
 						
 						for (int i = 0; i < reviewerIndices.length; i++) {
 							
+							String to = emailName(selectedReviewers[i].username);
+							String body = "Dear " + to + ",\n\nThere is a new paper for you to review!\n\n"
+									+ "Sincerely,\n\nThe University of Alberta";
 							sendEmail(selectedReviewers[i].username, subject, body);	
 						}
 						
@@ -1531,10 +1537,10 @@ public class Admin extends JFrame implements Constants {
 						// Updates submission stage in database
 						approveFeedback(paperOfInterest.submissionID);
 
-
-						String subject = "Feedback Available";
-						String body = "To Whom It May Concern,\n\nThere is a feedback for a paper you submitted!\n\n"
-								+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+						String to = emailName(paperOfInterest.userEmail);
+						String subject = "Journal Submission System - Feedback Available";
+						String body = "Dear " + to + ",\n\nThere is a feedback for a paper you submitted!\n\n"
+								+ "Sincerely,\n\nThe University of Alberta";
 						
 						sendEmail(paperOfInterest.userEmail, subject, body);
 						JOptionPane.showMessageDialog(null, "Feedback approved!\n Available for author's viewing.",
@@ -1685,11 +1691,13 @@ public class Admin extends JFrame implements Constants {
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
 					
-					String subject = "Final Paper Approved";
-					String body = "To Whom It May Concern,\n\nA paper you have submitted has been approved to be published in the journal!\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					String to = emailName(paperOfInterest.userEmail);
+					String subject = "Journal Submission System - Final Paper Approved";
+					String body = "Dear " + to + ",\n\nA paper you have submitted has been approved to be published in the journal!\n\n"
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
+					
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1737,11 +1745,13 @@ public class Admin extends JFrame implements Constants {
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
 					
-					String subject = "Final Paper Rejected";
-					String body = "To Whom It May Concern,\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					String to = emailName(paperOfInterest.userEmail);
+					String subject = "Journal Submission System - Final Paper Rejected";
+					String body = "Dear " + to + ",\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
+					
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1798,11 +1808,14 @@ public class Admin extends JFrame implements Constants {
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
 					
-					String subject = "Deadline Extended";
-					String body = "To Whom It May Concern,\n\nA paper you submitted has had its deadline extended one month.\n\n"
-							+ "Sincerely,\n\nUniversity of Alberta Journal Submission System";
+					
+					String to = emailName(paperOfInterest.userEmail);
+					String subject = "Journal Submission System - Deadline Extended";
+					String body = "Dear " + to + ",\n\nA paper you submitted has had its deadline extended one month.\n\n"
+							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
+					
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -2142,5 +2155,26 @@ public class Admin extends JFrame implements Constants {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/*
+	 * emailName returns a formatted string of the user's name before the @ symbol of their email address
+	 * 
+	 * @param recepient The recepient's email address
+	 * @return formattedUser The string of the user's nicely formatted name
+	 */
+	private String emailName(String recepient) {
+		
+		String removeProvider = recepient.split("\\@")[0];
+		String[] nameArray = removeProvider.split("\\.");
+		StringBuilder formattedUser = new StringBuilder("");
+		for (int i = 0; i < nameArray.length; i++) {
+			formattedUser.append(String.valueOf(nameArray[i].charAt(0)).toUpperCase() + nameArray[i].substring(1));
+			if (i < nameArray.length - 1) {
+				formattedUser.append(" ");
+			}
+		}
+		
+		return formattedUser.toString();
 	}
 }
