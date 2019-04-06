@@ -177,17 +177,6 @@ public class Admin extends JFrame implements Constants {
 		JPanel menuPanel = new GUIObjects().menuPanel();
 		contentPane.add(menuPanel);
 		
-		JLabel menuLabel = new GUIObjects().menuLabel("MENU", 30);
-		menuPanel.add(menuLabel);
-
-		JPanel menuSeparator = new JPanel();
-		menuSeparator.setBounds(10, 70, 160, 2);
-		menuPanel.add(menuSeparator);
-		
-		JLabel ualogo = new GUIObjects().icon("/ualogo.jpg");
-		ualogo.setBounds(40, 420, 100, 100);
-		menuPanel.add(ualogo);
-		
 		JPanel contentPanel = new GUIObjects().mainContentPanel();
 		contentPane.add(contentPanel);
 
