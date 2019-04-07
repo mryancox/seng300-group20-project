@@ -18,6 +18,7 @@ import javax.swing.JPasswordField;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.awt.Font;
@@ -35,6 +36,7 @@ public class Login {
 	private JFrame login;
 	private JTextField username;
 	private JPasswordField password;
+	private Connection conn;
 
 	/**
 	 * Launch the application.
@@ -70,15 +72,19 @@ public class Login {
 		login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		login.setLocationRelativeTo(null);
 		login.getContentPane().setLayout(null);
-		
-		Signup signup = new Signup();
+
+		if(conn==null)
+			conn = SQLConnection.getConnection();
+
+		Signup signup = new Signup(conn);
 
 		/*
-		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in the
-		 * frame were created with certain boundaries and colours to create a cohesive feel.
-		 * Buttons are implemented with jpanels instead of jbuttons simply because they did
-		 * not appear properly with the colour scheme of the University of Alberta on Linux
-		 * and MacOS. Most of the functionality is near the bottom of this class.
+		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in
+		 * the frame were created with certain boundaries and colours to create a
+		 * cohesive feel. Buttons are implemented with jpanels instead of jbuttons
+		 * simply because they did not appear properly with the colour scheme of the
+		 * University of Alberta on Linux and MacOS. Most of the functionality is near
+		 * the bottom of this class.
 		 */
 		JPanel leftPanel = new JPanel();
 		leftPanel.setBackground(new Color(0, 124, 65));
@@ -155,8 +161,8 @@ public class Login {
 		rightPanel.add(ualbertaLogo);
 
 		JLabel githubIcon = new JLabel("");
-		
-		//opens github repo when github icon is clicked
+
+		// opens github repo when github icon is clicked
 		githubIcon.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
@@ -196,12 +202,14 @@ public class Login {
 				loginButton.setBackground(new Color(255, 219, 5));
 				loginLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				loginButton.setBackground(new Color(0, 124, 65));
 				loginLabel.setForeground(Color.WHITE);
 			}
+
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -209,46 +217,44 @@ public class Login {
 				String user = username.getText();
 				String pw = String.valueOf(password.getPassword());
 
-				//retrieves login details (checkLogin returns -1 -1 for nonmatching username + password combo)
-				//loginDetails[0]=usertype [1]=userID [2]=name
-				String[] loginDetails = checkLogin(user,pw);
+				// retrieves login details (checkLogin returns -1 -1 for nonmatching username +
+				// password combo)
+				// loginDetails[0]=usertype [1]=userID [2]=name
+				String[] loginDetails = checkLogin(user, pw);
 
-				
-				if(loginDetails[0].equals("0")) {
+				if (loginDetails[0].equals("0")) {
 					login.dispose();
-	    			Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]));
-	    			admin.setVisible(true);
-	    			admin.setLocationRelativeTo(null);
+					Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
+					admin.setVisible(true);
+					admin.setLocationRelativeTo(null);
 				}
-				if(loginDetails[0].equals("1")) {
+				if (loginDetails[0].equals("1")) {
 					login.dispose();
-	    			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
-	    			author.setVisible(true);
-	    			author.setLocationRelativeTo(null);
-				}
-				else if(loginDetails[0].equals("2")) {
+					Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
+					author.setVisible(true);
+					author.setLocationRelativeTo(null);
+				} else if (loginDetails[0].equals("2")) {
 					login.dispose();
-					Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]));
+					Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
 					reviewer.setVisible(true);
 					reviewer.setLocationRelativeTo(null);
-				}
-				else if(loginDetails[0].equals("3")) {
+				} else if (loginDetails[0].equals("3")) {
 					password.setText("");
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
-					JOptionPane.showMessageDialog(null, "Your account is currently in review by the administrator", "Waiting for Approval", JOptionPane.PLAIN_MESSAGE, null);
-				}
-				else {
+					JOptionPane.showMessageDialog(null, "Your account is currently in review by the administrator",
+							"Waiting for Approval", JOptionPane.PLAIN_MESSAGE, null);
+				} else {
 					password.setText("");
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
-					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
+					JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error",
+							JOptionPane.PLAIN_MESSAGE, null);
 				}
-
 
 			}
 		});
@@ -256,20 +262,22 @@ public class Login {
 		loginButton.setBounds(163, 360, 119, 30);
 		rightPanel.add(loginButton);
 		loginButton.setLayout(null);
-		
+
 		JLabel signupLabel = new JLabel("Sign Up");
 		signupLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				signupLabel.setForeground(new Color(0, 124, 65));
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 				signupLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				signup.setVisible(true);
 				signup.setLocationRelativeTo(null);
 			}
@@ -282,64 +290,65 @@ public class Login {
 	}
 
 	/**
-	 * Queries mySQL database for matching username and
-	 * password and returns account type as an int
+	 * Queries mySQL database for matching username and password and returns account
+	 * type as an int
 	 *
 	 * @param username
 	 * @param password
 	 * @return account type as an int (0=admin, 1=author, 2=reviewer)
 	 */
 	private String[] checkLogin(String username, String password) {
-		//ps is the statement of the sql query
-		PreparedStatement ps;
+		// ps is the statement of the sql query
+		PreparedStatement ps = null;
 
-		//rs is the result of the query
+		// rs is the result of the query
 		ResultSet rs;
 
-		//Array of details to be returned
-		String [] loginInfo = new String[3];
+		// Array of details to be returned
+		String[] loginInfo = new String[3];
 
-		//initializing the array so there are no nulls
-		loginInfo[0]="-1";
-		loginInfo[1]="-1";
-		loginInfo[2]="";
-		
-		//the string to be used to query. ? indicates a parameter
-		//this query finds entries that match the input username and password
-		//the BINARY operator forces byte by byte comparison (case sensitivity)
-		String query = "SELECT * FROM users WHERE username =? AND password = BINARY ?";
+		// initializing the array so there are no nulls
+		loginInfo[0] = "-1";
+		loginInfo[1] = "-1";
+		loginInfo[2] = "";
+
+		// the string to be used to query. ? indicates a parameter
+		// this query finds entries that match the input username and password
+		// the BINARY operator forces byte by byte comparison (case sensitivity)
+		String query = "SELECT * FROM users WHERE username =? COLLATE NOCASE AND password = ?";
 
 		try {
-			ps=SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 
-			//set first parameter to be username
+			// set first parameter to be username
 			ps.setString(1, username);
-			//set second parameter to password
+			// set second parameter to password
 			ps.setString(2, password);
 
-			//executes the query and receives whatever result is returned
-			rs=ps.executeQuery();
+			// executes the query and receives whatever result is returned
+			rs = ps.executeQuery();
 
-			//checks if any entries resulted from query
-			//since there exists a matching username and password entry
-			//it sets checkUser to 1, indicating a match
-			if(rs.next()) {
-				//loginExists gets the usertype field from the query
-				//0=admin, 1=author, 2=reviewer
-				if(Integer.toString(rs.getInt("usertype"))!=null)
-					loginInfo[0]=Integer.toString(rs.getInt("usertype"));
-				loginInfo[1]=Integer.toString(rs.getInt("userID"));
-				loginInfo[2]=rs.getString("username");
+			// checks if any entries resulted from query
+			// since there exists a matching username and password entry
+			// it sets checkUser to 1, indicating a match
+			if (rs.next()) {
+				// loginExists gets the usertype field from the query
+				// 0=admin, 1=author, 2=reviewer
+				if (Integer.toString(rs.getInt("usertype")) != null)
+					loginInfo[0] = Integer.toString(rs.getInt("usertype"));
+				loginInfo[1] = Integer.toString(rs.getInt("userID"));
+				loginInfo[2] = rs.getString("username");
 			}
-		}catch(Exception e) {System.out.println(e);}
-		
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 		return loginInfo;
 	}
 
-	
 	/**
-	 * Logic for pressing enter key on login screen
-	 * Exhibits the same behavior as clicking login button
+	 * Logic for pressing enter key on login screen Exhibits the same behavior as
+	 * clicking login button
+	 * 
 	 * @param arg0
 	 */
 	@SuppressWarnings("static-access")
@@ -350,45 +359,43 @@ public class Login {
 			String user = username.getText();
 			String pw = String.valueOf(password.getPassword());
 
-			
-			//loginDetails[0]=usertype [1]=userID [2]=name
-			String[] loginDetails = checkLogin(user,pw);
-			
-			if(loginDetails[0].equals("0")) {
+			// loginDetails[0]=usertype [1]=userID [2]=name
+			String[] loginDetails = checkLogin(user, pw);
+
+			if (loginDetails[0].equals("0")) {
 				login.setVisible(false);
-    			Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]));
-    			admin.setVisible(true);
-    			admin.setLocationRelativeTo(null);
-			}
-			else if(loginDetails[0].equals("1")) {
+				Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
+				admin.setVisible(true);
+				admin.setLocationRelativeTo(null);
+			} else if (loginDetails[0].equals("1")) {
 				login.setVisible(false);
-    			Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]));
-    			author.setVisible(true);
-    			author.setLocationRelativeTo(null);
-			}
-			else if(loginDetails[0].equals("2")) {
+				Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
+				author.setVisible(true);
+				author.setLocationRelativeTo(null);
+			} else if (loginDetails[0].equals("2")) {
 				login.setVisible(false);
-				Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]));
+				Reviewer reviewer = new Reviewer(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
 				reviewer.setVisible(true);
 				reviewer.setLocationRelativeTo(null);
-			}
-			else if(loginDetails[0].equals("3")) {
+			} else if (loginDetails[0].equals("3")) {
 				password.setText("");
 				UIManager UI = new UIManager();
 				UI.put("OptionPane.background", Color.WHITE);
 				UI.put("Panel.background", Color.WHITE);
 
-				JOptionPane.showMessageDialog(null, "Your account is currently in review by the administrator", "Waiting for Approval", JOptionPane.PLAIN_MESSAGE, null);
-			}
-			else {
+				JOptionPane.showMessageDialog(null, "Your account is currently in review by the administrator",
+						"Waiting for Approval", JOptionPane.PLAIN_MESSAGE, null);
+			} else {
 				password.setText("");
 				UIManager UI = new UIManager();
 				UI.put("OptionPane.background", Color.WHITE);
 				UI.put("Panel.background", Color.WHITE);
 
-				JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error", JOptionPane.PLAIN_MESSAGE, null);
+				JOptionPane.showMessageDialog(null, "Invalid Username or Password", "Login Error",
+						JOptionPane.PLAIN_MESSAGE, null);
 			}
 
 		}
 	}
+
 }

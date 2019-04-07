@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -87,6 +88,7 @@ public class Admin extends JFrame implements Constants {
 	private int[] fbAreaSelected = new int[0];
 	private int[] selectedApplicant = new int[0];
 	private Map<Integer, ReviewerObject> reviewerIDtoObject = new HashMap<Integer, ReviewerObject>();
+	private Connection conn;
 
 	/**
 	 * Launch the application.
@@ -95,7 +97,7 @@ public class Admin extends JFrame implements Constants {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Admin frame = new Admin("Admin2", 9);
+					Admin frame = new Admin("Admin2", 9, SQLConnection.getConnection());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -112,8 +114,9 @@ public class Admin extends JFrame implements Constants {
 	 * @param ID
 	 *            - user's userID (invisible to user)
 	 */
-	public Admin(String user, int ID) {
+	public Admin(String user, int ID, Connection conn) {
 		this.userID = ID;
+		this.conn = conn;
 
 		// get resultset of new submissions
 		getSubmissions(NEW_SUBMISSION_STAGE);
@@ -133,7 +136,7 @@ public class Admin extends JFrame implements Constants {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		// check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
@@ -176,18 +179,17 @@ public class Admin extends JFrame implements Constants {
 		}
 
 		/*
-		 * A lot of GUI elements follow. The functionality that is associated with all of these
-		 * panels, textareas, etc. are at the bottom of this class.
+		 * A lot of GUI elements follow. The functionality that is associated with all
+		 * of these panels, textareas, etc. are at the bottom of this class.
 		 * 
 		 * Creating the two main GUI panels
 		 */
 		JPanel menuPanel = new GUIObjects().menuPanel();
 		contentPane.add(menuPanel);
-		
+
 		JPanel contentPanel = new GUIObjects().mainContentPanel();
 		contentPane.add(contentPanel);
 
-		
 		/*
 		 * Creating the welcome panel
 		 */
@@ -201,87 +203,87 @@ public class Admin extends JFrame implements Constants {
 		adminIcon.setBounds(184, 212, 346, 200);
 		welcomePanel.add(adminIcon);
 
-		
 		/*
-		 * Creating the submission panel and filling it with its elements using GUIObjects
+		 * Creating the submission panel and filling it with its elements using
+		 * GUIObjects
 		 */
 		JPanel submissionsPanel = new GUIObjects().contentPanel();
 		contentPanel.add(submissionsPanel, "name_35648043125700");
-		
+
 		JLabel submissionsTitle = new GUIObjects().contentTitle("Review Submissions");
 		submissionsPanel.add(submissionsTitle);
-		
+
 		JLabel newHeader = new GUIObjects().contentHeader("New Submissions", 90);
 		submissionsPanel.add(newHeader);
-		
+
 		DefaultListModel<SubmissionObject> newSubmissionModel = new DefaultListModel<>();
 		JList<SubmissionObject> submissionsList = new JList<SubmissionObject>(newSubmissionModel);
 		submissionsList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane submissionsListScrollPane = new JScrollPane(submissionsList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane submissionsListScrollPane = new JScrollPane(submissionsList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		submissionsListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		submissionsListScrollPane.setBounds(24, 115, 650, 110);
 		submissionsPanel.add(submissionsListScrollPane);
-		
+
 		JPanel opennewButton = new GUIObjects().contentButton(555, 235);
 		JLabel opennewLabel = new GUIObjects().contentButtonLabel("Open Paper");
 		opennewButton.add(opennewLabel);
 		submissionsPanel.add(opennewButton);
-		
+
 		JPanel subSeparator = new GUIObjects().separatorPanel(270);
 		submissionsPanel.add(subSeparator);
-		
+
 		JLabel detailsHeader = new GUIObjects().contentHeader("Submission Details", 285);
 		submissionsPanel.add(detailsHeader);
-		
+
 		JLabel detailsSubHeader = new GUIObjects().contentSubHeader("(select a paper above)", 305);
 		submissionsPanel.add(detailsSubHeader);
-		
+
 		JLabel titleLabel = new GUIObjects().contentLabel("Title", 24, 350);
 		submissionsPanel.add(titleLabel);
-		
+
 		JLabel titleSubLabel = new GUIObjects().contentSubLabel(24, 380);
 		submissionsPanel.add(titleSubLabel);
-		
+
 		JLabel authorsLabel = new GUIObjects().contentLabel("Author", 24, 410);
 		submissionsPanel.add(authorsLabel);
-		
+
 		JLabel authorsSubLabel = new GUIObjects().contentSubLabel(24, 440);
 		submissionsPanel.add(authorsSubLabel);
-		
+
 		JLabel subjectLabel = new GUIObjects().contentLabel("Research Subject", 359, 350);
 		submissionsPanel.add(subjectLabel);
-		
+
 		JLabel subjectSubLabel = new GUIObjects().contentSubLabel(359, 380);
 		submissionsPanel.add(subjectSubLabel);
-		
+
 		JLabel preferredLabel = new GUIObjects().contentLabel("Preferred Reviewers", 359, 410);
 		submissionsPanel.add(preferredLabel);
-		
+
 		JLabel preferredSubLabel = new GUIObjects().contentSubLabel(359, 440);
 		submissionsPanel.add(preferredSubLabel);
-		
+
 		JPanel detailsSeparator = new GUIObjects().separatorPanel(470);
 		submissionsPanel.add(detailsSeparator);
-		
+
 		JLabel deadlineHeader = new GUIObjects().contentHeader("Set Deadline", 485);
 		submissionsPanel.add(deadlineHeader);
-		
+
 		JTextArea deadlineTextArea = new GUIObjects().contentTextArea(510);
 		deadlineTextArea.setText("YYYY-MM-DD");
 		deadlineTextArea.getDocument().putProperty("filterNewlines", Boolean.TRUE);
 		submissionsPanel.add(deadlineTextArea);
-		
+
 		JPanel approveButton = new GUIObjects().contentButton(425, 520);
 		JLabel approveLabel = new GUIObjects().contentButtonLabel("Approve");
 		approveButton.add(approveLabel);
 		submissionsPanel.add(approveButton);
-		
+
 		JPanel rejectButton = new GUIObjects().contentButton(555, 520);
 		JLabel rejectLabel = new GUIObjects().contentButtonLabel("Reject");
 		rejectButton.add(rejectLabel);
 		submissionsPanel.add(rejectButton);
-		
-		
+
 		/*
 		 * Creating the verify panel and filling it with its elements using GUIObjects
 		 */
@@ -290,153 +292,155 @@ public class Admin extends JFrame implements Constants {
 
 		JLabel verifyTitle = new GUIObjects().contentTitle("Verify Reviewers");
 		verifyPanel.add(verifyTitle);
-		
+
 		JLabel applicantsHeader = new GUIObjects().contentHeader("Applicants", 90);
 		verifyPanel.add(applicantsHeader);
-		
+
 		DefaultListModel<ReviewerObject> applicantModel = new DefaultListModel<>();
 		JList<ReviewerObject> applicantList = new JList<ReviewerObject>(applicantModel);
 		applicantList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane applicantListScrollPane = new JScrollPane(applicantList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane applicantListScrollPane = new JScrollPane(applicantList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		applicantListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		applicantListScrollPane.setBounds(24, 115, 650, 178);
 		verifyPanel.add(applicantListScrollPane);
-		
+
 		JPanel verifySeparator = new GUIObjects().separatorPanel(305);
 		verifyPanel.add(verifySeparator);
-		
+
 		JLabel appdetailsHeader = new GUIObjects().contentHeader("Applicants Details", 320);
 		verifyPanel.add(appdetailsHeader);
-		
+
 		JLabel appdetailsSubHeader = new GUIObjects().contentSubHeader("(select a new applicant above)", 340);
 		verifyPanel.add(appdetailsSubHeader);
-		
+
 		JLabel occupationLabel = new GUIObjects().contentLabel("Occupation", 24, 385);
 		verifyPanel.add(occupationLabel);
-		
+
 		JLabel occupationSubLabel = new GUIObjects().contentSubLabel(24, 415);
 		verifyPanel.add(occupationSubLabel);
-		
+
 		JLabel organizationLabel = new GUIObjects().contentLabel("Organization", 24, 445);
 		verifyPanel.add(organizationLabel);
-		
+
 		JLabel organizationSubLabel = new GUIObjects().contentSubLabel(24, 475);
 		verifyPanel.add(organizationSubLabel);
-		
+
 		JLabel researchareaLabel = new GUIObjects().contentLabel("Research Area", 359, 385);
 		verifyPanel.add(researchareaLabel);
-		
+
 		JLabel researchareaSubLabel = new GUIObjects().contentSubLabel(359, 415);
 		verifyPanel.add(researchareaSubLabel);
-		
+
 		JPanel approveappButton = new GUIObjects().contentButton(425, 520);
 		JLabel approveappLabel = new GUIObjects().contentButtonLabel("Approve");
 		approveappButton.add(approveappLabel);
 		verifyPanel.add(approveappButton);
-		
+
 		JPanel rejectappButton = new GUIObjects().contentButton(555, 520);
 		JLabel rejectappLabel = new GUIObjects().contentButtonLabel("Reject");
 		rejectappButton.add(rejectappLabel);
 		verifyPanel.add(rejectappButton);
-		
-		
+
 		/*
 		 * Creating the assign panel and filling it with its elements using GUIObjects
 		 */
 		JPanel assignPanel = new GUIObjects().contentPanel();
 		contentPanel.add(assignPanel, "name_100789627501200");
-		
+
 		JLabel assignTitle = new GUIObjects().contentTitle("Assign Reviewers");
 		assignPanel.add(assignTitle);
-		
+
 		JLabel assignpaperHeader = new GUIObjects().contentHeader("Choose Paper To Assign Reviewers To", 90);
 		assignPanel.add(assignpaperHeader);
-		
+
 		DefaultListModel<SubmissionObject> assignpaperModel = new DefaultListModel<SubmissionObject>();
 		JList<SubmissionObject> assignpaperList = new JList<>(assignpaperModel);
 		assignpaperList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane assignpaperListScrollPane = new JScrollPane(assignpaperList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane assignpaperListScrollPane = new JScrollPane(assignpaperList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		assignpaperListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		assignpaperListScrollPane.setBounds(24, 115, 650, 170);
 		assignPanel.add(assignpaperListScrollPane);
 
 		JPanel assignSeparator = new GUIObjects().separatorPanel(305);
 		assignPanel.add(assignSeparator);
-		
+
 		JLabel reviewersHeader = new GUIObjects().contentHeader("Reviewer List", 320);
 		assignPanel.add(reviewersHeader);
-		
+
 		DefaultListModel<ReviewerObject> reviewerModel = new DefaultListModel<ReviewerObject>();
 		JList<ReviewerObject> reviewerList = new JList<>(reviewerModel);
 		reviewerList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane reviewerListScrollPane = new JScrollPane(reviewerList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane reviewerListScrollPane = new JScrollPane(reviewerList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		reviewerListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		reviewerListScrollPane.setBounds(24, 345, 650, 170);
 		assignPanel.add(reviewerListScrollPane);
-		
+
 		JPanel allSortButton = new GUIObjects().contentSortButton(70, 315, 320);
 		JLabel allSortButtonLabel = new GUIObjects().contentSortButtonLabel("All", 70);
 		allSortButton.add(allSortButtonLabel);
 		assignPanel.add(allSortButton);
-		
+
 		JPanel selfSortButton = new GUIObjects().contentSortButton(135, 394, 320);
 		JLabel selfSortButtonLabel = new GUIObjects().contentSortButtonLabel("Self-Nominated", 135);
 		selfSortButton.add(selfSortButtonLabel);
 		assignPanel.add(selfSortButton);
-		
+
 		JPanel authorSortButton = new GUIObjects().contentSortButton(135, 539, 320);
 		JLabel authorSortButtonLabel = new GUIObjects().contentSortButtonLabel("Nominated By Author", 135);
 		authorSortButton.add(authorSortButtonLabel);
 		assignPanel.add(authorSortButton);
-		
+
 		JPanel assignreviewerButton = new GUIObjects().contentButton(555, 520);
 		JLabel assignreviewerLabel = new GUIObjects().contentButtonLabel("Assign");
 		assignreviewerButton.add(assignreviewerLabel);
 		assignPanel.add(assignreviewerButton);
-		
-		
+
 		/*
 		 * Creating the feedback panel and filling it with its elements using GUIObjects
 		 */
 		JPanel feedbackPanel = new GUIObjects().contentPanel();
 		contentPanel.add(feedbackPanel, "name_47558521480000");
-		
+
 		JLabel feedbackTitle = new GUIObjects().contentTitle("Review Feedback");
 		feedbackPanel.add(feedbackTitle);
-		
+
 		JLabel reviewHeader = new GUIObjects().contentHeader("Papers With Feedback Waiting For Review", 90);
 		feedbackPanel.add(reviewHeader);
-		
+
 		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
 		JList<SubmissionObject> feedbackList = new JList<SubmissionObject>(paperModel);
 		feedbackList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane feedbackListScrollPane = new JScrollPane(feedbackList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane feedbackListScrollPane = new JScrollPane(feedbackList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackListScrollPane.setSize(650, 143);
 		feedbackListScrollPane.setLocation(24, 115);
 		feedbackListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		feedbackPanel.add(feedbackListScrollPane);
-		
+
 		JPanel feedbackSeparator = new GUIObjects().separatorPanel(270);
 		feedbackPanel.add(feedbackSeparator);
-		
+
 		JLabel provideHeader = new GUIObjects().contentHeader("Review And Edit Feedback", 285);
 		feedbackPanel.add(provideHeader);
-		
+
 		JLabel provideSubHeader = new GUIObjects().contentSubHeader("(for the paper you have selected above)", 305);
 		feedbackPanel.add(provideSubHeader);
-		
+
 		JTextArea feedbackTextArea = new GUIObjects().contentTextArea(0);
-		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackScrollPane.setBounds(24, 330, 650, 180);
 		feedbackScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		feedbackPanel.add(feedbackScrollPane);
-		
+
 		JPanel releaseButton = new GUIObjects().contentButton(555, 520);
 		JLabel releaseLabel = new GUIObjects().contentButtonLabel("Release Feedback");
 		releaseButton.add(releaseLabel);
 		feedbackPanel.add(releaseButton);
-		
-		
+
 		/*
 		 * Creating the final panel and filling it with its elements using GUIObjects
 		 */
@@ -445,14 +449,15 @@ public class Admin extends JFrame implements Constants {
 
 		JLabel finalTitle = new GUIObjects().contentTitle("Review Final Submissions");
 		finalPanel.add(finalTitle);
-		
+
 		JLabel pastdeadlineHeader = new GUIObjects().contentHeader("Papers Past Deadline", 90);
 		finalPanel.add(pastdeadlineHeader);
-		
+
 		DefaultListModel<SubmissionObject> deadlineModel = new DefaultListModel<SubmissionObject>();
 		JList<SubmissionObject> deadlineList = new JList<SubmissionObject>(deadlineModel);
 		deadlineList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane deadlineListScrollPane = new JScrollPane(deadlineList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane deadlineListScrollPane = new JScrollPane(deadlineList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		deadlineListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		deadlineListScrollPane.setBounds(24, 115, 650, 110);
 		finalPanel.add(deadlineListScrollPane);
@@ -461,15 +466,16 @@ public class Admin extends JFrame implements Constants {
 		JLabel openfinalpaperLabel = new GUIObjects().contentButtonLabel("Open Paper");
 		openfinalpaperButton.add(openfinalpaperLabel);
 		finalPanel.add(openfinalpaperButton);
-		
+
 		JPanel finalSeparator = new GUIObjects().separatorPanel(270);
 		finalPanel.add(finalSeparator);
-		
+
 		JLabel finalcommentsHeader = new GUIObjects().contentHeader("Final Comments", 290);
 		finalPanel.add(finalcommentsHeader);
 
 		JTextArea commentsTextArea = new GUIObjects().contentTextArea(0);
-		JScrollPane commentsTextAreaScrollPane = new JScrollPane(commentsTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane commentsTextAreaScrollPane = new JScrollPane(commentsTextArea,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		commentsTextAreaScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		commentsTextAreaScrollPane.setBounds(24, 325, 650, 180);
 		finalPanel.add(commentsTextAreaScrollPane);
@@ -483,12 +489,12 @@ public class Admin extends JFrame implements Constants {
 		JLabel finalapproveLabel = new GUIObjects().contentButtonLabel("Approve");
 		finalapproveButton.add(finalapproveLabel);
 		finalPanel.add(finalapproveButton);
-		
+
 		JPanel finalrejectButton = new GUIObjects().contentButton(555, 520);
 		JLabel finalrejectLabel = new GUIObjects().contentButtonLabel("Reject");
 		finalrejectButton.add(finalrejectLabel);
 		finalPanel.add(finalrejectButton);
-		
+
 		/*
 		 * Creating menu buttons to switch to different content panels
 		 */
@@ -496,22 +502,22 @@ public class Admin extends JFrame implements Constants {
 		JLabel submissionsMenuLabel = new GUIObjects().menuLabel("Review Submissions", 0);
 		submissionsMenuButton.add(submissionsMenuLabel);
 		menuPanel.add(submissionsMenuButton);
-		
+
 		JPanel verifyMenuButton = new GUIObjects().menuButton(115, 30);
 		JLabel verifyMenuLabel = new GUIObjects().menuLabel("Verify Reviewers", 0);
 		verifyMenuButton.add(verifyMenuLabel);
 		menuPanel.add(verifyMenuButton);
-		
+
 		JPanel assignMenuButton = new GUIObjects().menuButton(150, 30);
 		JLabel assignMenuLabel = new GUIObjects().menuLabel("Assign Reviewers", 0);
 		assignMenuButton.add(assignMenuLabel);
 		menuPanel.add(assignMenuButton);
-		
+
 		JPanel feedbackMenuButton = new GUIObjects().menuButton(185, 30);
 		JLabel feedbackMenuLabel = new GUIObjects().menuLabel("Review Feedback", 0);
 		feedbackMenuButton.add(feedbackMenuLabel);
 		menuPanel.add(feedbackMenuButton);
-		
+
 		JPanel finalMenuButton = new GUIObjects().menuButton(220, 60);
 		JLabel final1MenuLabel = new GUIObjects().menuLabel("Review", 0);
 		JLabel final2MenuLabel = new GUIObjects().menuLabel("Final Submissions", 30);
@@ -520,7 +526,7 @@ public class Admin extends JFrame implements Constants {
 		finalMenuButton.add(final1MenuLabel);
 		finalMenuButton.add(final2MenuLabel);
 		menuPanel.add(finalMenuButton);
-		
+
 		JPanel logoutMenuButton = new GUIObjects().menuButton(380, 30);
 		JLabel logoutMenuLabel = new GUIObjects().menuLabel("Logout", 0);
 		logoutMenuButton.add(logoutMenuLabel);
@@ -559,7 +565,8 @@ public class Admin extends JFrame implements Constants {
 				newSubmissions = populateSubmissions(newSubmissions);
 				newSubmissionModel.clear();
 				for (int i = 0; i < newSubmissions.length; i++) {
-					newSubmissionModel.addElement(newSubmissions[i]);
+					if (newSubmissions[i] != null)
+						newSubmissionModel.addElement(newSubmissions[i]);
 				}
 			}
 		});
@@ -592,7 +599,7 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.revalidate();
 			}
 		});
-		
+
 		// MouseListener for assigning reviewers tab that refreshes submissions in that
 		// stage
 		assignMenuButton.addMouseListener(new MouseAdapter() {
@@ -613,7 +620,6 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				getReviewers();
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
@@ -623,9 +629,11 @@ public class Admin extends JFrame implements Constants {
 				// get submissions with stage = 2
 				getSubmissions(APPROVED_SUBMISSION_STAGE);
 				newSubmissions = populateSubmissions(newSubmissions);
+				getReviewers();
 
 				for (int i = 0; i < newSubmissions.length; i++) {
-					assignpaperModel.addElement(newSubmissions[i]);
+					if (newSubmissions[i] != null)
+						assignpaperModel.addElement(newSubmissions[i]);
 				}
 				for (int i = 0; i < reviewers.length; i++) {
 					if (reviewers[i] != null)
@@ -666,7 +674,8 @@ public class Admin extends JFrame implements Constants {
 				newSubmissions = populateSubmissions(newSubmissions);
 
 				for (int i = 0; i < newSubmissions.length; i++) {
-					paperModel.addElement(newSubmissions[i]);
+					if (newSubmissions[i] != null)
+						paperModel.addElement(newSubmissions[i]);
 				}
 
 				contentPanel.add(feedbackPanel);
@@ -704,24 +713,28 @@ public class Admin extends JFrame implements Constants {
 				newSubmissions = populateSubmissions(newSubmissions);
 
 				deadlineModel.clear();
-				
+
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 				Date today = new Date();
 				try {
 					for (int i = 0; i < newSubmissions.length; i++) {
-						Date deadline;
-						deadline = format.parse(newSubmissions[i].submissionDeadline);
-						if (today.after(deadline))
-							deadlineModel.addElement(newSubmissions[i]);
+						if (newSubmissions[i] != null) {
+							Date deadline;
+							deadline = format.parse(newSubmissions[i].submissionDeadline);
+							if (today.after(deadline))
+								deadlineModel.addElement(newSubmissions[i]);
+						}
 					}
-				}catch (ParseException e) {e.printStackTrace();}
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
 
 				contentPanel.add(finalPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
 			}
 		});
-		
+
 		// Logout button mouselistener
 		logoutMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -741,15 +754,17 @@ public class Admin extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				try {
+					conn.close();
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
 				dispose();
 				Login.main(null);
 			}
 		});
 
-		
-		
-
-		//populate new applicants list
+		// populate new applicants list
 		for (int i = 0; i < applicants.length; i++) {
 			if (applicants[i] != null)
 				applicantModel.addElement(applicants[i]);
@@ -837,13 +852,13 @@ public class Admin extends JFrame implements Constants {
 
 					// gets specific paper selected as an object for easy retrieval of details
 					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(selectedPaper[0]);
-					
+
 					// final string containing file location
-					String fileLocation = "submissions/"
-							+ paperOfInterest.submissionUserID + "/" + paperOfInterest.filename;
+					String fileLocation = "submissions/" + paperOfInterest.submissionUserID + "/"
+							+ paperOfInterest.filename;
 
 					File paperToOpen = new File(fileLocation);
-					
+
 					try {
 						Desktop.getDesktop().open(paperToOpen);
 					} catch (IOException e) {
@@ -903,7 +918,7 @@ public class Admin extends JFrame implements Constants {
 					// gets index of selected paper in list
 					int paperIndex = selectedPaper[0];
 					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(paperIndex);
-					
+
 					// get selected paper's submissionID
 					int submissionID = newSubmissions[paperIndex].submissionID;
 
@@ -915,16 +930,18 @@ public class Admin extends JFrame implements Constants {
 					newSubmissions = populateSubmissions(newSubmissions);
 					newSubmissionModel.clear();
 					for (int i = 0; i < newSubmissions.length; i++) {
-						newSubmissionModel.addElement(newSubmissions[i]);
+						if (newSubmissions[i] != null)
+							newSubmissionModel.addElement(newSubmissions[i]);
 					}
-					 
+
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Paper Approved";
-					String body = "Dear " + to + ",\n\nA new paper you have submitted has been approved to be considered for the journal.\n\n"
+					String body = "Dear " + to
+							+ ",\n\nA new paper you have submitted has been approved to be considered for the journal.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(paperOfInterest.userEmail, subject, body);
-					
+
 				} else if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -954,7 +971,7 @@ public class Admin extends JFrame implements Constants {
 				String query = "update submission set submissionStage = 2, submissionDeadline = ? where submissionID = ?";
 
 				try {
-					ps = SQLConnection.getConnection().prepareStatement(query);
+					ps = conn.prepareStatement(query);
 					ps.setString(1, submissionDeadline);
 					ps.setInt(2, submissionID);
 
@@ -992,10 +1009,9 @@ public class Admin extends JFrame implements Constants {
 					// get index of selected paper
 					int paperIndex = selectedPaper[0];
 					SubmissionObject paperOfInterest = newSubmissionModel.getElementAt(paperIndex);
-					
+
 					// get selected paper's unique ID
 					int submissionID = newSubmissions[paperIndex].submissionID;
-					
 
 					// set submissionStage to rejected stage
 					setSubmissionStage(submissionID, REJECTED_SUBMISSION_STAGE);
@@ -1005,16 +1021,18 @@ public class Admin extends JFrame implements Constants {
 					newSubmissions = populateSubmissions(newSubmissions);
 					newSubmissionModel.clear();
 					for (int i = 0; i < newSubmissions.length; i++) {
-						newSubmissionModel.addElement(newSubmissions[i]);
+						if (newSubmissions[i] != null)
+							newSubmissionModel.addElement(newSubmissions[i]);
 					}
-					
+
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Paper Rejected";
-					String body = "Dear " + to + ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
+					String body = "Dear " + to
+							+ ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(paperOfInterest.userEmail, subject, body);
-					
+
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1036,12 +1054,12 @@ public class Admin extends JFrame implements Constants {
 
 				if (selectedApplicant.length == 1) {
 					int selected = selectedApplicant[0];
-					
-					//populates detail text labels for selected applicant
+
+					// populates detail text labels for selected applicant
 					occupationSubLabel.setText(applicants[selected].occupation);
 					organizationSubLabel.setText(applicants[selected].organization);
 					researchareaSubLabel.setText(applicants[selected].researchArea);
-					
+
 				} else if (selectedApplicant.length >= 2) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1049,8 +1067,7 @@ public class Admin extends JFrame implements Constants {
 					JOptionPane.showMessageDialog(null, "Please Select Only 1 Applicant",
 							"Too Many Applicants Selected", JOptionPane.PLAIN_MESSAGE, null);
 					applicantList.clearSelection();
-				}
-				else {
+				} else {
 					occupationSubLabel.setText("");
 					organizationSubLabel.setText("");
 					researchareaSubLabel.setText("");
@@ -1086,14 +1103,14 @@ public class Admin extends JFrame implements Constants {
 					String applicantEmail = applicants[selectedApplicantIndex].username;
 
 					approveApplicant(applicantID);
-					
+
 					String to = emailName(applicantEmail);
 					String subject = "Journal Submission System - Reviewer Application Approved";
 					String body = "Dear " + to + ",\n\nWe are happy to inform you that your application"
 							+ " to become a University of Alberta reviewer has been accepted!\n\n"
 							+ "You may now login with your submitted email and password.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(applicantEmail, subject, body);
 					// update applicants list
 					applicantModel.clear();
@@ -1137,15 +1154,15 @@ public class Admin extends JFrame implements Constants {
 					int selectedApplicantIndex = selectedApplicant[0];
 					int applicantID = applicants[selectedApplicantIndex].userID;
 					String applicantEmail = applicants[selectedApplicantIndex].username;
-					
+
 					rejectApplicant(applicantID);
-					
+
 					String to = emailName(applicantEmail);
 					String subject = "Journal Submission System - Reviewer Application Rejected";
 					String body = "Dear " + to + ",\n\nWe are sorry to inform you that your application"
 							+ " to become a University of Alberta reviewer has been rejected.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(applicantEmail, subject, body);
 					// update applicants list
 					applicantModel.clear();
@@ -1164,8 +1181,7 @@ public class Admin extends JFrame implements Constants {
 				}
 			}
 		});
-		
-		
+
 		// assign reviewers paper list logic
 		assignpaperList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
@@ -1240,9 +1256,9 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				if (selected.length > 0) {
-					
+
 					// first clear the list
 					reviewerModel.clear();
 
@@ -1253,10 +1269,12 @@ public class Admin extends JFrame implements Constants {
 					// array of ints for reviewer IDs
 					int[] nominatedIDs = new int[100];
 
-					if (selectedSubmission.nominatedReviewers != null) {
+					System.out.println(selectedSubmission.nominatedReviewerIDs);
+
+					if (selectedSubmission.nominatedReviewerIDs != null) {
 
 						// Split the list of preferred reviewer IDs by comma
-						String[] nominated = selectedSubmission.nominatedReviewers.split("[,]");
+						String[] nominated = selectedSubmission.nominatedReviewerIDs.split("[,]");
 
 						// store those split strings as integers
 						for (int i = 0; i < nominated.length; i++) {
@@ -1266,8 +1284,11 @@ public class Admin extends JFrame implements Constants {
 
 					// Populate the reviewer list by preferred reviewer IDs
 					for (int i = 0; i < nominatedIDs.length; i++) {
-						if (nominatedIDs[i] != 0)
+						if (nominatedIDs[i] != 0) {
+							System.out.println(nominatedIDs[i]);
+						
 							reviewerModel.addElement(reviewerIDtoObject.get(nominatedIDs[i]));
+						}
 					}
 				}
 			}
@@ -1291,7 +1312,7 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				if (selected.length > 0) {
 
 					// first clear the list
@@ -1380,23 +1401,24 @@ public class Admin extends JFrame implements Constants {
 
 						// send SQL update
 						assignReviewers(paperOfInterest.submissionID, reviewerIDs.toString());
-						
+
 						String subject = "Journal Submission System - New Paper To Review";
-						
+
 						for (int i = 0; i < reviewerIndices.length; i++) {
-							
+
 							String to = emailName(selectedReviewers[i].username);
 							String body = "Dear " + to + ",\n\nThere is a new paper for you to review!\n\n"
 									+ "Sincerely,\n\nThe University of Alberta";
-							sendEmail(selectedReviewers[i].username, subject, body);	
+							sendEmail(selectedReviewers[i].username, subject, body);
 						}
-						
+
 						// refresh list of papers that need reviewers assigned
 						assignpaperModel.clear();
 						getSubmissions(APPROVED_SUBMISSION_STAGE);
 						newSubmissions = populateSubmissions(newSubmissions);
 						for (int i = 0; i < newSubmissions.length; i++) {
-							assignpaperModel.addElement(newSubmissions[i]);
+							if (newSubmissions[i] != null)
+								assignpaperModel.addElement(newSubmissions[i]);
 						}
 					}
 				} else if (selected.length == 0) {
@@ -1550,7 +1572,7 @@ public class Admin extends JFrame implements Constants {
 						String subject = "Journal Submission System - Feedback Available";
 						String body = "Dear " + to + ",\n\nThere is a feedback for a paper you submitted!\n\n"
 								+ "Sincerely,\n\nThe University of Alberta";
-						
+
 						sendEmail(paperOfInterest.userEmail, subject, body);
 						JOptionPane.showMessageDialog(null, "Feedback approved!\n Available for author's viewing.",
 								"Feedback Approved", JOptionPane.PLAIN_MESSAGE, null);
@@ -1561,7 +1583,8 @@ public class Admin extends JFrame implements Constants {
 						newSubmissions = populateSubmissions(newSubmissions);
 
 						for (int i = 0; i < newSubmissions.length; i++) {
-							paperModel.addElement(newSubmissions[i]);
+							if (newSubmissions[i] != null)
+								paperModel.addElement(newSubmissions[i]);
 						}
 
 					} else {
@@ -1601,7 +1624,6 @@ public class Admin extends JFrame implements Constants {
 			}
 		});
 
-		
 		// OPEN PAPER BUTTON IN FINAL SUBMISSIONS
 		openfinalpaperButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1621,7 +1643,7 @@ public class Admin extends JFrame implements Constants {
 			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1633,14 +1655,12 @@ public class Admin extends JFrame implements Constants {
 					// gets specific paper selected as an object for easy retrieval of details
 					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedPaper[0]);
 
-					
-
 					// final string containing file location
-					String fileLocation = "submissions/"
-							+ paperOfInterest.submissionUserID + "/" + paperOfInterest.filename;
+					String fileLocation = "submissions/" + paperOfInterest.submissionUserID + "/"
+							+ paperOfInterest.filename;
 
 					File paperToOpen = new File(fileLocation);
-					
+
 					try {
 						Desktop.getDesktop().open(paperToOpen);
 					} catch (IOException e) {
@@ -1654,7 +1674,6 @@ public class Admin extends JFrame implements Constants {
 			}
 		});
 
-		
 		// APPROVE BUTTON FINAL SUBMISSION
 		finalapproveButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1676,45 +1695,50 @@ public class Admin extends JFrame implements Constants {
 
 				if (selectedPaper.length == 1) {
 					int selectedIndex = selectedPaper[0];
-					
+
 					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedIndex);
-					
+
 					int ID = paperOfInterest.submissionID;
 
-					//Change submission stage to approved
+					// Change submission stage to approved
 					setSubmissionStage(ID, FINAL_APPROVED_STAGE);
 
-					//move submission file to approved submissions folder
-					File paperFile = new File("submissions/"+paperOfInterest.submissionUserID+"/"+paperOfInterest.filename);
+					// move submission file to approved submissions folder
+					File paperFile = new File(
+							"submissions/" + paperOfInterest.submissionUserID + "/" + paperOfInterest.filename);
 					Path source = Paths.get(paperFile.getAbsolutePath());
-					Path dest = Paths.get("submissions/acceptedsubmissions/"+paperOfInterest.submissionUserID+paperOfInterest.filename);
+					Path dest = Paths.get("submissions/acceptedsubmissions/" + paperOfInterest.submissionUserID
+							+ paperOfInterest.filename);
 					try {
 						Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-					} catch (IOException e) {}
-					
-					
+					} catch (IOException e) {
+					}
+
 					// refresh final submissions list
 					getSubmissions(RESUBMIT_STAGE);
 					newSubmissions = populateSubmissions(newSubmissions);
 
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
-					
+
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Final Paper Approved";
-					String body = "Dear " + to + ",\n\nA paper you have submitted has been approved to be published in the journal!\n\n"
+					String body = "Dear " + to
+							+ ",\n\nA paper you have submitted has been approved to be published in the journal!\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(paperOfInterest.userEmail, subject, body);
-					
+
 					deadlineModel.clear();
-					
+
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
-							deadline = format.parse(newSubmissions[i].submissionDeadline);
-							if (today.after(deadline))
-								deadlineModel.addElement(newSubmissions[i]);
+							if (newSubmissions[i] != null) {
+								deadline = format.parse(newSubmissions[i].submissionDeadline);
+								if (today.after(deadline))
+									deadlineModel.addElement(newSubmissions[i]);
+							}
 						}
 					} catch (ParseException e) {
 						e.printStackTrace();
@@ -1746,7 +1770,7 @@ public class Admin extends JFrame implements Constants {
 					int selectedIndex = selectedPaper[0];
 					int ID = deadlineModel.getElementAt(selectedIndex).submissionID;
 					SubmissionObject paperOfInterest = deadlineModel.getElementAt(selectedIndex);
-					
+
 					setSubmissionStage(ID, REJECTED_SUBMISSION_STAGE);
 
 					// refresh final submissions list
@@ -1755,22 +1779,24 @@ public class Admin extends JFrame implements Constants {
 
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
-					
+
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Final Paper Rejected";
 					String body = "Dear " + to + ",\n\nUnfortunately a paper you have submitted has been rejected.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(paperOfInterest.userEmail, subject, body);
-					
+
 					deadlineModel.clear();
-					
+
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
-							deadline = format.parse(newSubmissions[i].submissionDeadline);
-							if (today.after(deadline))
-								deadlineModel.addElement(newSubmissions[i]);
+							if (newSubmissions[i] != null) {
+								deadline = format.parse(newSubmissions[i].submissionDeadline);
+								if (today.after(deadline))
+									deadlineModel.addElement(newSubmissions[i]);
+							}
 						}
 					} catch (ParseException e) {
 						e.printStackTrace();
@@ -1799,7 +1825,7 @@ public class Admin extends JFrame implements Constants {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				if (selectedPaper.length == 1) {
 					// add 1 month to deadline
 					int selectedIndex = selectedPaper[0];
@@ -1808,7 +1834,7 @@ public class Admin extends JFrame implements Constants {
 
 					String dl = deadlineModel.getElementAt(selectedIndex).submissionDeadline;
 					String[] oldDl = dl.split("[-]");
-					LocalDate oldDeadline = LocalDate.of(Integer.parseInt(oldDl[0]), Integer.parseInt(oldDl[1])+1,
+					LocalDate oldDeadline = LocalDate.of(Integer.parseInt(oldDl[0]), Integer.parseInt(oldDl[1]) + 1,
 							Integer.parseInt(oldDl[2]));
 					oldDeadline.plusMonths(1);
 
@@ -1820,29 +1846,31 @@ public class Admin extends JFrame implements Constants {
 
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 					Date today = new Date();
-					
-					
+
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Deadline Extended";
-					String body = "Dear " + to + ",\n\nA paper you submitted has had its deadline extended one month.\n\n"
+					String body = "Dear " + to
+							+ ",\n\nA paper you submitted has had its deadline extended one month.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
-					
+
 					sendEmail(paperOfInterest.userEmail, subject, body);
-					
+
 					deadlineModel.clear();
-					
+
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
-							deadline = format.parse(newSubmissions[i].submissionDeadline);
-							if (today.after(deadline))
-								deadlineModel.addElement(newSubmissions[i]);
+							if (newSubmissions[i] != null) {
+								deadline = format.parse(newSubmissions[i].submissionDeadline);
+								if (today.after(deadline))
+									deadlineModel.addElement(newSubmissions[i]);
+							}
 						}
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
 		});
 
@@ -1857,8 +1885,7 @@ public class Admin extends JFrame implements Constants {
 		String query = "SELECT * FROM submission WHERE submissionStage  = ?";
 
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
-
+			ps = conn.prepareStatement(query);
 			ps.setInt(1, stage);
 
 			submissionSet = ps.executeQuery();
@@ -1876,61 +1903,52 @@ public class Admin extends JFrame implements Constants {
 	private SubmissionObject[] populateSubmissions(SubmissionObject[] submissions) {
 
 		try {
-			int numOfSubmissions = 0;
-			while (submissionSet.next())
-				numOfSubmissions++;
+
+			submissions = new SubmissionObject[200];
 
 			int i = 0;
-
-			submissions = new SubmissionObject[numOfSubmissions];
-			submissionSet.beforeFirst();
-
 			while (submissionSet.next()) {
 				int submissionID = submissionSet.getInt("submissionID");
-				String submissionName = submissionSet.getString("submissionName");
-				String submissionAuthors = submissionSet.getString("submissionAuthors");
-				String subject = submissionSet.getString("subject");
-				String submissionDate = submissionSet.getString("submissionDate");
-				int submissionStage = submissionSet.getInt("submissionStage");
-				String filename = submissionSet.getString("filename");
-				int submissionUserID = submissionSet.getInt("submissionUserID");
-				String userEmail = submissionSet.getString("userEmail");
-				
-				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
-						submissionDate, submissionStage, filename, submissionUserID, userEmail);
+				if (submissionID > 0) {
+					String submissionName = submissionSet.getString("submissionName");
+					String submissionAuthors = submissionSet.getString("submissionAuthors");
+					String subject = submissionSet.getString("subject");
+					int submissionStage = submissionSet.getInt("submissionStage");
+					String filename = submissionSet.getString("filename");
+					int submissionUserID = submissionSet.getInt("submissionUserID");
+					String userEmail = submissionSet.getString("userEmail");
 
-				String submissionDeadline = submissionSet.getString("submissionDeadline");
-				String reviewerIDs = submissionSet.getString("reviewerIDs");
-				String feedbackIDs = submissionSet.getString("feedbackIDs");
-				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
-				String nominatedReviewers = submissionSet.getString("nominatedReviewers");
-				
-				if (submissionDeadline == null)
-					submissions[i].submissionDeadline = null;
-				else
-					submissions[i].submissionDeadline = submissionDeadline;
+					submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
+							submissionStage, filename, submissionUserID, userEmail);
 
-				if (reviewerIDs == null)
-					submissions[i].reviewerIDs = null;
-				else
-					submissions[i].reviewerIDs = reviewerIDs;
+					String submissionDeadline = submissionSet.getString("submissionDeadline");
+					String reviewerIDs = submissionSet.getString("reviewerIDs");
+					String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
+					String nominatedReviewerIDs = submissionSet.getString("nominatedReviewerIDs");
+					
+					if (submissionDeadline == null)
+						submissions[i].submissionDeadline = null;
+					else
+						submissions[i].submissionDeadline = submissionDeadline;
 
-				if (feedbackIDs == null)
-					submissions[i].feedbackIDs = null;
-				else
-					submissions[i].feedbackIDs = feedbackIDs;
+					if (reviewerIDs == null)
+						submissions[i].reviewerIDs = null;
+					else
+						submissions[i].reviewerIDs = reviewerIDs;
 
-				if (preferredReviewerIDs == null)
-					submissions[i].preferredReviewerIDs = null;
-				else
-					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
-				
-				if (nominatedReviewers == null)
-					submissions[i].nominatedReviewers = null;
-				else
-					submissions[i].nominatedReviewers = nominatedReviewers;
-				
-				submissions[i].setReviewerNames();
+					if (preferredReviewerIDs == null)
+						submissions[i].preferredReviewerIDs = null;
+					else
+						submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+					
+					if(nominatedReviewerIDs == null)
+						submissions[i].nominatedReviewerIDs = null;
+					else
+						submissions[i].nominatedReviewerIDs = nominatedReviewerIDs;
+					
+
+					submissions[i].setReviewerNames();
+				}
 				i++;
 			}
 		} catch (SQLException e) {
@@ -1940,8 +1958,9 @@ public class Admin extends JFrame implements Constants {
 	}
 
 	/**
-	 * Sets the submission stage in the database, stored as an int. 
-	 * The stages are defined in Constants.java
+	 * Sets the submission stage in the database, stored as an int. The stages are
+	 * defined in Constants.java
+	 * 
 	 * @param submissionID
 	 * @param stage
 	 */
@@ -1950,7 +1969,7 @@ public class Admin extends JFrame implements Constants {
 
 		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setInt(1, stage);
 			ps.setInt(2, submissionID);
 
@@ -1970,20 +1989,21 @@ public class Admin extends JFrame implements Constants {
 		reviewers = new ReviewerObject[50];
 		String query = "SELECT * FROM users WHERE userType = 2";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 
 			reviewerSet = ps.executeQuery();
 			int count = 0;
 			while (reviewerSet.next()) {
 				int userID = reviewerSet.getInt("userID");
-				String username = reviewerSet.getString("username");
-				String name = String.valueOf(username.charAt(0)).toUpperCase() + username.substring(1).split("\\@")[0];
-				String email = reviewerSet.getString("email");
-				int userType = 2;
+				if (userID > 0) {
+					String username = reviewerSet.getString("username");
+					String name = String.valueOf(username.charAt(0)).toUpperCase()
+							+ username.substring(1).split("\\@")[0];
+					int userType = 2;
 
-				reviewers[count] = new ReviewerObject(userID, username, name, email, userType);
-				reviewerIDtoObject.put(userID, reviewers[count]);
-				
+					reviewers[count] = new ReviewerObject(userID, username, name, userType);
+					reviewerIDtoObject.put(userID, reviewers[count]);
+				}
 				count++;
 
 			}
@@ -2002,7 +2022,7 @@ public class Admin extends JFrame implements Constants {
 		applicants = new ReviewerObject[50];
 		String query = "SELECT * FROM users WHERE userType = 3";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 
 			applicantSet = ps.executeQuery();
 			int count = 0;
@@ -2010,10 +2030,9 @@ public class Admin extends JFrame implements Constants {
 				int userID = applicantSet.getInt("userID");
 				String username = applicantSet.getString("username");
 				String name = String.valueOf(username.charAt(0)).toUpperCase() + username.substring(1).split("\\@")[0];
-				String email = applicantSet.getString("email");
 				int userType = 3;
 
-				applicants[count] = new ReviewerObject(userID, username, name, email, userType);
+				applicants[count] = new ReviewerObject(userID, username, name, userType);
 
 				applicants[count].occupation = applicantSet.getString("occupation");
 				applicants[count].organization = applicantSet.getString("organization");
@@ -2029,6 +2048,7 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Assigns reviewers by their userID to a submission
+	 * 
 	 * @param submissionID
 	 * @param reviewerIDs
 	 */
@@ -2037,7 +2057,7 @@ public class Admin extends JFrame implements Constants {
 
 		String query = "UPDATE submission SET reviewerIDs = ? , submissionStage = ? WHERE submissionID = ?";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setString(1, reviewerIDs);
 			ps.setInt(2, FEEDBACK_GATHERING_STAGE);
 			ps.setInt(3, submissionID);
@@ -2051,6 +2071,7 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Approves feedback on a submission, causing it to be released to the author
+	 * 
 	 * @param submissionID
 	 */
 	private void approveFeedback(int submissionID) {
@@ -2058,7 +2079,7 @@ public class Admin extends JFrame implements Constants {
 
 		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setInt(1, RESUBMIT_STAGE);
 			ps.setInt(2, submissionID);
 
@@ -2070,6 +2091,7 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Approves a reviewer who applied
+	 * 
 	 * @param userID
 	 */
 	private void approveApplicant(int userID) {
@@ -2077,7 +2099,7 @@ public class Admin extends JFrame implements Constants {
 
 		String query = "UPDATE users SET usertype = ? WHERE userID = ?";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setInt(1, 2);
 			ps.setInt(2, userID);
 
@@ -2090,6 +2112,7 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Rejects a reviewer who applied
+	 * 
 	 * @param userID
 	 */
 	private void rejectApplicant(int userID) {
@@ -2098,7 +2121,7 @@ public class Admin extends JFrame implements Constants {
 
 		String query = "UPDATE users SET usertype = ? WHERE userID = ?";
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setInt(1, 4);
 			ps.setInt(2, userID);
 
@@ -2108,51 +2131,53 @@ public class Admin extends JFrame implements Constants {
 		}
 
 	}
-	
 
 	/**
 	 * Sends an email to a specified account with a subject and body
-	 * @param to, the address the email is being sent to
-	 * @param subject, the email's subject
-	 * @param body, the email's text contents
+	 * 
+	 * @param to,
+	 *            the address the email is being sent to
+	 * @param subject,
+	 *            the email's subject
+	 * @param body,
+	 *            the email's text contents
 	 */
 	private void sendEmail(String to, String subject, String body) {
-		
+
 		Properties props = System.getProperties();
 		String host = "smtp.gmail.com";
 		String from = "jss.ualberta";
 		String pass = "UAlbertaJSS";
-	    props.put("mail.smtp.starttls.enable", "true");
-	    props.put("mail.smtp.host", host);
-	    props.put("mail.smtp.user", from);
-	    props.put("mail.smtp.password", pass);
-	    props.put("mail.smtp.port", "587");
-	    props.put("mail.smtp.auth", "true");
-		
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", host);
+		props.put("mail.smtp.user", from);
+		props.put("mail.smtp.password", pass);
+		props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.auth", "true");
+
 		Session session = Session.getDefaultInstance(props);
 		MimeMessage message = new MimeMessage(session);
-		
+
 		try {
-            message.setFrom(new InternetAddress(from));
-            InternetAddress toAddress = new InternetAddress(to);
-            message.addRecipient(Message.RecipientType.TO, toAddress);
-            message.setSubject(subject);
-            message.setText(body);
-            Transport transport = session.getTransport("smtp");
-            transport.connect(host, from, pass);
-            transport.sendMessage(message, message.getAllRecipients());
-            transport.close();
-        }
-        catch (AddressException ae) {
-            ae.printStackTrace();
-        }
-        catch (MessagingException me) {
-            me.printStackTrace();
-        }
+			message.setFrom(new InternetAddress(from));
+			InternetAddress toAddress = new InternetAddress(to);
+			message.addRecipient(Message.RecipientType.TO, toAddress);
+			message.setSubject(subject);
+			message.setText(body);
+			Transport transport = session.getTransport("smtp");
+			transport.connect(host, from, pass);
+			transport.sendMessage(message, message.getAllRecipients());
+			transport.close();
+		} catch (AddressException ae) {
+			ae.printStackTrace();
+		} catch (MessagingException me) {
+			me.printStackTrace();
+		}
 	}
-	
+
 	/**
 	 * Set a new deadline for submission
+	 * 
 	 * @param submissionID
 	 * @param newDeadline
 	 */
@@ -2162,7 +2187,7 @@ public class Admin extends JFrame implements Constants {
 		String query = "UPDATE submission SET submissionDeadline = ? WHERE submissionID = ?";
 
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setString(1, newDeadline);
 			ps.setInt(2, submissionID);
 
@@ -2171,15 +2196,17 @@ public class Admin extends JFrame implements Constants {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/*
-	 * emailName returns a formatted string of the user's name before the @ symbol of their email address
+	 * emailName returns a formatted string of the user's name before the @ symbol
+	 * of their email address
 	 * 
 	 * @param recepient The recepient's email address
+	 * 
 	 * @return formattedUser The string of the user's nicely formatted name
 	 */
 	private String emailName(String recepient) {
-		
+
 		String removeProvider = recepient.split("\\@")[0];
 		String[] nameArray = removeProvider.split("\\.");
 		StringBuilder formattedUser = new StringBuilder("");
@@ -2189,7 +2216,7 @@ public class Admin extends JFrame implements Constants {
 				formattedUser.append(" ");
 			}
 		}
-		
+
 		return formattedUser.toString();
 	}
 }

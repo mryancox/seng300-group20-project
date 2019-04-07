@@ -22,6 +22,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.awt.CardLayout;
@@ -42,6 +43,7 @@ public class Signup extends JFrame implements Constants {
 
 	private String reviewerUsername;
 	private String reviewerPassword;
+	private Connection conn;
 
 	/**
 	 * Launch the application.
@@ -50,7 +52,7 @@ public class Signup extends JFrame implements Constants {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Signup frame = new Signup();
+					Signup frame = new Signup(SQLConnection.getConnection());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,7 +64,9 @@ public class Signup extends JFrame implements Constants {
 	/**
 	 *
 	 */
-	public Signup() {
+	public Signup(Connection conn) {
+		this.conn = conn;
+
 		getContentPane().setBackground(Color.WHITE);
 
 		setTitle("Signup");
@@ -267,11 +271,10 @@ public class Signup extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				
-				//logic for if reviewer button is selected
+				// logic for if reviewer button is selected
 				if (rdbtnReviewer.isSelected()) {
 
-					//check if either username or password field is empty
+					// check if either username or password field is empty
 					if (newusernameTextField.getText().isEmpty() || newPasswordField.getPassword().length == 0) {
 						UIManager UI = new UIManager();
 						UI.put("OptionPane.background", Color.WHITE);
@@ -281,7 +284,7 @@ public class Signup extends JFrame implements Constants {
 								JOptionPane.PLAIN_MESSAGE, null);
 					} else {
 
-						//check if username matches email regex
+						// check if username matches email regex
 						if (!newusernameTextField.getText()
 								.matches("^([\\w-\\.]+){1,64}@([\\w&&[^_]]+){2,255}.[a-z]{2,}$")) {
 							UIManager UI = new UIManager();
@@ -290,35 +293,34 @@ public class Signup extends JFrame implements Constants {
 
 							JOptionPane.showMessageDialog(null, "Please enter a valid email address", "Invalid Email",
 									JOptionPane.PLAIN_MESSAGE, null);
-						}else {
+						} else {
 							reviewerUsername = newusernameTextField.getText();
-							
-							//check if username is already registered
+
+							// check if username is already registered
 							boolean duplicate = checkDuplicateUsername(reviewerUsername);
-							if(!duplicate) {
+							if (!duplicate) {
 								reviewerPassword = String.valueOf(newPasswordField.getPassword());
 								signupPanel.removeAll();
 								signupPanel.repaint();
 								signupPanel.revalidate();
-		
+
 								signupPanel.add(extrasPanel);
 								signupPanel.repaint();
 								signupPanel.revalidate();
-							}
-							else {
+							} else {
 								UIManager UI = new UIManager();
 								UI.put("OptionPane.background", Color.WHITE);
 								UI.put("Panel.background", Color.WHITE);
-	
-								JOptionPane.showMessageDialog(null, "This username is already registered", "Username invalid",
-										JOptionPane.PLAIN_MESSAGE, null);
+
+								JOptionPane.showMessageDialog(null, "This username is already registered",
+										"Username invalid", JOptionPane.PLAIN_MESSAGE, null);
 							}
 						}
 					}
 
-				} 
-				
-				//logic for if author button is selected
+				}
+
+				// logic for if author button is selected
 				else if (rdbtnAuthor.isSelected()) {
 
 					// first check if any field is empty
@@ -342,31 +344,30 @@ public class Signup extends JFrame implements Constants {
 									JOptionPane.PLAIN_MESSAGE, null);
 						} else {
 							String username = newusernameTextField.getText();
-							
-							//check if username is already registered
+
+							// check if username is already registered
 							boolean duplicate = checkDuplicateUsername(username);
-							if(!duplicate) {
+							if (!duplicate) {
 								String password = String.valueOf(newPasswordField.getPassword());
-	
+
 								// userType for author is 1
 								submitAuthor(username, password, 1);
-	
+
 								UIManager UI = new UIManager();
 								UI.put("OptionPane.background", Color.WHITE);
 								UI.put("Panel.background", Color.WHITE);
-	
+
 								JOptionPane.showMessageDialog(null, "Sign up successful!", "Sign up Success",
 										JOptionPane.PLAIN_MESSAGE, null);
-	
+
 								setVisible(false);
-							}
-							else {
+							} else {
 								UIManager UI = new UIManager();
 								UI.put("OptionPane.background", Color.WHITE);
 								UI.put("Panel.background", Color.WHITE);
-	
-								JOptionPane.showMessageDialog(null, "This username is already registered", "Username invalid",
-										JOptionPane.PLAIN_MESSAGE, null);
+
+								JOptionPane.showMessageDialog(null, "This username is already registered",
+										"Username invalid", JOptionPane.PLAIN_MESSAGE, null);
 							}
 
 						}
@@ -396,7 +397,7 @@ public class Signup extends JFrame implements Constants {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				//check if any of the three fields is empty
+				// check if any of the three fields is empty
 				if (occupationTextField.getText().isEmpty()
 						|| orgTextField.getText().isEmpty() | areaTextField.getText().isEmpty()) {
 					UIManager UI = new UIManager();
@@ -434,6 +435,7 @@ public class Signup extends JFrame implements Constants {
 
 	/**
 	 * Submits a new author entry to database
+	 * 
 	 * @param username
 	 * @param password
 	 * @param userType
@@ -444,7 +446,7 @@ public class Signup extends JFrame implements Constants {
 		String query = "INSERT INTO users (username, password, email, userType) VALUES (?, ?, ?, ?)";
 
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setString(1, username);
 			ps.setString(2, password);
 			ps.setString(3, username);
@@ -458,7 +460,9 @@ public class Signup extends JFrame implements Constants {
 	}
 
 	/**
-	 * Submits a new reviewer entry to database, with usertype = 3 to indicate user in review
+	 * Submits a new reviewer entry to database, with usertype = 3 to indicate user
+	 * in review
+	 * 
 	 * @param username
 	 * @param password
 	 * @param userType
@@ -474,7 +478,7 @@ public class Signup extends JFrame implements Constants {
 
 		try {
 
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			ps.setString(1, username);
 			ps.setString(2, password);
 			ps.setString(3, username);
@@ -490,28 +494,30 @@ public class Signup extends JFrame implements Constants {
 		}
 
 	}
-	
+
 	/**
 	 * Checks if a username already exists in the database
+	 * 
 	 * @param username
 	 * @return
 	 */
 	private boolean checkDuplicateUsername(String username) {
 		PreparedStatement ps;
-		
-		String query = "Select * FROM users WHERE username = ?";
-		
+
+		String query = "Select * FROM users WHERE username = ? COLLATE NOCASE";
+
 		try {
 			ps = SQLConnection.getConnection().prepareStatement(query);
 			ps.setString(1, username);
-			
+
 			ResultSet rs = ps.executeQuery();
-			
-			if(rs.next())
+
+			if (rs.next())
 				return true;
-		}catch(Exception e) {e.printStackTrace();}
-		
-		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return false;
 	}
 

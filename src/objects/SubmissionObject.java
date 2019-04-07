@@ -19,9 +19,6 @@ public class SubmissionObject {
 	//Submission subject/field
 	public String subject;
 
-	//Date submission was submitted
-	public String submissionDate;
-
 	//Deadline for resubmission
 	public String submissionDeadline;
 
@@ -33,9 +30,6 @@ public class SubmissionObject {
 
 	//String representing IDs of assigned reviewers (e.g. 4,5,6)
 	public String reviewerIDs;
-
-	//IDs of feedback for a submission
-	public String feedbackIDs;
 
 	//IDs of preferred reviewers for a submission
 	public String preferredReviewerIDs;
@@ -50,8 +44,10 @@ public class SubmissionObject {
 	//String for possible user specified perferred reviewers
 	public String preferredReviewerNames;
 	
-	public String nominatedReviewers;
-
+	//self-nominated reviewer IDs
+	public String nominatedReviewerIDs;
+	
+	//Convenient string containing user email so an extra sql lookup is not needed
 	public String userEmail;
 	
 	//Map for reviewer assigned papers logic to check if
@@ -84,19 +80,14 @@ public class SubmissionObject {
 	 * @param filename
 	 * @param submissionUserID
 	 */
-	public SubmissionObject(int submissionID, String submissionName, String submissionAuthors, String subject, String submissionDate,
+	public SubmissionObject(int submissionID, String submissionName, String submissionAuthors, String subject,
 			 int submissionStage, String filename,  int submissionUserID, String userEmail) {
 		this.submissionID=submissionID;
 		this.submissionName=submissionName;
 		this.submissionAuthors=submissionAuthors;
 		this.subject=subject;
-		this.submissionDate=submissionDate;
-		//this.submissionDeadline = submissionDeadline;
 		this.submissionStage=submissionStage;
 		this.filename=filename;
-		//this.reviewerIDs=reviewerIDs;
-		//this.feedbackIDs=feedbackIDs;
-		//this.preferredReviewerIDs=preferredReviewerIDs;
 		this.submissionUserID=submissionUserID;
 		this.userEmail = userEmail;
 	}
@@ -150,7 +141,8 @@ public class SubmissionObject {
 					
 					
 					reviewerNames.append(name + ", ");
-
+					
+					ps.close();
 				} catch (Exception e) {
 				}
 			}

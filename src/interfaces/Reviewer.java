@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +39,7 @@ import objects.SubmissionObject;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 
-public class Reviewer extends JFrame implements Constants{
+public class Reviewer extends JFrame implements Constants {
 
 	/**
 	 * Variables to enable database and file I/O functionality
@@ -62,8 +63,9 @@ public class Reviewer extends JFrame implements Constants{
 	protected FeedbackObject[] feedback;
 	protected String[] subjects = new String[100];
 	private int[] selectedPaper = new int[0];
-	private int[] selected = 	new int[0];
-	
+	private int[] selected = new int[0];
+	private Connection conn;
+
 	/**
 	 * Launch the application.
 	 */
@@ -71,7 +73,7 @@ public class Reviewer extends JFrame implements Constants{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Reviewer frame = new Reviewer("Test Reviewer",8);
+					Reviewer frame = new Reviewer("Test Reviewer", 8, SQLConnection.getConnection());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -82,13 +84,17 @@ public class Reviewer extends JFrame implements Constants{
 
 	/**
 	 * Create the frame.
-	 * @param user - User's name (not username)
-	 * @param ID - user's userID (invisible to user)
+	 * 
+	 * @param user
+	 *            - User's name (not username)
+	 * @param ID
+	 *            - user's userID (invisible to user)
 	 */
-	public Reviewer(String user, int ID) {
-		this.userID=ID;
+	public Reviewer(String user, int ID, Connection conn) {
+		this.userID = ID;
+		this.conn = conn;
 		
-		//get list of subjects and submissions, for each subject
+		// get list of subjects and submissions, for each subject
 		getSubjects();
 		getSubmissions();
 		populateSubmissions();
@@ -101,8 +107,8 @@ public class Reviewer extends JFrame implements Constants{
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		//check for and create possible folders for user
+
+		// check for and create possible folders for user
 		String userFolder = "submissions/" + userID;
 		String userDetails = "submissions/" + userID + "/details";
 		String userFeedback = "submissions/" + userID + "/feedback";
@@ -111,8 +117,8 @@ public class Reviewer extends JFrame implements Constants{
 		File authorFolder = new File(userFolder);
 		File detailsFolder = new File(userDetails);
 		File feedbackFolder = new File(userFeedback);
-		File feedbackListFile = new File (userFeedbackList);
-		File submissionListFile = new File (userSubmissionList);
+		File feedbackListFile = new File(userFeedbackList);
+		File submissionListFile = new File(userSubmissionList);
 
 		// Checks if the required folders exist already, if not it creates them
 		if (!authorFolder.exists()) {
@@ -140,18 +146,17 @@ public class Reviewer extends JFrame implements Constants{
 		}
 
 		/*
-		 * A lot of GUI elements follow. The functionality that is associated with all of these
-		 * panels, textareas, etc. are at the bottom of this class.
+		 * A lot of GUI elements follow. The functionality that is associated with all
+		 * of these panels, textareas, etc. are at the bottom of this class.
 		 * 
 		 * Creating the two main GUI panels
 		 */
 		JPanel menuPanel = new GUIObjects().menuPanel();
 		contentPane.add(menuPanel);
-		
+
 		JPanel contentPanel = new GUIObjects().mainContentPanel();
 		contentPane.add(contentPanel);
 
-		
 		/*
 		 * Creating the welcome panel
 		 */
@@ -164,52 +169,52 @@ public class Reviewer extends JFrame implements Constants{
 		JLabel reviewerIcon = new GUIObjects().icon("/reviewer.jpg");
 		reviewerIcon.setBounds(184, 212, 346, 200);
 		welcomePanel.add(reviewerIcon);
-		
-		
+
 		/*
 		 * Creating the browse panel and filling it with its elements using GUIObjects
 		 */
 		JPanel browsePanel = new GUIObjects().contentPanel();
 		contentPanel.add(browsePanel, "name_35648043125700");
-		
+
 		JLabel browseTitle = new GUIObjects().contentTitle("Browse Journals");
 		browsePanel.add(browseTitle);
-		
+
 		JLabel subjectHeader = new GUIObjects().contentHeader("Research Subjects", 90);
 		browsePanel.add(subjectHeader);
-		
+
 		DefaultListModel<String> subjectModel = new DefaultListModel<>();
 		JList<String> subjectList = new JList<String>(subjectModel);
 		subjectList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane subjectListScrollPane = new JScrollPane(subjectList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane subjectListScrollPane = new JScrollPane(subjectList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		subjectListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		subjectListScrollPane.setBounds(24, 115, 650, 143);
 		browsePanel.add(subjectListScrollPane);
-		
+
 		JPanel browseSeparator = new GUIObjects().separatorPanel(270);
 		browsePanel.add(browseSeparator);
-		
+
 		JLabel reviewHeader = new GUIObjects().contentHeader("Choose A Paper You Want To Review", 285);
 		browsePanel.add(reviewHeader);
-		
+
 		JLabel reviewSubHeader = new GUIObjects().contentSubHeader("(select a subject above)", 305);
 		browsePanel.add(reviewSubHeader);
-		
+
 		DefaultListModel<SubmissionObject> nominateModel = new DefaultListModel<>();
 		JList<SubmissionObject> nominateList = new JList<SubmissionObject>(nominateModel);
 		nominateList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane nominateListScrollPane = new JScrollPane(nominateList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane nominateListScrollPane = new JScrollPane(nominateList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		nominateListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		nominateListScrollPane.setBounds(24, 330, 650, 180);
 		nominateList.removeAll();
 		browsePanel.add(nominateListScrollPane);
-		
+
 		JPanel nominateButton = new GUIObjects().contentButton(555, 520);
 		JLabel nominateLabel = new GUIObjects().contentButtonLabel("Nominate");
 		nominateButton.add(nominateLabel);
 		browsePanel.add(nominateButton);
-		
-		
+
 		/*
 		 * Creating the feedback panel and filling it with its elements using GUIObjects
 		 */
@@ -218,34 +223,36 @@ public class Reviewer extends JFrame implements Constants{
 
 		JLabel feedbackTitle = new GUIObjects().contentTitle("Provide Feedback");
 		feedbackPanel.add(feedbackTitle);
-		
+
 		JLabel paperHeader = new GUIObjects().contentHeader("Assigned Papers", 90);
 		feedbackPanel.add(paperHeader);
-		
+
 		DefaultListModel<SubmissionObject> paperModel = new DefaultListModel<>();
 		JList<SubmissionObject> assignedList = new JList<SubmissionObject>(paperModel);
 		assignedList.setFont(new Font("Arial", Font.PLAIN, 12));
-		JScrollPane assignedListScrollPane = new JScrollPane(assignedList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane assignedListScrollPane = new JScrollPane(assignedList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		assignedListScrollPane.setBounds(24, 115, 650, 110);
 		assignedListScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		feedbackPanel.add(assignedListScrollPane);
-		
+
 		JPanel openButton = new GUIObjects().contentButton(555, 235);
 		JLabel openLabel = new GUIObjects().contentButtonLabel("Open Paper");
 		openButton.add(openLabel);
 		feedbackPanel.add(openButton);
-		
+
 		JPanel feedbackSeparator = new GUIObjects().separatorPanel(270);
 		feedbackPanel.add(feedbackSeparator);
-		
+
 		JLabel provideHeader = new GUIObjects().contentHeader("Provide Feedback Below", 285);
 		feedbackPanel.add(provideHeader);
 
 		JLabel provideSubHeader = new GUIObjects().contentSubHeader("(for the paper you have selected above)", 305);
 		feedbackPanel.add(provideSubHeader);
-		
+
 		JTextArea feedbackTextArea = new GUIObjects().contentTextArea(0);
-		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane feedbackScrollPane = new JScrollPane(feedbackTextArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		feedbackScrollPane.setBounds(24, 330, 650, 180);
 		feedbackScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		feedbackPanel.add(feedbackScrollPane);
@@ -255,7 +262,6 @@ public class Reviewer extends JFrame implements Constants{
 		submitButton.add(submitLabel);
 		feedbackPanel.add(submitButton);
 
-		
 		/*
 		 * Creating menu buttons to switch to different content panels
 		 */
@@ -263,7 +269,7 @@ public class Reviewer extends JFrame implements Constants{
 		JLabel browseMenuLabel = new GUIObjects().menuLabel("Browse Journals", 0);
 		browseMenuButton.add(browseMenuLabel);
 		menuPanel.add(browseMenuButton);
-		
+
 		JPanel feedbackMenuButton = new GUIObjects().menuButton(115, 30);
 		JLabel feedbackMenuLabel = new GUIObjects().menuLabel("Provide Feedback", 0);
 		feedbackMenuButton.add(feedbackMenuLabel);
@@ -273,7 +279,7 @@ public class Reviewer extends JFrame implements Constants{
 		JLabel logoutMenuLabel = new GUIObjects().menuLabel("Logout", 0);
 		logoutMenuButton.add(logoutMenuLabel);
 		menuPanel.add(logoutMenuButton);
-		
+
 		browseMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -281,12 +287,14 @@ public class Reviewer extends JFrame implements Constants{
 				browseMenuButton.setBackground(new Color(255, 219, 5));
 				browseMenuLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				browseMenuButton.setBackground(new Color(0, 124, 65));
 				browseMenuLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -294,7 +302,6 @@ public class Reviewer extends JFrame implements Constants{
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
-
 
 				contentPanel.add(browsePanel);
 				contentPanel.repaint();
@@ -309,21 +316,22 @@ public class Reviewer extends JFrame implements Constants{
 				feedbackMenuButton.setBackground(new Color(255, 219, 5));
 				feedbackMenuLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				feedbackMenuButton.setBackground(new Color(0, 124, 65));
 				feedbackMenuLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 				subjectList.clearSelection();
 				nominateList.clearSelection();
 				contentPanel.removeAll();
 				contentPanel.repaint();
 				contentPanel.revalidate();
-
 
 				contentPanel.add(feedbackPanel);
 				contentPanel.repaint();
@@ -338,20 +346,28 @@ public class Reviewer extends JFrame implements Constants{
 				logoutMenuButton.setBackground(new Color(255, 219, 5));
 				logoutMenuLabel.setForeground(Color.BLACK);
 			}
+
 			@Override
 			public void mouseExited(MouseEvent arg0) {
 
 				logoutMenuButton.setBackground(new Color(0, 124, 65));
 				logoutMenuLabel.setForeground(Color.WHITE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				try {
+					conn.close();
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+				
 				dispose();
 				Login.main(null);
 			}
 		});
-		
+
 		// populates list of subjects
 		for (int i = 0; i < subjects.length; i++)
 			if (subjects[i] != null)
@@ -361,21 +377,24 @@ public class Reviewer extends JFrame implements Constants{
 		subjectList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
-				
-				//Ensure mouse click causes an update only once
+
+				// Ensure mouse click causes an update only once
 				if (!subjectList.getValueIsAdjusting()) {
-					
-					//clear elements in list of submissions
+
+					// clear elements in list of submissions
 					nominateModel.removeAllElements();
-					
-					//get indices of selected subject
+
+					// get indices of selected subject
 					int[] selectedSubject = subjectList.getSelectedIndices();
 
-					//Ensure only one subject is selected and display the papers in that subject
+					// Ensure only one subject is selected and display the papers in that subject
 					if (selectedSubject.length == 1) {
+						System.out.println(submissions[0].submissionName);
 						for (int i = 0; i < submissions.length; i++)
-							if (submissions[i].subject.equals(subjects[selectedSubject[0]]))
-								nominateModel.addElement(submissions[i]);
+							if(submissions[i]!=null)
+								if (submissions[i].subject.equals(subjects[selectedSubject[0]]))
+									nominateModel.addElement(submissions[i]);
+								
 
 					} else if (selectedSubject.length >= 2) {
 						UIManager UI = new UIManager();
@@ -393,8 +412,8 @@ public class Reviewer extends JFrame implements Constants{
 		assignedList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
-				
-				//get indices of selected papers
+
+				// get indices of selected papers
 				selectedPaper = assignedList.getSelectedIndices();
 				if (selectedPaper.length == 1) {
 
@@ -413,8 +432,10 @@ public class Reviewer extends JFrame implements Constants{
 
 		// populates list of assigned papers
 		for (int i = 0; i < submissions.length; i++) {
-			if (submissions[i].reviewers.get(this.userID) != null && submissions[i].submissionStage == FEEDBACK_GATHERING_STAGE) {
-				paperModel.addElement(submissions[i]);
+			if(submissions[i]!=null)
+				if (submissions[i].reviewers.get(this.userID) != null
+						&& submissions[i].submissionStage == FEEDBACK_GATHERING_STAGE) {
+					paperModel.addElement(submissions[i]);
 			}
 		}
 
@@ -444,18 +465,16 @@ public class Reviewer extends JFrame implements Constants{
 					JOptionPane.showMessageDialog(null, "No paper selected.", "No paper selected",
 							JOptionPane.PLAIN_MESSAGE, null);
 				} else {
-					
+
 					// gets specific paper selected as an object for easy retrieval of details
 					SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
-					
-	
 
 					// final string containing file location
-					String fileLocation = "submissions/"
-							+ paperOfInterest.submissionUserID + "/" + paperOfInterest.filename;
+					String fileLocation = "submissions/" + paperOfInterest.submissionUserID + "/"
+							+ paperOfInterest.filename;
 
 					File paperToOpen = new File(fileLocation);
-					
+
 					try {
 						Desktop.getDesktop().open(paperToOpen);
 					} catch (IOException e) {
@@ -470,8 +489,8 @@ public class Reviewer extends JFrame implements Constants{
 		nominateList.addListSelectionListener(new ListSelectionListener() {
 			@SuppressWarnings("static-access")
 			public void valueChanged(ListSelectionEvent arg0) {
-				
-				//get indices of selected papers
+
+				// get indices of selected papers
 				selected = nominateList.getSelectedIndices();
 				if (selected.length >= 2) {
 					UIManager UI = new UIManager();
@@ -511,16 +530,16 @@ public class Reviewer extends JFrame implements Constants{
 				} else {
 					int submissionID = nominateModel.getElementAt(selected[0]).submissionID;
 
-					//call method that sends sql update adding userID to nominated reviewers
+					// call method that sends sql update adding userID to nominated reviewers
 					try {
 						nominateReview(submissionID);
-						
+
 						UIManager UI = new UIManager();
 						UI.put("OptionPane.background", Color.WHITE);
 						UI.put("Panel.background", Color.WHITE);
 						JOptionPane.showMessageDialog(null, "Nomination received!.", "Nominated",
 								JOptionPane.PLAIN_MESSAGE, null);
-					}catch(Exception e) {
+					} catch (Exception e) {
 						UIManager UI = new UIManager();
 						UI.put("OptionPane.background", Color.WHITE);
 						UI.put("Panel.background", Color.WHITE);
@@ -558,10 +577,10 @@ public class Reviewer extends JFrame implements Constants{
 							JOptionPane.PLAIN_MESSAGE, null);
 				} else {
 					if (!feedbackTextArea.getText().equals("")) {
-						
+
 						// gets specific paper selected as an object for easy retrieval of details
 						SubmissionObject paperOfInterest = paperModel.getElementAt(selectedPaper[0]);
-						
+
 						// gets name of paper
 						String papername = paperOfInterest.submissionName;
 
@@ -605,20 +624,22 @@ public class Reviewer extends JFrame implements Constants{
 						// example final string format
 						// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
 
-						//Puts an entry into database
+						// Puts an entry into database
 						submitFeedback(paperOfInterest.submissionID, paperOfInterest.submissionName + ".txt");
-						
+
 						JOptionPane.showMessageDialog(null,
 								"Thank you for your feedback!\n It will be reviewed shortly.", "Feedback Accepted",
 								JOptionPane.PLAIN_MESSAGE, null);
-						
-						//refresh list of papers requiring feedback
+
+						// refresh list of papers requiring feedback
 						paperModel.clear();
 						getSubmissions();
 						populateSubmissions();
 						for (int i = 0; i < submissions.length; i++) {
-							if (submissions[i].reviewers.get(userID) != null && submissions[i].submissionStage==FEEDBACK_GATHERING_STAGE) {
-								paperModel.addElement(submissions[i]);
+							if(submissions[i]!=null)
+								if (submissions[i].reviewers.get(userID) != null
+										&& submissions[i].submissionStage == FEEDBACK_GATHERING_STAGE) {
+									paperModel.addElement(submissions[i]);
 							}
 						}
 
@@ -635,32 +656,32 @@ public class Reviewer extends JFrame implements Constants{
 		});
 
 	}
-	
+
 	/**
 	 * Get list of subjects by querying for unique strings in the sql column
 	 */
 	private void getSubjects() {
 		PreparedStatement ps;
 		ResultSet rs;
-		
+
 		String query = "SELECT DISTINCT subject FROM submission";
-		
+
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 			rs = ps.executeQuery();
 			int count = 0;
-			
-			//iterates over returned subjects and populates an array with subjects
-			while(rs.next()) {
+
+			// iterates over returned subjects and populates an array with subjects
+			while (rs.next()) {
 				subjects[count] = rs.getString("subject");
 				count++;
 			}
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
 	 * Gets user's submissions from an sql query and stores in a global ResultSet
 	 */
@@ -670,83 +691,73 @@ public class Reviewer extends JFrame implements Constants{
 		String query = "SELECT * FROM submission";
 
 		try {
-			ps=SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query);
 
-
-			submissionSet=ps.executeQuery();
-		}catch(Exception e) {System.out.println(e); System.out.println("Failure searching for user submissions");}
+			submissionSet = ps.executeQuery();
+		} catch (Exception e) {
+			System.out.println(e);
+			System.out.println("Failure searching for user submissions");
+		}
 	}
-	
-	
+
 	/**
-	 * Populates a global array of SubmissionObjects to store results of initial SQL query
-	 * for user submissions, eliminating the need to constantly query SQL database
+	 * Populates a global array of SubmissionObjects to store results of initial SQL
+	 * query for user submissions, eliminating the need to constantly query SQL
+	 * database
 	 */
 	private void populateSubmissions() {
 
 		try {
-			
-			// Get number of submissions retrieved in order to set size of submissions array
-			int numOfSubmissions = 0;
-			while(submissionSet.next())
-				numOfSubmissions++;
-
 			// i is a counter for iterating over submissions array
-			int i=0;
-			
+			int i = 0;
+
 			// sets size of submissions array
-			submissions = new SubmissionObject[numOfSubmissions];
-			
+			submissions = new SubmissionObject[200];
+
 			// resets position of submissionSet ResultSet
-			submissionSet.beforeFirst();
 
 			// iterates over submission ResultSet and submissions array, populating the
 			// array
-			while(submissionSet.next()) {
+			while (submissionSet.next()) {
 				// get all details of each submission for constructor
 				int submissionID = submissionSet.getInt("submissionID");
-				String submissionName = submissionSet.getString("submissionName");
-				String submissionAuthors = submissionSet.getString("submissionAuthors");
-				String subject = submissionSet.getString("subject");
-				String submissionDate = submissionSet.getString("submissionDate");
-				int submissionStage = submissionSet.getInt("submissionStage");
-				String filename= submissionSet.getString("filename");
-				int submissionUserID = submissionSet.getInt("submissionUserID");
-				String userEmail = submissionSet.getString("userEmail");
-				
-				// SubmissionObject constructor call
-				submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject, submissionDate, submissionStage, filename, submissionUserID, userEmail);
-
-				// get extra details which may be null
-				String submissionDeadline = submissionSet.getString("submissionDeadline");
-				String reviewerIDs = submissionSet.getString("reviewerIDs");
-				String feedbackIDs = submissionSet.getString("feedbackIDs");
-				String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
-
-				if(submissionDeadline==null)
-					submissions[i].submissionDeadline = null;
-				else
-					submissions[i].submissionDeadline = submissionDeadline;
-
-				if(reviewerIDs==null)
-					submissions[i].reviewerIDs = null;
-				else
-					submissions[i].reviewerIDs = reviewerIDs;
-
-				if(feedbackIDs==null)
-					submissions[i].feedbackIDs = null;
-				else
-					submissions[i].feedbackIDs = feedbackIDs;
-
-				if(preferredReviewerIDs==null)
-					submissions[i].preferredReviewerIDs = null;
-				else
-					submissions[i].preferredReviewerIDs = preferredReviewerIDs;
-				
-				// call SubmissionObject method that retrieves reviewer names from reviewer IDs
-				submissions[i].setReviewerNames();
-				
-				//increment counter
+				if(submissionID>0) {
+					String submissionName = submissionSet.getString("submissionName");
+					String submissionAuthors = submissionSet.getString("submissionAuthors");
+					String subject = submissionSet.getString("subject");
+					int submissionStage = submissionSet.getInt("submissionStage");
+					String filename = submissionSet.getString("filename");
+					int submissionUserID = submissionSet.getInt("submissionUserID");
+					String userEmail = submissionSet.getString("userEmail");
+	
+					// SubmissionObject constructor call
+					submissions[i] = new SubmissionObject(submissionID, submissionName, submissionAuthors, subject,
+							submissionStage, filename, submissionUserID, userEmail);
+	
+					// get extra details which may be null
+					String submissionDeadline = submissionSet.getString("submissionDeadline");
+					String reviewerIDs = submissionSet.getString("reviewerIDs");
+					String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
+	
+					if (submissionDeadline == null)
+						submissions[i].submissionDeadline = null;
+					else
+						submissions[i].submissionDeadline = submissionDeadline;
+	
+					if (reviewerIDs == null)
+						submissions[i].reviewerIDs = null;
+					else
+						submissions[i].reviewerIDs = reviewerIDs;
+	
+					if (preferredReviewerIDs == null)
+						submissions[i].preferredReviewerIDs = null;
+					else
+						submissions[i].preferredReviewerIDs = preferredReviewerIDs;
+	
+					// call SubmissionObject method that retrieves reviewer names from reviewer IDs
+					submissions[i].setReviewerNames();
+				}
+				// increment counter
 				i++;
 			}
 		} catch (SQLException e) {
@@ -754,108 +765,95 @@ public class Reviewer extends JFrame implements Constants{
 		}
 
 	}
-	
-	
+
 	/**
-	 * Gets the submission matching subject and submissionName and appends the userID to the 
-	 * nominatedReviewers field
-	 * @param subject - the selected subject
-	 * @param submissionName - the selected submission name
+	 * Gets the submission matching subject and submissionName and appends the
+	 * userID to the nominatedReviewerIDs field
+	 * 
+	 * @param subject
+	 *            - the selected subject
+	 * @param submissionName
+	 *            - the selected submission name
 	 */
 	private void nominateReview(int submissionID) {
 		PreparedStatement ps;
 		ResultSet rs;
-		
-		String query1 = "SELECT * FROM submission WHERE submissionID = ?";
-		String query2 = "UPDATE submission SET nominatedReviewers = ? WHERE submissionID = ?";
-		
-		try {
-			ps = SQLConnection.getConnection().prepareStatement(query1);
-			ps.setInt(1, submissionID);
-			
-			rs = ps.executeQuery();
-			
-			rs.next();
-			
 
-			//check if this user is already nominated
+		String query1 = "SELECT * FROM submission WHERE submissionID = ?";
+		String query2 = "UPDATE submission SET nominatedReviewerIDs = ? WHERE submissionID = ?";
+
+		try {
+			ps = conn.prepareStatement(query1);
+			ps.setInt(1, submissionID);
+
+			rs = ps.executeQuery();
+
+			rs.next();
+
+			// check if this user is already nominated
 			boolean isAlreadyNominated = false;
-			//check if initial value of nominatedReviewers is null
+			// check if initial value of nominatedReviewerIDs is null
 			boolean isNull = false;
-			
-			if(rs.getString("nominatedReviewers")!=null) {
-				String[] nominated = rs.getString("nominatedReviewers").split("[,]");
-				for(int i=0;i<nominated.length;i++) 
-					if(nominated[i].equals(Integer.toString(this.userID)))
-						isAlreadyNominated=true;
+
+			if (rs.getString("nominatedReviewerIDs") != null) {
+				String[] nominated = rs.getString("nominatedReviewerIDs").split("[,]");
+				for (int i = 0; i < nominated.length; i++)
+					if (nominated[i].equals(Integer.toString(this.userID)))
+						isAlreadyNominated = true;
+			} else {
+				isNull = true;
 			}
-			else {
-				isNull=true;
-			}
-			
-			//appends userID if not already nominated
-			if(!isAlreadyNominated) {
+
+			// appends userID if not already nominated
+			if (!isAlreadyNominated) {
 				String allNominated = new String();
-				
-				if(!isNull)
-					allNominated = rs.getString("nominatedReviewers") + "," + this.userID;
+
+				if (!isNull)
+					allNominated = rs.getString("nominatedReviewerIDs") + "," + this.userID;
 				else
 					allNominated = Integer.toString(this.userID);
 
-				ps = SQLConnection.getConnection().prepareStatement(query2);
+				ps = conn.prepareStatement(query2);
 				ps.setString(1, allNominated);
 				ps.setInt(2, submissionID);
-				
-				//To issue INSERT, UPDATE, or DELETE, java requires using executeUpdate()
+
+				// To issue INSERT, UPDATE, or DELETE, java requires using executeUpdate()
 				ps.executeUpdate();
 			}
-			
-			
-		}catch(Exception e) { e.printStackTrace();}	
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	/**
-	 * Submits a feedback item into SQL database if a feedback item for 
-	 * the submission in question does not already exist.
+	 * Submits a feedback item into SQL database if a feedback item for the
+	 * submission in question does not already exist.
 	 * 
-	 * Performs 3 possible queries:
-	 * 1. gets feedback entry to check if feedback already exists for the submission. If already exists, skip 2.
-	 * 2. if no feedback entry already exists, inserts a new entry
-	 * 3. updates submissionStage of the submission 
+	 * Performs 3 possible queries: 1. gets feedback entry to check if feedback
+	 * already exists for the submission. If already exists, skip 2. 2. if no
+	 * feedback entry already exists, inserts a new entry 3. updates submissionStage
+	 * of the submission
 	 * 
 	 * NOTE that currently the feedback list is not used for anything
 	 * 
 	 * @param submissionID
-	 * @param filename - filename of feedback file
-	 */ 
+	 * @param filename
+	 *            - filename of feedback file
+	 */
 	private void submitFeedback(int submissionID, String filename) {
 		PreparedStatement ps;
-		ResultSet rs;
 
-		String query = "SELECT * FROM feedback WHERE submissionID = ?";
-		String query1 = "INSERT INTO feedback (filename, submissionID, userID) values (?, ?, ?)";
 		String query2 = "UPDATE submission SET submissionStage = 4 WHERE submissionID = ?";
-		
+
 		try {
-			ps = SQLConnection.getConnection().prepareStatement(query);
+			ps = conn.prepareStatement(query2);
 			ps.setInt(1, submissionID);
-			rs = ps.executeQuery();
-			
-			if(rs.next()) {
-				ps = SQLConnection.getConnection().prepareStatement(query1);
-				ps.setString(1, filename);
-				ps.setInt(2, submissionID);
-				ps.setInt(3,  userID);
-				
-				ps.executeUpdate();
-			}
-			
-			ps = SQLConnection.getConnection().prepareStatement(query2);
-			ps.setInt(1, submissionID);
-			
+
 			ps.executeUpdate();
-		}catch(Exception e) {e.printStackTrace();}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
-
