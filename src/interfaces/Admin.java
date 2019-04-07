@@ -54,6 +54,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 import javax.mail.*;
 import javax.mail.internet.*;
+import javax.activation.*;
+
 
 public class Admin extends JFrame implements Constants {
 
@@ -2150,6 +2152,7 @@ public class Admin extends JFrame implements Constants {
 		props.put("mail.smtp.password", pass);
 		props.put("mail.smtp.port", "587");
 		props.put("mail.smtp.auth", "true");
+		props.put("mail.mime.charset", "utf-8");
 
 		Session session = Session.getDefaultInstance(props);
 		MimeMessage message = new MimeMessage(session);
