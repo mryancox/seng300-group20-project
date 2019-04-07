@@ -45,7 +45,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 
-import objects.FeedbackObject;
 import objects.GUIObjects;
 import objects.ReviewerObject;
 import objects.SQLConnection;
@@ -79,7 +78,6 @@ public class Admin extends JFrame implements Constants {
 	protected ResultSet applicantSet;
 	protected SubmissionObject[] newSubmissions;
 	protected SubmissionObject[] finalSubmissions;
-	protected FeedbackObject[] feedback;
 	protected ReviewerObject[] reviewers;
 	protected ReviewerObject[] applicants;
 	protected String[] subjects = new String[100];
@@ -1114,11 +1112,14 @@ public class Admin extends JFrame implements Constants {
 					sendEmail(applicantEmail, subject, body);
 					// update applicants list
 					applicantModel.clear();
+					
 					getApplicants();
+					
 					for (int i = 0; i < applicants.length; i++) {
 						if (applicants[i] != null)
 							applicantModel.addElement(applicants[i]);
 					}
+					
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);

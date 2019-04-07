@@ -31,7 +31,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionListener;
 
-import objects.FeedbackObject;
 import objects.GUIObjects;
 import objects.SQLConnection;
 import objects.SubmissionObject;
@@ -60,7 +59,6 @@ public class Reviewer extends JFrame implements Constants {
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
 	protected SubmissionObject[] submissions;
-	protected FeedbackObject[] feedback;
 	protected String[] subjects = new String[100];
 	private int[] selectedPaper = new int[0];
 	private int[] selected = new int[0];

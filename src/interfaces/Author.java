@@ -36,7 +36,6 @@ import javax.swing.JTextArea;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
 
-import objects.FeedbackObject;
 import objects.GUIObjects;
 import objects.ReviewerObject;
 import objects.SQLConnection;
@@ -67,7 +66,6 @@ public class Author extends JFrame implements Constants {
 	protected ResultSet reviewerSet;
 	protected ResultSet submissionSet;
 	protected SubmissionObject[] submissions;
-	protected FeedbackObject[] feedback = new FeedbackObject[50];
 	protected ReviewerObject[] reviewers;
 	protected int numOfFeedback = 0;
 
