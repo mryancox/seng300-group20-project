@@ -1397,15 +1397,18 @@ public class Admin extends JFrame implements Constants {
 
 						String subject = "Journal Submission System - New Paper To Review";
 
-						for (int i = 0; i < reviewerIndices.length; i++) {
+						for (int i = 0; i < selectedReviewers.length; i++) {
 
-							String to = emailName(selectedReviewers[i].username);
-							String body = "Dear " + to + ",\n\nThere is a new paper for you to review!\n\n"
-									+ "Sincerely,\n\nThe University of Alberta";
-							sendEmail(selectedReviewers[i].username, subject, body);
+							if (selectedReviewers[i] != null) {
+								String to = emailName(selectedReviewers[i].username);
+								String body = "Dear " + to + ",\n\nThere is a new paper for you to review!\n\n"
+										+ "Sincerely,\n\nThe University of Alberta";
+								sendEmail(selectedReviewers[i].username, subject, body);
+							}
 						}
 
 						// refresh list of papers that need reviewers assigned
+						
 						assignpaperModel.clear();
 						getSubmissions(APPROVED_SUBMISSION_STAGE);
 						newSubmissions = populateSubmissions(newSubmissions);
