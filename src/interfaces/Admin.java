@@ -703,6 +703,8 @@ public class Admin extends JFrame implements Constants {
 				getSubmissions(RESUBMIT_STAGE);
 				newSubmissions = populateSubmissions(newSubmissions);
 
+				deadlineModel.clear();
+				
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 				Date today = new Date();
 				try {
@@ -1705,6 +1707,8 @@ public class Admin extends JFrame implements Constants {
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
 					
+					deadlineModel.clear();
+					
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1759,6 +1763,8 @@ public class Admin extends JFrame implements Constants {
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
 					
+					deadlineModel.clear();
+					
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
 							Date deadline;
@@ -1802,7 +1808,7 @@ public class Admin extends JFrame implements Constants {
 
 					String dl = deadlineModel.getElementAt(selectedIndex).submissionDeadline;
 					String[] oldDl = dl.split("[-]");
-					LocalDate oldDeadline = LocalDate.of(Integer.parseInt(oldDl[0]), Integer.parseInt(oldDl[1]),
+					LocalDate oldDeadline = LocalDate.of(Integer.parseInt(oldDl[0]), Integer.parseInt(oldDl[1])+1,
 							Integer.parseInt(oldDl[2]));
 					oldDeadline.plusMonths(1);
 
@@ -1822,6 +1828,8 @@ public class Admin extends JFrame implements Constants {
 							+ "Sincerely,\n\nThe University of Alberta";
 					
 					sendEmail(paperOfInterest.userEmail, subject, body);
+					
+					deadlineModel.clear();
 					
 					try {
 						for (int i = 0; i < newSubmissions.length; i++) {
