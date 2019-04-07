@@ -1266,8 +1266,6 @@ public class Admin extends JFrame implements Constants {
 					// array of ints for reviewer IDs
 					int[] nominatedIDs = new int[100];
 
-					System.out.println(selectedSubmission.nominatedReviewerIDs);
-
 					if (selectedSubmission.nominatedReviewerIDs != null) {
 
 						// Split the list of preferred reviewer IDs by comma
@@ -1281,9 +1279,7 @@ public class Admin extends JFrame implements Constants {
 
 					// Populate the reviewer list by preferred reviewer IDs
 					for (int i = 0; i < nominatedIDs.length; i++) {
-						if (nominatedIDs[i] != 0) {
-							System.out.println(nominatedIDs[i]);
-						
+						if (nominatedIDs[i] != 0) {						
 							reviewerModel.addElement(reviewerIDtoObject.get(nominatedIDs[i]));
 						}
 					}

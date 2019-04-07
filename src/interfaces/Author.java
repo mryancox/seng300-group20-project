@@ -921,8 +921,6 @@ public class Author extends JFrame implements Constants {
 					String submissionDeadline = submissionSet.getString("submissionDeadline");
 					String reviewerIDs = submissionSet.getString("reviewerIDs");
 					String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
-
-					System.out.println(submissionDeadline);
 					
 					if (submissionDeadline == null)
 						submissions[i].submissionDeadline = null;

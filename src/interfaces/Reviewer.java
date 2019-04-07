@@ -387,7 +387,6 @@ public class Reviewer extends JFrame implements Constants {
 
 					// Ensure only one subject is selected and display the papers in that subject
 					if (selectedSubject.length == 1) {
-						System.out.println(submissions[0].submissionName);
 						for (int i = 0; i < submissions.length; i++)
 							if(submissions[i]!=null)
 								if (submissions[i].subject.equals(subjects[selectedSubject[0]]))
