@@ -7,7 +7,7 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="images"/>
-	<classpathentry kind="lib" path="D:/Documents/GitHub/seng300-group20-project/src/Referenced Libraries/javax.mail.jar"/>
-	<classpathentry kind="lib" path="D:/Documents/GitHub/seng300-group20-project/src/Referenced Libraries/mysql-connector-java-8.0.15.jar"/>
+	<classpathentry kind="lib" path="src/Referenced Libraries/javax.mail.jar"/>
+	<classpathentry kind="lib" path="src/Referenced Libraries/mysql-connector-java-8.0.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
