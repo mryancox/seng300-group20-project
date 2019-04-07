@@ -1,1 +1,0 @@
-java -jar JournalSubmissionSystem.jar --add-modules java.activation
