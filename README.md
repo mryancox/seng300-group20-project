@@ -1,6 +1,6 @@
 # Group 20's Paper Submission System for a Journal
 
-**Start the program by running the "Login" class or by using the JournalSubmissionSystem jar file.**
+## Start the program by running the "Login" class or by using the JournalSubmissionSystem jar file.
 
 To access each account and view its functionality, enter one the following usernames and passwords,
 
@@ -14,10 +14,11 @@ To access each account and view its functionality, enter one the following usern
     - username: admin
     - password: test
 
-![Login](https://user-images.githubusercontent.com/40903042/54840131-e35cf600-4c91-11e9-8f37-a2da3f71671c.jpg)
+![login](https://user-images.githubusercontent.com/40903042/55686890-09d29080-5924-11e9-90b3-6218c5af35c7.jpg)
 
+---
 
-Submissions go through these stages:
+## Submissions go through these stages:
 
 1. A new submission is made by an author. This is then passed to the admin for approval.
 
@@ -36,7 +37,7 @@ At this point, the admin can approve or deny the final submission.
 
 
 
-New users signup process:
+## New users signup process:
 
 1. If a new user signs up as an author, the account is automatically available for sign in. 
 
@@ -45,11 +46,11 @@ This information is passed to the admin and their account appears in the "approv
 
 3. The admin can choose to approve or reject the new reviewer. If approved, the account is unlocked for login. Otherwise the account is marked as rejected.
 
+---
 
+## Summary of page functions:
 
-Summary of page functions:
-
-Author:
+### Author:
 
 	New Submission:
 		The author must enter information into Paper Title, Authors, and Research Subject. The author must also specify a file location by clicking the box and selecting a file.
@@ -65,7 +66,7 @@ Author:
 		The author may select up to one submission from this page. Feedback will be displayed on the bottom half of the page.
 		
 
-Reviewer:
+### Reviewer:
 
 	Browse Journals:
 		This page allows a reviewer to self-nominate to review a paper. 
@@ -80,7 +81,7 @@ Reviewer:
 		Once a paper is selected and feedback is provided, the reviewer may click the Submit Feedback button and the feedback will be submitted.
 		
 
-Admin:
+### Admin:
 	
 	Review Submissions:
 		This page lists all new submissions and allows the admin to open the paper and approve/reject it.
