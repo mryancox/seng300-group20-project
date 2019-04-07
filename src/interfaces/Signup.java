@@ -418,7 +418,7 @@ public class Signup extends JFrame implements Constants {
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
 
-					JOptionPane.showMessageDialog(null, "Sign up successful!", "Sign up Success",
+					JOptionPane.showMessageDialog(null, "Sign up successful!\nPlease wait for an administrator to verify your credentials before logging in.", "Sign up Success",
 							JOptionPane.PLAIN_MESSAGE, null);
 
 					setVisible(false);

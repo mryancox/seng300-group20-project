@@ -566,6 +566,7 @@ public class Admin extends JFrame implements Constants {
 					if (newSubmissions[i] != null)
 						newSubmissionModel.addElement(newSubmissions[i]);
 				}
+				
 			}
 		});
 
@@ -592,6 +593,13 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
+				applicantModel.clear();
+				getApplicants();
+				// populate new applicants list
+				for (int i = 0; i < applicants.length; i++) {
+					if (applicants[i] != null)
+						applicantModel.addElement(applicants[i]);
+				}
 				contentPanel.add(verifyPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
@@ -761,18 +769,6 @@ public class Admin extends JFrame implements Constants {
 				Login.main(null);
 			}
 		});
-
-		// populate new applicants list
-		for (int i = 0; i < applicants.length; i++) {
-			if (applicants[i] != null)
-				applicantModel.addElement(applicants[i]);
-		}
-
-		// populates new submissions list
-		for (int i = 0; i < newSubmissions.length; i++) {
-			if (newSubmissions[i] != null)
-				newSubmissionModel.addElement(newSubmissions[i]);
-		}
 
 		// NEW SUBMISSIONS LIST LOGIC
 		submissionsList.addListSelectionListener(new ListSelectionListener() {
@@ -1025,8 +1021,7 @@ public class Admin extends JFrame implements Constants {
 
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Paper Rejected";
-					String body = "Dear " + to
-							+ ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
+					String body = "Dear " + to + ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
 
 					sendEmail(paperOfInterest.userEmail, subject, body);
@@ -1102,6 +1097,14 @@ public class Admin extends JFrame implements Constants {
 
 					approveApplicant(applicantID);
 
+					// update applicants list
+					applicantModel.clear();
+					getApplicants();
+					for (int i = 0; i < applicants.length; i++) {
+						if (applicants[i] != null)
+							applicantModel.addElement(applicants[i]);
+					}
+					
 					String to = emailName(applicantEmail);
 					String subject = "Journal Submission System - Reviewer Application Approved";
 					String body = "Dear " + to + ",\n\nWe are happy to inform you that your application"
@@ -1110,21 +1113,12 @@ public class Admin extends JFrame implements Constants {
 							+ "Sincerely,\n\nThe University of Alberta";
 
 					sendEmail(applicantEmail, subject, body);
-					// update applicants list
-					applicantModel.clear();
-					
-					getApplicants();
-					
-					for (int i = 0; i < applicants.length; i++) {
-						if (applicants[i] != null)
-							applicantModel.addElement(applicants[i]);
-					}
 					
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
-					JOptionPane.showMessageDialog(null, "Please select an applicant", "No applicant selected",
+					JOptionPane.showMessageDialog(null, "Please select one applicant", "No or multiple applicants selected",
 							JOptionPane.PLAIN_MESSAGE, null);
 
 				}
@@ -1158,13 +1152,6 @@ public class Admin extends JFrame implements Constants {
 
 					rejectApplicant(applicantID);
 
-					String to = emailName(applicantEmail);
-					String subject = "Journal Submission System - Reviewer Application Rejected";
-					String body = "Dear " + to + ",\n\nWe are sorry to inform you that your application"
-							+ " to become a University of Alberta reviewer has been rejected.\n\n"
-							+ "Sincerely,\n\nThe University of Alberta";
-
-					sendEmail(applicantEmail, subject, body);
 					// update applicants list
 					applicantModel.clear();
 					getApplicants();
@@ -1172,11 +1159,20 @@ public class Admin extends JFrame implements Constants {
 						if (applicants[i] != null)
 							applicantModel.addElement(applicants[i]);
 					}
+					
+					String to = emailName(applicantEmail);
+					String subject = "Journal Submission System - Reviewer Application Rejected";
+					String body = "Dear " + to + ",\n\nWe are sorry to inform you that your application"
+							+ " to become a University of Alberta reviewer has been rejected.\n\n"
+							+ "Sincerely,\n\nThe University of Alberta";
+
+					sendEmail(applicantEmail, subject, body);
+					
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
-					JOptionPane.showMessageDialog(null, "Please select an applicant", "No applicant selected",
+					JOptionPane.showMessageDialog(null, "Please select one applicant", "No or multiple applicants selected",
 							JOptionPane.PLAIN_MESSAGE, null);
 
 				}

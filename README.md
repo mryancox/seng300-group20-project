@@ -5,10 +5,10 @@
 To access each account and view its functionality, enter one the following usernames and passwords,
 
   - Author:
-    - usernames: author, lucas@ualberta.ca, ahmed@ualberta.ca, stone@ualberta.ca
+    - usernames: lucas.delvillar@ucalgary.ca, ahmed.zahran1@ucalgary.ca, shahmir.khan@ucalgary.ca
     - password: test
   - Reviewer:
-    - usernames: reviewer, anas@ualberta.ca, shahmir@ualberta.ca, matthew@ualberta.ca
+    - usernames: anas.alawa@ucalgary.ca, matthew.cox@ucalgary.ca, ren.xu@ucalgary.ca
     - password: test
   - Admin:
     - username: admin
