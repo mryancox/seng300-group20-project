@@ -1,4 +1,4 @@
-package seng300project;
+package interfaces;
 
 import java.awt.EventQueue;
 
@@ -11,6 +11,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+
+import objects.SQLConnection;
+
 import javax.swing.JPasswordField;
 import java.io.IOException;
 import java.net.URI;

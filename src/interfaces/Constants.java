@@ -1,4 +1,4 @@
-package seng300project;
+package interfaces;
 
 public interface Constants {
 	

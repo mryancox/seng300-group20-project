@@ -1,4 +1,4 @@
-package seng300project;
+package objects;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -145,7 +145,11 @@ public class SubmissionObject {
 					rs = ps.executeQuery();
 					rs.next();
 
-					reviewerNames.append(rs.getString("name") + ", ");
+					String username = rs.getString("username");
+					String name = String.valueOf(username.charAt(0)).toUpperCase() + username.substring(1).split("\\@")[0];
+					
+					
+					reviewerNames.append(name + ", ");
 
 				} catch (Exception e) {
 				}

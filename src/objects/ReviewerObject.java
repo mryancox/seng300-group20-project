@@ -1,4 +1,4 @@
-package seng300project;
+package objects;
 
 public class ReviewerObject {
 

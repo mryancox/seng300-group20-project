@@ -1,4 +1,4 @@
-package seng300project;
+package interfaces;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -34,6 +34,13 @@ import java.util.Scanner;
 import javax.swing.JTextArea;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
+
+import objects.FeedbackObject;
+import objects.GUIObjects;
+import objects.ReviewerObject;
+import objects.SQLConnection;
+import objects.SubmissionObject;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 

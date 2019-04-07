@@ -1,4 +1,4 @@
-package seng300project;
+package objects;
 
 import java.awt.CardLayout;
 import java.awt.Color;

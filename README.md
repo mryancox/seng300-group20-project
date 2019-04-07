@@ -1,6 +1,6 @@
 # Group 20's Paper Submission System for a Journal
 
-Start the program by running the "Login" class or by using the JournalSubmissionSystem jar file.
+**Start the program by running the "Login" class or by using the JournalSubmissionSystem jar file.**
 
 To access each account and view its functionality, enter one the following usernames and passwords,
 

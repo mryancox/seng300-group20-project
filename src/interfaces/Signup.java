@@ -1,4 +1,4 @@
-package seng300project;
+package interfaces;
 
 import java.awt.EventQueue;
 import java.awt.Image;
@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import java.awt.Color;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+
+import objects.SQLConnection;
 
 import java.awt.Font;
 import javax.swing.JTextField;
