@@ -592,6 +592,16 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.repaint();
 				contentPanel.revalidate();
 
+				applicantModel.clear();
+				
+				getApplicants();
+				
+				for (int i = 0; i < applicants.length; i++) {
+					if (applicants[i] != null)
+						applicantModel.addElement(applicants[i]);
+				}
+				
+				
 				contentPanel.add(verifyPanel);
 				contentPanel.repaint();
 				contentPanel.revalidate();
