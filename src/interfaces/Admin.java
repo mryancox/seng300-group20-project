@@ -56,6 +56,14 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
 
+/*
+ * Admin contains GUI elements and functionality to implement the requirements described
+ * in our user stories. It handles approving new and final submissions, approving new
+ * reviewers, and management of feedback provided by reviewers.
+ * 
+ * @author L01-Group20
+ */
+@SuppressWarnings("unused")
 public class Admin extends JFrame implements Constants {
 
 	/**
@@ -936,6 +944,11 @@ public class Admin extends JFrame implements Constants {
 
 					sendEmail(paperOfInterest.userEmail, subject, body);
 
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Author notified via email that their paper was approved.", "Submission Approved",
+							JOptionPane.PLAIN_MESSAGE, null);
 				} else if (selectedPaper.length == 0) {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1027,6 +1040,11 @@ public class Admin extends JFrame implements Constants {
 
 					sendEmail(paperOfInterest.userEmail, subject, body);
 
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Author notified that their paper was rejected.", "Submission Rejected",
+							JOptionPane.PLAIN_MESSAGE, null);
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1115,6 +1133,11 @@ public class Admin extends JFrame implements Constants {
 
 					sendEmail(applicantEmail, subject, body);
 
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "New reviewer approved and notified via email.", "Applicant Approved",
+							JOptionPane.PLAIN_MESSAGE, null);
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
@@ -1168,6 +1191,12 @@ public class Admin extends JFrame implements Constants {
 							+ "Sincerely,\n\nThe University of Alberta";
 
 					sendEmail(applicantEmail, subject, body);
+					
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "New reviewer rejected and notified via email.", "Applicant Rejected",
+							JOptionPane.PLAIN_MESSAGE, null);
 
 				} else {
 					UIManager UI = new UIManager();
@@ -1417,6 +1446,12 @@ public class Admin extends JFrame implements Constants {
 							if (newSubmissions[i] != null)
 								assignpaperModel.addElement(newSubmissions[i]);
 						}
+						
+						UIManager UI = new UIManager();
+						UI.put("OptionPane.background", Color.WHITE);
+						UI.put("Panel.background", Color.WHITE);
+						JOptionPane.showMessageDialog(null, "Reviewers assigned and notified via email.", "Reviewers Assigned",
+								JOptionPane.PLAIN_MESSAGE, null);
 					}
 				} else if (selected.length == 0) {
 					UIManager UI = new UIManager();
@@ -1582,6 +1617,12 @@ public class Admin extends JFrame implements Constants {
 							if (newSubmissions[i] != null)
 								paperModel.addElement(newSubmissions[i]);
 						}
+						
+						UIManager UI = new UIManager();
+						UI.put("OptionPane.background", Color.WHITE);
+						UI.put("Panel.background", Color.WHITE);
+						JOptionPane.showMessageDialog(null, "Author notified via email that they have feedback.", "Feedback Released",
+								JOptionPane.PLAIN_MESSAGE, null);
 
 					} else {
 
@@ -1686,6 +1727,7 @@ public class Admin extends JFrame implements Constants {
 				finalapproveLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -1739,6 +1781,12 @@ public class Admin extends JFrame implements Constants {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
+					
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Author notified via email of final approval", "Final Paper Approved",
+							JOptionPane.PLAIN_MESSAGE, null);
 				}
 			}
 		});
@@ -1759,6 +1807,7 @@ public class Admin extends JFrame implements Constants {
 				finalrejectLabel.setForeground(Color.WHITE);
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -1797,6 +1846,12 @@ public class Admin extends JFrame implements Constants {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
+					
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Author notified via email of final rejection", "Final Paper Rejected",
+							JOptionPane.PLAIN_MESSAGE, null);
 				}
 			}
 		});
@@ -1819,6 +1874,7 @@ public class Admin extends JFrame implements Constants {
 				extendLabel.setText("Extend Deadline");
 			}
 
+			@SuppressWarnings("static-access")
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
@@ -1865,6 +1921,12 @@ public class Admin extends JFrame implements Constants {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
+					
+					UIManager UI = new UIManager();
+					UI.put("OptionPane.background", Color.WHITE);
+					UI.put("Panel.background", Color.WHITE);
+					JOptionPane.showMessageDialog(null, "Author notified via email of extension", "Deadline Extended",
+							JOptionPane.PLAIN_MESSAGE, null);
 				}
 
 			}
@@ -1874,7 +1936,8 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Gets submissions with unapproved feedback
-	 * @return
+	 * 
+	 * @return poulateSubmissions A list of submission objects based on toReturn
 	 */
 	protected SubmissionObject[] getFeedback() {
 		SubmissionObject[] toReturn = new SubmissionObject[100];
@@ -1897,6 +1960,8 @@ public class Admin extends JFrame implements Constants {
 
 	/**
 	 * Gets user's submissions from an sql query and stores in a global ResultSet
+	 * 
+	 * @param stage What stage the submission currently is in
 	 */
 	private void getSubmissions(int stage) {
 		PreparedStatement ps;
@@ -1918,6 +1983,9 @@ public class Admin extends JFrame implements Constants {
 	 * Populates a global array of SubmissionObjects to store results of initial SQL
 	 * query for user submissions, eliminating the need to constantly query SQL
 	 * database
+	 * 
+	 * @param submissions A list of submission objects that need to be populated
+	 * @return submissions The new list with the correct information
 	 */
 	private SubmissionObject[] populateSubmissions(SubmissionObject[] submissions) {
 
@@ -2153,12 +2221,9 @@ public class Admin extends JFrame implements Constants {
 	/**
 	 * Sends an email to a specified account with a subject and body
 	 * 
-	 * @param to,
-	 *            the address the email is being sent to
-	 * @param subject,
-	 *            the email's subject
-	 * @param body,
-	 *            the email's text contents
+	 * @param to The address the email is being sent to
+	 * @param subject The email's subject
+	 * @param body The email's text contents
 	 */
 	private void sendEmail(String to, String subject, String body) {
 

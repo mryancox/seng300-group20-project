@@ -31,6 +31,12 @@ import javax.swing.SwingConstants;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/*
+ * Login is the main class of the Journal Submission System. It handles new signups of Authors and
+ * Reviewers as well as logging in approved users within an SQLite database.
+ * 
+ * @author L01-Group20
+ */
 public class Login {
 
 	private JFrame login;
@@ -65,6 +71,8 @@ public class Login {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		// Setup of the frame
 		login = new JFrame();
 		login.setTitle("Journal Submission System");
 		login.setResizable(false);
@@ -73,6 +81,7 @@ public class Login {
 		login.setLocationRelativeTo(null);
 		login.getContentPane().setLayout(null);
 
+		// Checks if there is a current conenction to the SQLite database
 		if (conn == null)
 			conn = SQLConnection.getConnection();
 

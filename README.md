@@ -1,6 +1,6 @@
 # Group 20's Paper Submission System for a Journal
 
-**Start the program by running either the _JournalSubmissionSystem_ batch file (Windows) or shell file (MacOS/Linux).**
+**Start the program by running the _JournalSubmissionSystem_ jar file.**
 
 To access each account and view its functionality, enter one the following usernames and passwords,
 

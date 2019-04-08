@@ -29,10 +29,15 @@ import java.awt.CardLayout;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
+/*
+ * Signup creates a frame that handles author and reviewer signup.
+ * 
+ * @author - L01-Group20
+ */
 public class Signup extends JFrame implements Constants {
 
 	/**
-	 * 
+	 * Textfields to gather information from the new user.
 	 */
 	private static final long serialVersionUID = 1L;
 	private JTextField newusernameTextField;
@@ -40,7 +45,6 @@ public class Signup extends JFrame implements Constants {
 	private JTextField occupationTextField;
 	private JTextField orgTextField;
 	private JTextField areaTextField;
-
 	private String reviewerUsername;
 	private String reviewerPassword;
 	private Connection conn;
@@ -65,10 +69,12 @@ public class Signup extends JFrame implements Constants {
 	 *
 	 */
 	public Signup(Connection conn) {
+		
+		// Adds the connection passed in from the Login class
 		this.conn = conn;
 
+		// Setup of the frame
 		getContentPane().setBackground(Color.WHITE);
-
 		setTitle("Signup");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

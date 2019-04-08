@@ -38,6 +38,13 @@ import objects.SubmissionObject;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 
+/*
+ * Reviewer contains GUI elements and functionality to implement the requirements described
+ * in our user stories. It handles reviewer nominations as well as feedback for the papers
+ * that they are assigned to.
+ * 
+ * @author L01-Group20
+ */
 public class Reviewer extends JFrame implements Constants {
 
 	/**

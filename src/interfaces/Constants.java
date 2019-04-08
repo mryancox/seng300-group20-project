@@ -1,5 +1,11 @@
 package interfaces;
 
+/*
+ * Constants contains a list of final variables that describe what stage a submission
+ * is in and help show the flow a submission follows for it to be approved.
+ * 
+ * @author L01-Group20
+ */
 public interface Constants {
 
 	// A new submission starts in stage 1 visible only in admin's new submission

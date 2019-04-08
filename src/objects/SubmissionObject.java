@@ -5,6 +5,13 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * SubmissionObject creates an object for other classes to easily (and quickly) access data
+ * from the database. This class helped performance previously when we were using a remote
+ * database (MySQL) but was kept for convenience.
+ * 
+ * @author L01-Group20
+ */
 public class SubmissionObject {
 
 	//unique ID for every submission
@@ -160,6 +167,7 @@ public class SubmissionObject {
 		}
 	}
 
+	// Overwriting toString for displaying in assigning reviewers
 	public String toString() {
 		return submissionName;
 	}

@@ -3,12 +3,17 @@ package objects;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/*
+ * SQLConnection establishes the connection to the SQLite server for the program
+ * 
+ * @author - L01-Group20
+ */
 public class SQLConnection {
 
 	/**
-	 * Establishes connection to MySQL server
+	 * Establishes connection to the SQLite server
 	 * 
-	 * @return returns Connection
+	 * @return con, The connection to the local database
 	 */
 	public static Connection getConnection() {
 

@@ -44,6 +44,13 @@ import objects.SubmissionObject;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JScrollPane;
 
+/*
+ * Author contains GUI elements and functionality to implement the requirements described
+ * in our user stories. It handles submitting new papers, tracking prior submissions
+ * and feedback that has been provided by a reviewer.
+ * 
+ * @author L01-Group20
+ */
 public class Author extends JFrame implements Constants {
 
 	/**
