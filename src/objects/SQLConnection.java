@@ -17,16 +17,7 @@ public class SQLConnection {
 		try {
 			Class.forName("org.sqlite.JDBC");
 
-			// for connecting remotely (use this unless you are on stone's computer)
-			// con=DriverManager.getConnection("jdbc:mysql://162.208.182.233:3306/mydb",
-			// "journal", "journal!sys1234");
-
 			con = DriverManager.getConnection("jdbc:sqlite:journalsystem.db");
-
-			// for connecting locally (uncomment only on stone's computer)
-			// con=DriverManager.getConnection("jdbc:mysql://localhost:3306/mydb",
-			// "journal", "journal");
-
 		} catch (Exception e) {
 			System.out.println(e);
 		}

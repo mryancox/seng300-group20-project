@@ -56,7 +56,6 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
 
-
 public class Admin extends JFrame implements Constants {
 
 	/**
@@ -568,7 +567,7 @@ public class Admin extends JFrame implements Constants {
 					if (newSubmissions[i] != null)
 						newSubmissionModel.addElement(newSubmissions[i]);
 				}
-				
+
 			}
 		});
 
@@ -678,8 +677,7 @@ public class Admin extends JFrame implements Constants {
 				contentPanel.revalidate();
 
 				paperModel.clear();
-				getSubmissions(FEEDBACK_REVIEW_STAGE);
-				newSubmissions = populateSubmissions(newSubmissions);
+				newSubmissions = getFeedback();
 
 				for (int i = 0; i < newSubmissions.length; i++) {
 					if (newSubmissions[i] != null)
@@ -764,7 +762,7 @@ public class Admin extends JFrame implements Constants {
 
 				try {
 					conn.close();
-				}catch(Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				dispose();
@@ -1023,7 +1021,8 @@ public class Admin extends JFrame implements Constants {
 
 					String to = emailName(paperOfInterest.userEmail);
 					String subject = "Journal Submission System - Paper Rejected";
-					String body = "Dear " + to + ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
+					String body = "Dear " + to
+							+ ",\n\nUnfortunately a new paper you have submitted has been rejected.\n\n"
 							+ "Sincerely,\n\nThe University of Alberta";
 
 					sendEmail(paperOfInterest.userEmail, subject, body);
@@ -1106,7 +1105,7 @@ public class Admin extends JFrame implements Constants {
 						if (applicants[i] != null)
 							applicantModel.addElement(applicants[i]);
 					}
-					
+
 					String to = emailName(applicantEmail);
 					String subject = "Journal Submission System - Reviewer Application Approved";
 					String body = "Dear " + to + ",\n\nWe are happy to inform you that your application"
@@ -1115,13 +1114,13 @@ public class Admin extends JFrame implements Constants {
 							+ "Sincerely,\n\nThe University of Alberta";
 
 					sendEmail(applicantEmail, subject, body);
-					
+
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
-					JOptionPane.showMessageDialog(null, "Please select one applicant", "No or multiple applicants selected",
-							JOptionPane.PLAIN_MESSAGE, null);
+					JOptionPane.showMessageDialog(null, "Please select one applicant",
+							"No or multiple applicants selected", JOptionPane.PLAIN_MESSAGE, null);
 
 				}
 			}
@@ -1161,7 +1160,7 @@ public class Admin extends JFrame implements Constants {
 						if (applicants[i] != null)
 							applicantModel.addElement(applicants[i]);
 					}
-					
+
 					String to = emailName(applicantEmail);
 					String subject = "Journal Submission System - Reviewer Application Rejected";
 					String body = "Dear " + to + ",\n\nWe are sorry to inform you that your application"
@@ -1169,13 +1168,13 @@ public class Admin extends JFrame implements Constants {
 							+ "Sincerely,\n\nThe University of Alberta";
 
 					sendEmail(applicantEmail, subject, body);
-					
+
 				} else {
 					UIManager UI = new UIManager();
 					UI.put("OptionPane.background", Color.WHITE);
 					UI.put("Panel.background", Color.WHITE);
-					JOptionPane.showMessageDialog(null, "Please select one applicant", "No or multiple applicants selected",
-							JOptionPane.PLAIN_MESSAGE, null);
+					JOptionPane.showMessageDialog(null, "Please select one applicant",
+							"No or multiple applicants selected", JOptionPane.PLAIN_MESSAGE, null);
 
 				}
 			}
@@ -1281,7 +1280,7 @@ public class Admin extends JFrame implements Constants {
 
 					// Populate the reviewer list by preferred reviewer IDs
 					for (int i = 0; i < nominatedIDs.length; i++) {
-						if (nominatedIDs[i] != 0) {						
+						if (nominatedIDs[i] != 0) {
 							reviewerModel.addElement(reviewerIDtoObject.get(nominatedIDs[i]));
 						}
 					}
@@ -1410,7 +1409,7 @@ public class Admin extends JFrame implements Constants {
 						}
 
 						// refresh list of papers that need reviewers assigned
-						
+
 						assignpaperModel.clear();
 						getSubmissions(APPROVED_SUBMISSION_STAGE);
 						newSubmissions = populateSubmissions(newSubmissions);
@@ -1456,10 +1455,10 @@ public class Admin extends JFrame implements Constants {
 
 					// get selected paper as an object for easy retrieval of details
 					SubmissionObject paperInDetail = newSubmissions[fbAreaSelected[0]];
-
+					
 					// feedback file directory + filename
 					String feedbackFile = "submissions/" + paperInDetail.submissionUserID + "/feedback/"
-							+ paperInDetail.submissionName.split("\\.")[0] + ".txt";
+							+ paperInDetail.filename.split("\\.")[0] + ".txt";
 
 					// opening and appending feedback file to the textarea
 					Scanner feedback;
@@ -1577,8 +1576,7 @@ public class Admin extends JFrame implements Constants {
 
 						// updates feedback area
 						paperModel.clear();
-						getSubmissions(FEEDBACK_REVIEW_STAGE);
-						newSubmissions = populateSubmissions(newSubmissions);
+						newSubmissions = getFeedback();
 
 						for (int i = 0; i < newSubmissions.length; i++) {
 							if (newSubmissions[i] != null)
@@ -1875,6 +1873,29 @@ public class Admin extends JFrame implements Constants {
 	}
 
 	/**
+	 * Gets submissions with unapproved feedback
+	 * @return
+	 */
+	protected SubmissionObject[] getFeedback() {
+		SubmissionObject[] toReturn = new SubmissionObject[100];
+
+		PreparedStatement ps;
+
+		String query = "SELECT * FROM submission WHERE feedbackReceived = 1 AND submissionStage = 3";
+
+		try {
+			ps = conn.prepareStatement(query);
+
+			submissionSet = ps.executeQuery();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return populateSubmissions(toReturn);
+
+	}
+
+	/**
 	 * Gets user's submissions from an sql query and stores in a global ResultSet
 	 */
 	private void getSubmissions(int stage) {
@@ -1923,7 +1944,7 @@ public class Admin extends JFrame implements Constants {
 					String reviewerIDs = submissionSet.getString("reviewerIDs");
 					String preferredReviewerIDs = submissionSet.getString("preferredReviewerIDs");
 					String nominatedReviewerIDs = submissionSet.getString("nominatedReviewerIDs");
-					
+
 					if (submissionDeadline == null)
 						submissions[i].submissionDeadline = null;
 					else
@@ -1938,12 +1959,11 @@ public class Admin extends JFrame implements Constants {
 						submissions[i].preferredReviewerIDs = null;
 					else
 						submissions[i].preferredReviewerIDs = preferredReviewerIDs;
-					
-					if(nominatedReviewerIDs == null)
+
+					if (nominatedReviewerIDs == null)
 						submissions[i].nominatedReviewerIDs = null;
 					else
 						submissions[i].nominatedReviewerIDs = nominatedReviewerIDs;
-					
 
 					submissions[i].setReviewerNames();
 				}
@@ -2075,7 +2095,7 @@ public class Admin extends JFrame implements Constants {
 	private void approveFeedback(int submissionID) {
 		PreparedStatement ps;
 
-		String query = "UPDATE submission SET submissionStage = ? WHERE submissionID = ?";
+		String query = "UPDATE submission SET submissionStage = ?, feedbackReceived = 0 WHERE submissionID = ?";
 		try {
 			ps = conn.prepareStatement(query);
 			ps.setInt(1, RESUBMIT_STAGE);

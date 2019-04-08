@@ -73,10 +73,8 @@ public class Login {
 		login.setLocationRelativeTo(null);
 		login.getContentPane().setLayout(null);
 
-		if(conn==null)
+		if (conn == null)
 			conn = SQLConnection.getConnection();
-
-		Signup signup = new Signup(conn);
 
 		/*
 		 * LOTS of GUI code follows that can be mostly ignored. In general, objects in
@@ -227,8 +225,7 @@ public class Login {
 					Admin admin = new Admin(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
 					admin.setVisible(true);
 					admin.setLocationRelativeTo(null);
-				}
-				if (loginDetails[0].equals("1")) {
+				} else if (loginDetails[0].equals("1")) {
 					login.dispose();
 					Author author = new Author(loginDetails[2], Integer.parseInt(loginDetails[1]), conn);
 					author.setVisible(true);
@@ -278,8 +275,11 @@ public class Login {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
+				Signup signup = new Signup(conn);
+
 				signup.setVisible(true);
 				signup.setLocationRelativeTo(null);
+
 			}
 		});
 		signupLabel.setForeground(Color.BLACK);

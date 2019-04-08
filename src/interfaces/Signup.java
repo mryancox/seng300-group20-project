@@ -360,7 +360,8 @@ public class Signup extends JFrame implements Constants {
 								JOptionPane.showMessageDialog(null, "Sign up successful!", "Sign up Success",
 										JOptionPane.PLAIN_MESSAGE, null);
 
-								setVisible(false);
+								//setVisible(false);
+								dispose();
 							} else {
 								UIManager UI = new UIManager();
 								UI.put("OptionPane.background", Color.WHITE);
@@ -422,6 +423,7 @@ public class Signup extends JFrame implements Constants {
 							JOptionPane.PLAIN_MESSAGE, null);
 
 					setVisible(false);
+					dispose();
 				}
 
 			}
@@ -430,6 +432,8 @@ public class Signup extends JFrame implements Constants {
 		submitButton.setBackground(new Color(0, 124, 65));
 		submitButton.setBounds(130, 400, 120, 30);
 		extrasPanel.add(submitButton);
+		
+		
 
 	}
 

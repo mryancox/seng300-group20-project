@@ -50,6 +50,9 @@ public class SubmissionObject {
 	//Convenient string containing user email so an extra sql lookup is not needed
 	public String userEmail;
 	
+	//indicates if feedback has been received by at least one reviewer (1=received)
+	public int feedbackReceived;
+	
 	//Map for reviewer assigned papers logic to check if
 	//a paper is assigned to a reviewer
 	public Map<Integer, Integer> reviewers = new HashMap<Integer, Integer>();

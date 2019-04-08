@@ -622,7 +622,7 @@ public class Reviewer extends JFrame implements Constants {
 						// file:///D:/Documents/GitHub/seng300-group20-project/submissions/3/Example%20paper2.pdf
 
 						// Puts an entry into database
-						submitFeedback(paperOfInterest.submissionID, paperOfInterest.submissionName + ".txt");
+						submitFeedback(paperOfInterest.submissionID);
 
 						JOptionPane.showMessageDialog(null,
 								"Thank you for your feedback!\n It will be reviewed shortly.", "Feedback Accepted",
@@ -838,10 +838,10 @@ public class Reviewer extends JFrame implements Constants {
 	 * @param filename
 	 *            - filename of feedback file
 	 */
-	private void submitFeedback(int submissionID, String filename) {
+	private void submitFeedback(int submissionID) {
 		PreparedStatement ps;
 
-		String query2 = "UPDATE submission SET submissionStage = 4 WHERE submissionID = ?";
+		String query2 = "UPDATE submission SET feedbackReceived = 1 WHERE submissionID = ?";
 
 		try {
 			ps = conn.prepareStatement(query2);
