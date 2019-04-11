@@ -95,12 +95,11 @@ public class Author extends JFrame implements Constants {
 	}
 
 	/**
-	 * Create the frame.
+	 * Create the author frame.
 	 * 
-	 * @param user
-	 *            - User's name (not username)
-	 * @param ID
-	 *            - user's userID (invisible to user)
+	 * @param user, User's name (not username)
+	 * @param ID, user's userID (invisible to user)
+	 * @param conn, The connection passed in from the Login page that is established to the database
 	 */
 	public Author(String username, int ID, Connection conn) {
 		this.userID = ID;
@@ -242,7 +241,7 @@ public class Author extends JFrame implements Constants {
 		JPanel preferredSeparator = new GUIObjects().separatorPanel(440);
 		submissionPanel.add(preferredSeparator);
 
-		JLabel filelocationHeader = new GUIObjects().contentHeader("File Location", 455);
+		JLabel filelocationHeader = new GUIObjects().contentHeader("PDF File Location", 455);
 		submissionPanel.add(filelocationHeader);
 
 		JTextArea filelocationTextArea = new GUIObjects().contentTextArea(490);
@@ -387,6 +386,10 @@ public class Author extends JFrame implements Constants {
 		logoutMenuButton.add(logoutMenuLabel);
 		menuPanel.add(logoutMenuButton);
 
+		/*
+		 * Menu button logic follows for each menu button. Each one switches to their
+		 * respective card/panel containing all the GUI elements.
+		 */
 		submissionMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -824,6 +827,9 @@ public class Author extends JFrame implements Constants {
 
 	}
 
+	/*
+	 * Populates the reviewers for the preferred reviewers list
+	 */
 	private void getReviewers() {
 		PreparedStatement ps = null;
 
@@ -959,11 +965,11 @@ public class Author extends JFrame implements Constants {
 	/**
 	 * Method for adding a new submission to the database
 	 * 
-	 * @param submissionName
-	 * @param submissionAuthors
-	 * @param subject
-	 * @param filename
-	 * @return
+	 * @param submissionName, The name of the paper being submitted
+	 * @param submissionAuthors, The names of the authors submitting the paper
+	 * @param subject, The subject of the paper being submitted
+	 * @param filename, The filename from the location on their drive
+	 * @param reviewerIDs, The reviewer's IDs selected from the list of preferred reviewers
 	 */
 	private void makeSubmission(String submissionName, String submissionAuthors, String subject, String filename,
 			String reviewerIDs) {

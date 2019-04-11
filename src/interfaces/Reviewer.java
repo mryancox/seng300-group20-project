@@ -88,12 +88,11 @@ public class Reviewer extends JFrame implements Constants {
 	}
 
 	/**
-	 * Create the frame.
+	 * Create the reviewer frame.
 	 * 
-	 * @param user
-	 *            - User's name (not username)
-	 * @param ID
-	 *            - user's userID (invisible to user)
+	 * @param user, User's name (not username)
+	 * @param ID, user's userID (invisible to user)
+	 * @param conn, The connection passed in from the Login page that is established to the database
 	 */
 	public Reviewer(String user, int ID, Connection conn) {
 		this.userID = ID;
@@ -112,43 +111,6 @@ public class Reviewer extends JFrame implements Constants {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-
-		// check for and create possible folders for user
-		String userFolder = "submissions/" + userID;
-		String userDetails = "submissions/" + userID + "/details";
-		String userFeedback = "submissions/" + userID + "/feedback";
-		String userFeedbackList = "submissions/" + userID + "/feedback_list.txt";
-		String userSubmissionList = "submissions/" + userID + "/submission_list.txt";
-		File authorFolder = new File(userFolder);
-		File detailsFolder = new File(userDetails);
-		File feedbackFolder = new File(userFeedback);
-		File feedbackListFile = new File(userFeedbackList);
-		File submissionListFile = new File(userSubmissionList);
-
-		// Checks if the required folders exist already, if not it creates them
-		if (!authorFolder.exists()) {
-			authorFolder.mkdirs();
-		}
-		if (!detailsFolder.exists()) {
-			detailsFolder.mkdirs();
-		}
-		if (!feedbackFolder.exists()) {
-			feedbackFolder.mkdirs();
-		}
-		if (!feedbackListFile.exists()) {
-			try {
-				feedbackListFile.createNewFile();
-			} catch (IOException e) {
-
-			}
-		}
-		if (!submissionListFile.exists()) {
-			try {
-				submissionListFile.createNewFile();
-			} catch (IOException e) {
-
-			}
-		}
 
 		/*
 		 * A lot of GUI elements follow. The functionality that is associated with all
@@ -285,6 +247,10 @@ public class Reviewer extends JFrame implements Constants {
 		logoutMenuButton.add(logoutMenuLabel);
 		menuPanel.add(logoutMenuButton);
 
+		/*
+		 * Menu button logic follows for each menu button. Each one switches to their
+		 * respective card/panel containing all the GUI elements.
+		 */
 		browseMenuButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -774,10 +740,7 @@ public class Reviewer extends JFrame implements Constants {
 	 * Gets the submission matching subject and submissionName and appends the
 	 * userID to the nominatedReviewerIDs field
 	 * 
-	 * @param subject
-	 *            - the selected subject
-	 * @param submissionName
-	 *            - the selected submission name
+	 * @param submissionID, The selected paper's associated submissionID
 	 */
 	private void nominateReview(int submissionID) {
 		PreparedStatement ps;
@@ -841,9 +804,7 @@ public class Reviewer extends JFrame implements Constants {
 	 * 
 	 * NOTE that currently the feedback list is not used for anything
 	 * 
-	 * @param submissionID
-	 * @param filename
-	 *            - filename of feedback file
+	 * @param submissionID, The associated paper's submissionID that is receiving feedback
 	 */
 	private void submitFeedback(int submissionID) {
 		PreparedStatement ps;

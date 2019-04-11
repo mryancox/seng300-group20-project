@@ -2,7 +2,8 @@ package interfaces;
 
 /*
  * Constants contains a list of final variables that describe what stage a submission
- * is in and help show the flow a submission follows for it to be approved.
+ * is in and help show the flow a submission follows for it to be approved. Each major view
+ * implements this class.
  * 
  * @author L01-Group20
  */

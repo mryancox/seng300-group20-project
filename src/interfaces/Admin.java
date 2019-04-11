@@ -114,12 +114,11 @@ public class Admin extends JFrame implements Constants {
 	}
 
 	/**
-	 * Create the frame.
+	 * Create the administrator frame.
 	 * 
-	 * @param user
-	 *            - User's name (not username)
-	 * @param ID
-	 *            - user's userID (invisible to user)
+	 * @param user, User's name (not username)
+	 * @param ID, user's userID (invisible to user)
+	 * @param conn, The connection passed in from the Login page that is established to the database
 	 */
 	public Admin(String user, int ID, Connection conn) {
 		this.userID = ID;
@@ -145,45 +144,12 @@ public class Admin extends JFrame implements Constants {
 		contentPane.setLayout(null);
 
 		// check for and create possible folders for user
-		String userFolder = "submissions/" + userID;
-		String userDetails = "submissions/" + userID + "/details";
-		String userFeedback = "submissions/" + userID + "/feedback";
-		String userFeedbackList = "submissions/" + userID + "/feedback_list.txt";
-		String userSubmissionList = "submissions/" + userID + "/submission_list.txt";
 		String acceptedSubmissionsList = "submissions/acceptedsubmissions/";
-		File authorFolder = new File(userFolder);
-		File detailsFolder = new File(userDetails);
-		File feedbackFolder = new File(userFeedback);
-		File feedbackListFile = new File(userFeedbackList);
-		File submissionListFile = new File(userSubmissionList);
 		File acceptedSubmissionsFolder = new File(acceptedSubmissionsList);
 
 		// Checks if the required folders exist already, if not it creates them
 		if (!acceptedSubmissionsFolder.exists())
 			acceptedSubmissionsFolder.mkdirs();
-		if (!authorFolder.exists()) {
-			authorFolder.mkdirs();
-		}
-		if (!detailsFolder.exists()) {
-			detailsFolder.mkdirs();
-		}
-		if (!feedbackFolder.exists()) {
-			feedbackFolder.mkdirs();
-		}
-		if (!feedbackListFile.exists()) {
-			try {
-				feedbackListFile.createNewFile();
-			} catch (IOException e) {
-
-			}
-		}
-		if (!submissionListFile.exists()) {
-			try {
-				submissionListFile.createNewFile();
-			} catch (IOException e) {
-
-			}
-		}
 
 		/*
 		 * A lot of GUI elements follow. The functionality that is associated with all
@@ -539,6 +505,10 @@ public class Admin extends JFrame implements Constants {
 		logoutMenuButton.add(logoutMenuLabel);
 		menuPanel.add(logoutMenuButton);
 
+		/*
+		 * Menu button logic follows for each menu button. Each one switches to their
+		 * respective card/panel containing all the GUI elements.
+		 */
 		// MouseListener for new submissions tab that opens submission panel and
 		// refreshes for new submissions
 		submissionsMenuButton.addMouseListener(new MouseAdapter() {
@@ -2135,8 +2105,8 @@ public class Admin extends JFrame implements Constants {
 	/**
 	 * Assigns reviewers by their userID to a submission
 	 * 
-	 * @param submissionID
-	 * @param reviewerIDs
+	 * @param submissionID, The associated submissionID that reviewers are being assigned to
+	 * @param reviewerIDs, The reviwer's ids that are being assigned
 	 */
 	private void assignReviewers(int submissionID, String reviewerIDs) {
 		PreparedStatement ps;
@@ -2158,7 +2128,7 @@ public class Admin extends JFrame implements Constants {
 	/**
 	 * Approves feedback on a submission, causing it to be released to the author
 	 * 
-	 * @param submissionID
+	 * @param submissionID, The associated submissionID that reviewers are being assigned to
 	 */
 	private void approveFeedback(int submissionID) {
 		PreparedStatement ps;
@@ -2178,7 +2148,7 @@ public class Admin extends JFrame implements Constants {
 	/**
 	 * Approves a reviewer who applied
 	 * 
-	 * @param userID
+	 * @param userID, The id associated with the applicant reviewer
 	 */
 	private void approveApplicant(int userID) {
 		PreparedStatement ps;
@@ -2199,7 +2169,7 @@ public class Admin extends JFrame implements Constants {
 	/**
 	 * Rejects a reviewer who applied
 	 * 
-	 * @param userID
+	 * @param userID, The id associated with the applicant reviewer
 	 */
 	private void rejectApplicant(int userID) {
 
@@ -2262,8 +2232,8 @@ public class Admin extends JFrame implements Constants {
 	/**
 	 * Set a new deadline for submission
 	 * 
-	 * @param submissionID
-	 * @param newDeadline
+	 * @param submissionID, The submissionID associated with the selected paper
+	 * @param newDeadline, The deadline entered by the administrator
 	 */
 	private void setDeadline(int submissionID, String newDeadline) {
 		PreparedStatement ps;

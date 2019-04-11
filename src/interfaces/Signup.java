@@ -66,7 +66,9 @@ public class Signup extends JFrame implements Constants {
 	}
 
 	/**
-	 *
+	 * Create the Signup frame.
+	 * 
+	 * @param conn The connection to the local database initialized in the Login class
 	 */
 	public Signup(Connection conn) {
 		
@@ -82,6 +84,13 @@ public class Signup extends JFrame implements Constants {
 		getContentPane().setLayout(null);
 		Image uaIconImg = new ImageIcon(this.getClass().getResource("/ualogowhite.jpg")).getImage();
 
+		/*
+		 * What follows is a lot of GUI elements that create the look of the signup frame.
+		 * In general, 2 JPanels are used to hold other elements and are switched between
+		 * from a main signupPanel that has a card layout.
+		 * 
+		 * Major functionality is closer to the end of this class.
+		 */
 		JPanel signupPanel = new JPanel();
 		signupPanel.setBounds(0, 0, 410, 490);
 		getContentPane().add(signupPanel);
@@ -258,6 +267,9 @@ public class Signup extends JFrame implements Constants {
 		submitLabel.setBounds(0, 0, 120, 30);
 		submitButton.add(submitLabel);
 
+		// This button either submits the text field data (if entered correctly) on
+		// the initial signup panel if the author radio button is selected. Otherwise
+		// it takes the user to the next card for more reviewer details.
 		contextualButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -385,6 +397,8 @@ public class Signup extends JFrame implements Constants {
 		});
 		contextualButton.setLayout(null);
 
+		// Handles the submission of addition reviewer data if they were taken to the
+		// extra's panel
 		submitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -446,9 +460,9 @@ public class Signup extends JFrame implements Constants {
 	/**
 	 * Submits a new author entry to database
 	 * 
-	 * @param username
-	 * @param password
-	 * @param userType
+	 * @param username, The entered username form the username field
+	 * @param password, The entered password from the password field
+	 * @param userType, Whether they are a reviewer or author (always the same in this case)
 	 */
 	private void submitAuthor(String username, String password, int userType) {
 		PreparedStatement ps;
@@ -473,12 +487,12 @@ public class Signup extends JFrame implements Constants {
 	 * Submits a new reviewer entry to database, with usertype = 3 to indicate user
 	 * in review
 	 * 
-	 * @param username
-	 * @param password
-	 * @param userType
-	 * @param occupation
-	 * @param organization
-	 * @param research
+	 * @param username, The entered username form the username field
+	 * @param password, The entered password from the password field
+	 * @param userType, Whether they are a reviewer or author (always the same in this case)
+	 * @param occupation, The entered occupation
+	 * @param organization, The entered organization
+	 * @param research, The entered research area of the potential reviewer
 	 */
 	private void submitReviewer(String username, String password, int userType, String occupation, String organization,
 			String research) {
@@ -508,8 +522,8 @@ public class Signup extends JFrame implements Constants {
 	/**
 	 * Checks if a username already exists in the database
 	 * 
-	 * @param username
-	 * @return
+	 * @param username, The username that is entered in the signup form
+	 * @return true or false, Depending on if the username is already in the database
 	 */
 	private boolean checkDuplicateUsername(String username) {
 		PreparedStatement ps;

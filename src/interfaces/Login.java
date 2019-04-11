@@ -202,6 +202,8 @@ public class Login {
 		loginLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		loginLabel.setBounds(0, 0, 119, 30);
 		loginButton.add(loginLabel);
+		
+		// LoginButton logic that consumes textfields and logs a user in via the SQLite database
 		loginButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
@@ -302,9 +304,9 @@ public class Login {
 	 * Queries mySQL database for matching username and password and returns account
 	 * type as an int
 	 *
-	 * @param username
-	 * @param password
-	 * @return account type as an int (0=admin, 1=author, 2=reviewer)
+	 * @param username, The username of the user trying to log in
+	 * @param password, The password of the user trying to log in
+	 * @return loginInfo, The account type as an int (0=admin, 1=author, 2=reviewer)
 	 */
 	private String[] checkLogin(String username, String password) {
 		// ps is the statement of the sql query
@@ -358,11 +360,12 @@ public class Login {
 	 * Logic for pressing enter key on login screen Exhibits the same behavior as
 	 * clicking login button
 	 * 
-	 * @param arg0
+	 * @param arg0, A keyboard press
 	 */
 	@SuppressWarnings("static-access")
 	public void keyeventLogic(KeyEvent arg0) {
 
+		// Checks if the Enter key was hit
 		if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
 
 			String user = username.getText();

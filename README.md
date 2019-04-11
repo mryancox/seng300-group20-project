@@ -2,6 +2,10 @@
 
 **Start the program by running the _JournalSubmissionSystem_ jar file.**
 
+**Please ensure that the _journalsystem.db_ file is in the same folder as the jar file when running it**
+
+__If necessary, use the included sqlite3.exe to open (.open journalsystem.db) to manage the submission and users tables__
+
 To access each account and view its functionality, enter one the following usernames and passwords,
 
   - Author:
